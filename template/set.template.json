@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "template": 1,
+    "schemaVersion": 3,
+    "set": 0,
+    "name": "赛季名",
+    "locale": "zh_cn",
+    "dataStatus": "unknown",
+    "source": "",
+    "gamePatch": "",
+    "rulesCoverage": ""
+  },
+  "shopOdds": {
+    "minRoll": 5,
+    "byLevel": {
+      "4": {"1": 55, "2": 30, "3": 15, "4": 0, "5": 0},
+      "7": {"1": 19, "2": 30, "3": 35, "4": 15, "5": 1},
+      "8": {"1": 18, "2": 25, "3": 32, "4": 22, "5": 3},
+      "9": {"1": 10, "2": 15, "3": 25, "4": 30, "5": 20}
+    }
+  },
+  "exclusive": [],
+  "traits": [
+    {
+      "id": "band_demo",
+      "name": "示例乐队",
+      "kind": "band",
+      "countMode": "units",
+      "desc": "按人数激活",
+      "breakpoints": [
+        {"need": 2, "style": 1, "text": "2人铜"},
+        {"need": 4, "style": 3, "text": "4人金"}
+      ]
+    }
+  ],
+  "items": [],
+  "units": [
+    {
+      "id": "demo_front",
+      "name": "前排示例",
+      "nameEn": "Front",
+      "cost": 2,
+      "damageType": "physical",
+      "role": "物理坦克",
+      "roleGroup": "tank",
+      "lane": "front",
+      "traits": ["band_demo"],
+      "unlockText": "",
+      "unlockUnits": [],
+      "unlockLevel": 0,
+      "grantsUnit": false,
+      "stats": {"hp": 800, "ad": 50, "ar": 40, "mr": 40, "as": 0.6, "range": 1}
+    },
+    {
+      "id": "demo_carry",
+      "name": "后排示例",
+      "nameEn": "Carry",
+      "cost": 3,
+      "damageType": "magic",
+      "role": "魔法射手",
+      "roleGroup": "marksman",
+      "lane": "back",
+      "traits": ["band_demo"],
+      "unlockText": "",
+      "unlockUnits": [],
+      "grantsUnit": false,
+      "stats": {"hp": 650, "ad": 45, "ar": 25, "mr": 25, "as": 0.75, "range": 4}
+    },
+    {
+      "id": "demo_engine",
+      "name": "送牌示例",
+      "nameEn": "Engine",
+      "cost": 2,
+      "damageType": "magic",
+      "role": "魔法术师",
+      "roleGroup": "caster",
+      "lane": "back",
+      "traits": ["band_demo"],
+      "unlockText": "",
+      "unlockUnits": [],
+      "grantsUnit": true,
+      "ability": {"name": "每回合一张", "text": "战斗结束后提供一名随机弈子"},
+      "stats": {"hp": 600, "ad": 30, "ar": 25, "mr": 25, "as": 0.7, "range": 4}
+    },
+    {
+      "id": "demo_locked",
+      "name": "解锁示例",
+      "nameEn": "Locked",
+      "cost": 4,
+      "damageType": "physical",
+      "role": "物理战士",
+      "roleGroup": "fighter",
+      "lane": "front",
+      "traits": ["band_demo"],
+      "unlockText": "先留着后排示例",
+      "unlockUnits": [{"id": "demo_carry", "star": 2}],
+      "unlockUnitsMode": "all",
+      "unlockLevel": 7,
+      "stats": {"hp": 1000, "ad": 60, "ar": 50, "mr": 50, "as": 0.8, "range": 1}
+    }
+  ]
+}

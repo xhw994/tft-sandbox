@@ -1,0 +1,129 @@
+@layer layout {
+  .app-shell {
+    display: grid;
+    grid-template-rows: 50px minmax(0, 1fr);
+    height: 100dvh;
+    width: 100%;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 16px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
+    position: relative;
+    z-index: 20;
+  }
+
+  .workspace {
+    display: grid;
+    grid-template-columns: 268px minmax(0, 1fr) 410px;
+    min-height: 0;
+  }
+
+  .traits-rail {
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    contain: layout style paint;
+  }
+
+  .center-stage {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .advisor-rail {
+    background: var(--bg-surface);
+    border-left: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    contain: layout style paint;
+  }
+
+  .pane-head {
+    height: var(--pane-head-h);
+    min-height: var(--pane-head-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+    background: var(--bg-surface);
+  }
+
+  @media (max-width: 1279px) {
+    body {
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .app-shell {
+      height: auto;
+      min-height: 100dvh;
+    }
+    .workspace {
+      grid-template-columns: 256px minmax(0, 1fr);
+      grid-template-rows: auto auto;
+    }
+    .traits-rail {
+      max-height: calc(100dvh - 50px);
+      position: sticky;
+      top: 0;
+    }
+    .center-stage {
+      overflow: visible;
+    }
+    .advisor-rail {
+      grid-column: 1 / -1;
+      border-left: 0;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .advisor-scroll {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+      align-items: start;
+      overflow-y: visible;
+    }
+  }
+
+  @media (max-width: 859px) {
+    .topbar {
+      height: auto;
+      min-height: 50px;
+      flex-wrap: wrap;
+      padding: 8px 12px;
+      gap: 8px;
+    }
+    .cmd-group {
+      flex-wrap: wrap;
+    }
+    .workspace {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+    }
+    .traits-rail {
+      border-right: 0;
+      border-bottom: 1px solid var(--border-subtle);
+      position: static;
+      max-height: 380px;
+    }
+    .advisor-rail {
+      grid-column: auto;
+    }
+    .advisor-scroll {
+      grid-template-columns: 1fr;
+    }
+  }
+}

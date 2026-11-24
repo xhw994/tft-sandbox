@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tft-set-template",
+  "title": "TFT set",
+  "type": "object",
+  "required": ["units", "traits"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "template": {"type": "integer"},
+        "set": {"type": "integer"},
+        "name": {"type": "string", "description": "赛季名"},
+        "locale": {"type": "string"},
+        "schemaVersion": {"type": "integer"},
+        "dataStatus": {"enum": ["test", "PBE", "live", "unknown", "mixed"]},
+        "source": {"type": "string"},
+        "sourceUrl": {"type": "string", "format": "uri"},
+        "fetchedAt": {"type": "string", "format": "date-time"},
+        "gamePatch": {"type": "string"},
+        "rulesCoverage": {"type": "string"}
+      }
+    },
+    "shopOdds": {
+      "type": "object",
+      "description": "各等级抽到各费用的百分比。低于 minRoll 的费用不进入推荐。",
+      "properties": {
+        "minRoll": {"type": "number"},
+        "byLevel": {"type": "object"}
+      }
+    },
+    "exclusive": {
+      "type": "array",
+      "description": "互相排斥的棋子 id 组。同一组不能同时留。",
+      "items": {"type": "array", "items": {"type": "string"}}
+    },
+    "traits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "breakpoints"],
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string", "description": "羁绊名"},
+          "kind": {"enum": ["band", "class", "solo"]},
+          "countMode": {"enum": ["units", "stars"]},
+          "desc": {"type": "string"},
+          "breakpoints": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["need"],
+              "properties": {
+                "need": {"type": "integer"},
+                "style": {"type": "integer"},
+                "text": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "items": {
+      "type": "array",
+      "description": "装备。缺省为空；可穿戴装备由 build_data.py 生成。",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "kind"],
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "kind": {"type": "string"},
+          "text": {"type": "string"},
+          "tags": {"type": "array", "items": {"type": "string"}},
+          "trait": {"type": "string", "description": "关联羁绊 id，可空"},
+          "buildsFrom": {"type": "array", "items": {"type": "string"}},
+          "icon": {"type": "string", "description": "本地图片相对路径，可空"},
+          "iconRemote": {"type": "string", "description": "官方图片 URL，可空"},
+          "slots": {"type": "integer"},
+          "unique": {"type": "boolean"},
+          "teamSize": {"type": "integer"}
+        }
+      }
+    },
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "cost"],
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string", "description": "名字"},
+          "nameEn": {"type": "string", "description": "翻译"},
+          "cost": {"type": "integer"},
+          "damageType": {"enum": ["physical", "magic", "hybrid"], "description": "物理、魔法或混合"},
+          "role": {"type": "string", "description": "定位原文，例如物理坦克"},
+          "roleGroup": {"enum": ["tank", "fighter", "assassin", "marksman", "caster", "specialist"]},
+          "lane": {"enum": ["front", "mid", "back", "assassin"]},
+          "traits": {"type": "array", "items": {"type": "string"}, "description": "羁绊 id 或羁绊名"},
+          "unlockText": {"type": "string", "description": "解锁条件文字，可空"},
+          "unlockUnits": {
+            "type": "array",
+            "description": "解锁必须留着的棋子，可空",
+            "items": {
+              "type": "object",
+              "required": ["id"],
+              "properties": {
+                "id": {"type": "string"},
+                "star": {"type": "integer"}
+              }
+            }
+          },
+          "unlockUnitsMode": {"enum": ["all", "any"]},
+          "unlockLevel": {"type": "integer"},
+          "grantsUnit": {"type": "boolean", "description": "每回合送一张牌或一次刷新时，低费三星会把它当核心"},
+          "slots": {"type": "integer"},
+          "stats": {"type": "object"}
+        }
+      }
+    }
+  }
+}

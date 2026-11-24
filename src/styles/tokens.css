@@ -1,0 +1,128 @@
+@layer reset, tokens, base, layout, components, board, armory, advisor;
+
+@layer reset {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  h1, h2, h3, p, ul, ol {
+    margin: 0;
+    padding: 0;
+  }
+  button, input, select {
+    font: inherit;
+    color: inherit;
+  }
+  img {
+    display: block;
+  }
+  [hidden] {
+    display: none !important;
+  }
+}
+
+@layer tokens {
+  :root {
+    color-scheme: dark;
+    --pane-head-h: 42px;
+
+    --bg-canvas: light-dark(oklch(94.2% 0.011 248), oklch(13.2% 0.015 256));
+    --bg-surface: light-dark(oklch(98.5% 0.004 85), oklch(17.2% 0.015 252));
+    --bg-elevated: light-dark(oklch(95.2% 0.008 248), oklch(21.4% 0.016 250));
+    --bg-hover: light-dark(oklch(91.8% 0.012 248), oklch(25.2% 0.018 248));
+    --bg-board-mat: light-dark(oklch(90.5% 0.015 248), oklch(11.6% 0.014 258));
+    --bg-hex-empty: light-dark(oklch(95.0% 0.009 248), oklch(16.4% 0.014 254));
+    --border-hex-empty: light-dark(oklch(80% 0.016 248), oklch(27% 0.016 252));
+
+    --border-subtle: light-dark(oklch(86% 0.012 248), oklch(25% 0.015 252));
+    --border-strong: light-dark(oklch(75% 0.016 248), oklch(34% 0.018 250));
+
+    --text-primary: light-dark(oklch(19% 0.020 255), oklch(93.5% 0.008 85));
+    --text-secondary: light-dark(oklch(43% 0.016 252), oklch(71% 0.014 250));
+    --text-muted: light-dark(oklch(55% 0.014 252), oklch(54% 0.014 252));
+
+    --accent: light-dark(oklch(55% 0.145 68), oklch(76% 0.142 78));
+    --accent-soft: light-dark(oklch(55% 0.145 68 / 0.13), oklch(76% 0.142 78 / 0.15));
+    --accent-border: light-dark(oklch(55% 0.145 68 / 0.45), oklch(76% 0.142 78 / 0.50));
+    --accent-ink: light-dark(oklch(99% 0.004 85), oklch(16% 0.025 70));
+
+    --good: light-dark(oklch(48% 0.145 155), oklch(72% 0.14 156));
+    --good-soft: light-dark(oklch(48% 0.145 155 / 0.12), oklch(72% 0.14 156 / 0.14));
+    --danger: light-dark(oklch(52% 0.18 22), oklch(66% 0.18 24));
+    --danger-soft: light-dark(oklch(52% 0.18 22 / 0.12), oklch(66% 0.18 24 / 0.16));
+    --sky: light-dark(oklch(50% 0.14 245), oklch(73% 0.13 240));
+
+    --cost-1: light-dark(oklch(54% 0.018 250), oklch(57% 0.016 250));
+    --cost-2: light-dark(oklch(52% 0.145 156), oklch(68% 0.145 156));
+    --cost-3: light-dark(oklch(51% 0.155 252), oklch(66% 0.15 248));
+    --cost-4: light-dark(oklch(52% 0.18 308), oklch(67% 0.17 308));
+    --cost-5: light-dark(oklch(58% 0.155 74), oklch(78% 0.155 78));
+    --cost-7: linear-gradient(135deg, #ff7e96, #ffd46b, #7ee8ff, #c98eff);
+    --cost-7-solid: light-dark(oklch(58% 0.16 355), oklch(76% 0.14 355));
+
+    --trait-hex-inactive-bg: light-dark(oklch(38% 0.022 252), oklch(26% 0.016 252));
+    --trait-micro-filter: opacity(0.84);
+
+    --font-ui: "PingFang SC", "Microsoft YaHei UI", "HarmonyOS Sans SC", "Noto Sans CJK SC", "Segoe UI", sans-serif;
+    --font-display: "Space Grotesk", "PingFang SC", "Microsoft YaHei UI", "HarmonyOS Sans SC", sans-serif;
+    --font-mono: "JetBrains Mono", "Cascadia Mono", "Consolas", monospace;
+
+    --r-sm: 4px;
+    --r-md: 6px;
+    --r-lg: 10px;
+    --hex: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    --hex-span2: polygon(
+      calc(var(--w) * 0.5) 0%,
+      calc(100% - var(--w) * 0.5) 0%,
+      100% 25%,
+      100% 75%,
+      calc(100% - var(--w) * 0.5) 100%,
+      calc(var(--w) * 0.5) 100%,
+      0% 75%,
+      0% 25%
+    );
+  }
+
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --trait-micro-filter: brightness(0) opacity(0.70);
+  }
+}
+
+@layer base {
+  body {
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    font: 13px/1.45 var(--font-ui);
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+  input, textarea {
+    user-select: text;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 99px;
+  }
+}

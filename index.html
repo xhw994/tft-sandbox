@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>云顶沙盘 · TFT 阵容推演与补强</title>
+<meta name="description" content="云顶沙盘（TFT Sandbox）：纯静态云顶之弈阵容推演、羁绊天梯追踪、解锁目标构筑与装备亲和推荐工具，零后端纯本地运行。">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpolygon points='16,2 29,9.5 29,22.5 16,30 3,22.5 3,9.5' fill='%2316181f' stroke='%23e0a94c' stroke-width='2.4'/%3E%3Cpolygon points='16,8 23,12 23,20 16,24 9,20 9,12' fill='%23e0a94c' fill-opacity='.22' stroke='%23e0a94c' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23e0a94c'/%3E%3C/svg%3E">
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem("tft-ui-theme");
+    if (t !== "light" && t !== "dark") t = "dark";
+    document.documentElement.dataset.theme = t;
+  } catch (_) {
+    document.documentElement.dataset.theme = "dark";
+  }
+})();
+</script>
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <span id="season-set-pill" class="set-pill">SET 19</span>
+      <h1 id="season-name">云顶沙盘</h1>
+      <span id="save-state" class="save-dot" role="status" aria-live="polite">已保存</span>
+    </div>
+
+    <div class="cmd-group">
+      <div class="stepper" role="group" aria-label="等级">
+        <span class="stepper-label">等级</span>
+        <button type="button" id="btn-level-dec" aria-label="降低等级">−</button>
+        <span class="stepper-val" id="val-level">8</span>
+        <button type="button" id="btn-level-inc" aria-label="提高等级">+</button>
+      </div>
+
+      <div class="stepper" role="group" aria-label="额外人口" title="额外人口上限（海克斯 / 冠冕等增加的可上阵人口）">
+        <span class="stepper-label">人口</span>
+        <button type="button" id="btn-extra-dec" aria-label="减少额外人口">−</button>
+        <span class="stepper-val" id="val-extra">0</span>
+        <button type="button" id="btn-extra-inc" aria-label="增加额外人口">+</button>
+      </div>
+
+      <div class="cmd-divider"></div>
+
+      <div class="mode-wrap">
+        <button type="button" id="btn-mode-trigger" class="mode-btn" popovertarget="mode-menu" aria-haspopup="menu">
+          <span class="mode-k">玩法</span>
+          <span class="mode-v" id="mode-label">普通补强</span>
+          <span class="caret" aria-hidden="true">▾</span>
+        </button>
+        <div id="mode-menu" class="mode-popover" popover="auto" role="menu" aria-label="玩法模式">
+          <button type="button" class="mode-opt active" data-preset="normal" role="menuitemradio" aria-checked="true">
+            <div>
+              <strong>普通补强</strong>
+              <span>自动按当前等级与阵容补全</span>
+            </div>
+          </button>
+          <button type="button" class="mode-opt" data-preset="reroll" role="menuitemradio" aria-checked="false">
+            <div>
+              <strong>赌狗低费</strong>
+              <span>偏向 1–3 费追三星构筑</span>
+            </div>
+          </button>
+          <button type="button" class="mode-opt" data-preset="fast8" role="menuitemradio" aria-checked="false">
+            <div>
+              <strong>高费运营 (84 / 95)</strong>
+              <span>偏向速 8/9 运营高费核心</span>
+            </div>
+          </button>
+          <div class="mode-sep" role="separator"></div>
+          <button type="button" class="mode-opt" data-preset="ladder" role="menuitemradio" aria-checked="false">
+            <div>
+              <strong>羁绊天梯</strong>
+              <span>规划最少新增弈子的多羁绊路线</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <button type="button" id="btn-allow-locked" class="btn toggle-on" aria-pressed="true" title="允许推荐包含需任务解锁的弈子">含未解锁</button>
+
+      <div class="cmd-divider"></div>
+
+      <button type="button" id="btn-settings-trigger" class="btn" popovertarget="settings-menu" aria-haspopup="menu">设定 ▾</button>
+      <div id="settings-menu" class="settings-popover" popover="auto" role="menu" aria-label="工作台设定">
+        <div class="settings-row">
+          <span class="settings-label">界面主题</span>
+          <div id="theme-seg" class="seg" role="group" aria-label="界面主题">
+            <button type="button" data-theme-set="dark" class="active" aria-pressed="true">暗黑</button>
+            <button type="button" data-theme-set="light" aria-pressed="false">明亮</button>
+          </div>
+        </div>
+        <div class="mode-sep" role="separator"></div>
+        <button type="button" id="btn-import" class="menu-item" role="menuitem">导入赛季 JSON…</button>
+        <button type="button" id="btn-export" class="menu-item" role="menuitem">导出赛季 JSON</button>
+        <button type="button" id="btn-bundled" class="menu-item" role="menuitem">使用内置赛季</button>
+        <div class="mode-sep" role="separator"></div>
+        <button type="button" id="btn-demo" class="menu-item" role="menuitem">载入示例阵容</button>
+        <button type="button" id="btn-clear" class="menu-item danger" role="menuitem">清空当前阵容</button>
+        <input id="import-file" type="file" accept="application/json,.json" hidden>
+      </div>
+    </div>
+
+    <div id="notice-bar" class="notice-bar" role="alert" hidden></div>
+  </header>
+
+  <main class="workspace">
+    <aside class="traits-rail" aria-label="羁绊与已有装备">
+      <div class="pane-head">
+        <span class="eyebrow">羁绊 <span id="active-trait-count" class="eyebrow-count">0 激活</span></span>
+        <div class="stepper compact" role="group" aria-label="目标羁绊数">
+          <span class="stepper-label">目标</span>
+          <button type="button" id="btn-goal-dec" aria-label="减少目标羁绊数">−</button>
+          <span class="stepper-val" id="val-goal">0</span>
+          <button type="button" id="btn-goal-inc" aria-label="增加目标羁绊数">+</button>
+        </div>
+      </div>
+
+      <div id="traits-list" class="traits-scroll"></div>
+
+      <div class="equip-dock">
+        <div class="equip-dock-head">
+          <span class="eyebrow">已有装备</span>
+          <button type="button" id="btn-emblem-quick" class="btn xs" popovertarget="emblem-menu">+ 纹章 ▾</button>
+        </div>
+        <div id="emblem-menu" class="emblem-popover" popover="auto" aria-label="快速添加纹章"></div>
+        <div id="equip-bench-grid" class="equip-grid" data-drop="equip-bench" aria-label="已有装备栏"></div>
+      </div>
+    </aside>
+
+    <section class="center-stage" aria-label="战术棋盘与弈子装备库">
+      <div class="board-zone">
+        <div class="pane-head">
+          <span class="eyebrow">战术棋盘</span>
+          <div class="pop-telemetry">
+            <span class="pop-ratio" id="pop-ratio">0 / 8</span>
+            <span class="pop-sub" id="pop-sub">等级 8 · 额外人口 0 · 冠冕 0</span>
+          </div>
+        </div>
+
+        <div id="preview-banner" class="preview-banner" hidden>
+          <div class="preview-banner-info">
+            <span class="preview-dot" aria-hidden="true"></span>
+            <span id="preview-banner-text"></span>
+          </div>
+          <div class="plan-btns">
+            <button type="button" id="btn-preview-apply" class="btn sm primary">应用路线</button>
+            <button type="button" id="btn-preview-exit" class="btn sm">退出预览 (Esc)</button>
+          </div>
+        </div>
+
+        <div class="board-mat">
+          <div class="row-guides" aria-hidden="true">
+            <span>前 1</span><span>前 2</span><span>后 3</span><span>后 4</span>
+          </div>
+          <div id="hex-board" class="hex-board" role="group" aria-label="棋盘 4 行 7 列"></div>
+        </div>
+
+        <div id="inspector-dock" class="inspector-dock" aria-live="polite"></div>
+      </div>
+
+      <div class="armory">
+        <div class="armory-bar">
+          <div class="seg" role="group" aria-label="库类型">
+            <button type="button" id="tab-units" class="active" data-tab="units" aria-pressed="true">棋子</button>
+            <button type="button" id="tab-items" data-tab="items" aria-pressed="false">装备</button>
+          </div>
+
+          <div class="search-wrap">
+            <input id="search-q" type="search" placeholder="搜索棋子、羁绊、职业…" aria-label="搜索棋子或装备">
+            <button type="button" id="btn-search-clear" class="search-clear" aria-label="清空搜索" hidden>×</button>
+            <span class="kbd" aria-hidden="true">/</span>
+          </div>
+
+          <div id="cost-filters" class="cost-pills" role="group" aria-label="费用筛选"></div>
+          <div id="kind-filters" class="cost-pills" role="group" aria-label="装备类型筛选" hidden></div>
+
+          <select id="role-filter" class="mini-select armory-select" aria-label="职责筛选">
+            <option value="all">全部职责</option>
+            <option value="tank">坦克</option>
+            <option value="fighter">战士</option>
+            <option value="assassin">刺客</option>
+            <option value="marksman">射手</option>
+            <option value="caster">法师</option>
+            <option value="specialist">特殊</option>
+          </select>
+
+          <select id="trait-filter" class="mini-select armory-select" aria-label="羁绊筛选">
+            <option value="all">全部羁绊</option>
+          </select>
+        </div>
+
+        <div id="library-units-grid" class="armory-grid"></div>
+        <div id="library-items-grid" class="armory-grid items-grid" hidden></div>
+      </div>
+    </section>
+
+    <aside class="advisor-rail" aria-label="策略建议">
+      <div class="pane-head">
+        <span class="eyebrow" id="advisor-title">策略建议</span>
+        <span class="advisor-sub" id="advisor-sub">右键推荐棋子可本局禁用</span>
+      </div>
+      <div id="advisor-body" class="advisor-scroll"></div>
+    </aside>
+  </main>
+</div>
+
+<div id="rich-tip" class="rich-tip" popover="manual"></div>
+<div id="drag-ghost" class="drag-ghost" hidden></div>
+
+<script src="data.js"></script>
+<script src="unit_focus.js"></script>
+<script src="assess.js"></script>
+<script src="engine.js"></script>
+<script src="board.js"></script>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

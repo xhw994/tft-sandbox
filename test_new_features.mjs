@@ -467,4 +467,51 @@ test("unlock-planner: Zac parses trait names in 【...】 and full board cleanly
   assert.ok(game.capacity(ctx.virtualBoard, ctx.virtualCtx) >= game.slotsOf(ctx.virtualBoard));
 });
 
+test("engine: Lv9 3-star 3-cost Malzahar (27g) is ok, while 3-star 1-cost (9g) stays behind", () => {
+  const recMalz = game.recommend(
+    [
+      { id: "DA_Malzahar19", star: 3, items: [] },
+      { id: "DA_DrMundo19", star: 2, items: [] },
+      { id: "DA_Lux19", star: 2, items: [] }
+    ],
+    { level: 9, mode: "auto", allowLocked: true }
+  );
+  const carryNote = recMalz.holders.notes.find((n) => n.role === "carry" && n.id === "DA_Malzahar19");
+  assert.ok(carryNote, "Malzahar should be inferred carry");
+  assert.equal(carryNote.status, "ok", "3-star 3-cost (27g) should be ok at Lv9, got: " + carryNote.status);
+  assert.ok(carryNote.text.includes("价值 27 金"), "note mentions 27g value: " + carryNote.text);
+
+  const rec1Cost = game.recommend(
+    [{ id: "DA_Yunara19", star: 3, items: [] }],
+    { level: 9, mode: "auto", allowLocked: true }
+  );
+  const lowNote = rec1Cost.holders.notes.find((n) => n.role === "carry" && n.id === "DA_Yunara19");
+  assert.equal(lowNote.status, "behind", "3-star 1-cost (9g) stays behind at Lv9");
+});
+
+test("engine: 2-star 5-cost Mundo promotes to main tank over 1-star 3-cost Ekko (even with Ekko traits)", () => {
+  const board = [
+    { id: "DA_Malzahar19", star: 3, items: [] },
+    { id: "DA_Ekko19", star: 1, items: [] },
+    { id: "DA_Leona19", star: 1, items: [] },
+    { id: "DA_DrMundo19", star: 2, items: [] },
+    { id: "DA_Alune19", star: 2, items: [] },
+    { id: "DA_Lux19", star: 1, items: [] },
+    { id: "DA_Neeko19", star: 1, items: [] }
+  ];
+  const rec = game.recommend(board, { level: 9, mode: "auto", allowLocked: true });
+  assert.equal(rec.labels.DA_DrMundo19, "tank", "2-star Mundo must be main tank: " + JSON.stringify(rec.labels));
+  assert.notEqual(rec.labels.DA_Ekko19, "tank", "1-star Ekko should not block 2-star Mundo");
+});
+
+test("engine: 3-item 2-star 4-cost tank retains main tank over naked 2-star 5-cost Mundo", () => {
+  const board = [
+    { id: "DA_Malzahar19", star: 3, items: [] },
+    { id: "DA_Braum19", star: 2, items: ["DA_WarmogsArmor", "DA_GargoyleStoneplate", "DA_DragonsClaw"] },
+    { id: "DA_DrMundo19", star: 2, items: [] }
+  ];
+  const rec = game.recommend(board, { level: 9, mode: "auto", allowLocked: true });
+  assert.equal(rec.labels.DA_Braum19, "tank", "3-item 2-star 4-cost tank retains main tank: " + JSON.stringify(rec.labels));
+});
+
 console.log(`All ${passed} new feature tests passed!`);

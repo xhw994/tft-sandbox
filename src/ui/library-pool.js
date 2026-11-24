@@ -1,11 +1,11 @@
 import { DIRTY_LIB_STATE, DIRTY_LIB_FILTER, DIRTY_ALL } from "../state/store.js";
 
 const ITEM_KINDS = [
-  ["basic", "散件"],
   ["normal", "成装"],
-  ["radiant", "光明"],
   ["artifact", "神器"],
+  ["radiant", "光明"],
   ["emblem", "纹章"],
+  ["basic", "散件"],
   ["support", "辅助"],
   ["spatula", "冠冕"],
   ["misc", "其他"]

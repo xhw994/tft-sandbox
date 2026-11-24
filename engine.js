@@ -425,22 +425,38 @@ var TFT = (function () {
       return tankBucket ? tankScore(unit, star) : carryScore(unit, star);
     }
 
+    function goldValue(cost, star) {
+      return (cost || 1) * Math.pow(3, Math.max(0, (star || 1) - 1));
+    }
+
     function fullStatus(unit, star, curve, mode) {
+      var s = star || 1;
       if (mode === "reroll") {
         if (unit.cost > 3) return "offplan";
-        if (star >= 3) return "ok";
-        if (star === 2) return "thin";
+        if (s >= 3) return "ok";
+        if (s === 2) return "thin";
         return "behind";
       }
+      if (s >= 3) {
+        var gold = goldValue(unit.cost, s);
+        if (gold >= goldValue(curve.ideal, curve.star)) return "ok";
+        if (gold >= goldValue(curve.floor, curve.star)) return "thin";
+      }
       if (unit.cost < curve.floor) return "behind";
-      if (star < curve.star && unit.cost <= curve.ideal) return "behind";
-      if (star < curve.star) return "thin";
+      if (s < curve.star && unit.cost <= curve.ideal) return "behind";
+      if (s < curve.star) return "thin";
       if (unit.cost < curve.ideal) return "thin";
       return "ok";
     }
 
-    function costStatus(unit, curve, mode) {
+    function costStatus(unit, curve, mode, star) {
       if (mode === "reroll") return unit.cost <= 3 ? "ok" : "offplan";
+      var s = star || 1;
+      if (s >= 3) {
+        var gold = goldValue(unit.cost, s);
+        if (gold >= goldValue(curve.ideal, curve.star)) return "ok";
+        if (gold >= goldValue(curve.floor, curve.star)) return "thin";
+      }
       if (unit.cost < curve.floor) return "behind";
       if (unit.cost < curve.ideal) return "thin";
       return "ok";
@@ -451,9 +467,9 @@ var TFT = (function () {
       var ids = effectiveTraits(entry);
       for (var i = 0; i < ids.length; i++) {
         var trait = traitById[ids[i]];
-        if (!trait || trait.kind === "solo") continue;
+        if (!trait) continue;
         var state = breakpointState(trait, traitCount(trait, board, ctx).total, ctx);
-        if (state.best && state.best.style > 0) fit += state.best.style * 10 + state.best.need;
+        if (state.best && state.best.style > 0) fit += state.best.style * 10 + (trait.kind === "solo" ? 1 : state.best.need);
       }
       return fit;
     }
@@ -470,10 +486,20 @@ var TFT = (function () {
         var frontlineQ = TFTAssess.qFor(entry, entry.star || 1, "frontline", ctx.profile || defaultProf, data);
         rows.push({ id: entry.id, star: entry.star || 1, mark: entry.mark || "", invest: investmentOf(entry), damageQ: damageQ, frontlineQ: frontlineQ, status: fullStatus(unit, entry.star, curve, mode), carryRole: isCarryRole(unit), tankRole: isTankRole(unit), cost: unit.cost, fit: traitFit(entry, board, ctx) });
       }
+      function tankRank(row) {
+        var gold = goldValue(row.cost, row.star);
+        var investBonus = (row.invest || 0) * 2.5;
+        var traitBonus = row.fit > 0 ? 6 + Math.min(4, row.fit * 0.08) : 0;
+        return gold + investBonus + traitBonus;
+      }
       function cmpKey(a, b, kind) {
         var qA = kind === "carry" ? a.damageQ : a.frontlineQ, qB = kind === "carry" ? b.damageQ : b.frontlineQ;
-        var tupleA = kind === "carry" ? [a.star, a.fit, a.cost, a.invest, qA.mid, qA.lo] : [a.fit, a.star, a.cost, a.invest, qA.mid, qA.lo];
-        var tupleB = kind === "carry" ? [b.star, b.fit, b.cost, b.invest, qB.mid, qB.lo] : [b.fit, b.star, b.cost, b.invest, qB.mid, qB.lo];
+        var tupleA = kind === "carry"
+          ? [a.star, a.fit, a.cost, a.invest, qA.mid, qA.lo]
+          : [tankRank(a), a.star, a.cost, a.invest, a.fit, qA.mid, qA.lo];
+        var tupleB = kind === "carry"
+          ? [b.star, b.fit, b.cost, b.invest, qB.mid, qB.lo]
+          : [tankRank(b), b.star, b.cost, b.invest, b.fit, qB.mid, qB.lo];
         for (var k = 0; k < tupleA.length; k++) if (tupleA[k] !== tupleB[k]) return tupleB[k] - tupleA[k];
         return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
       }
@@ -509,12 +535,12 @@ var TFT = (function () {
       var penalty = 0;
       if (!found.carry.length) penalty += 16;
       else {
-        var carryCost = costStatus(byId[found.carry[0].id], curve, mode);
+        var carryCost = costStatus(byId[found.carry[0].id], curve, mode, found.carry[0].star);
         if (carryCost === "behind") penalty += 18;
         else if (carryCost === "offplan") penalty += 12;
       }
       if (!found.tank.length) penalty += board.length >= 6 ? 32 : 24;
-      else if (costStatus(byId[found.tank[0].id], curve, mode) === "behind") penalty += 14;
+      else if (costStatus(byId[found.tank[0].id], curve, mode, found.tank[0].star) === "behind") penalty += 14;
       var extraCarries = board.filter(function (e) {
         var unit = byId[e.id];
         return isCarryRole(unit) && unit.cost >= curve.floor && investmentOf(e) <= 0 && e.mark !== "bot";
@@ -577,13 +603,17 @@ var TFT = (function () {
         var starGap = mode !== "reroll" && row.star < curve.star && unit.cost >= curve.ideal;
         var replace = !starGap && (row.status === "behind" || row.status === "offplan" || (row.status === "thin" && unit.cost < curve.ideal));
         var starLine = starGap ? "先升到 " + curve.star + " 星。" : "";
+        var goldOk = mode !== "reroll" && row.star >= 3 && unit.cost < curve.ideal && row.status === "ok";
+        var noteText = goldOk
+          ? prefix + label + " " + unit.display + " " + row.star + " 星 " + unit.cost + " 费（价值 " + goldValue(unit.cost, row.star) + " 金），" + statusName[row.status] + "。"
+          : prefix + label + " " + unit.display + " " + row.star + " 星 " + unit.cost + " 费，" + statusName[row.status] + "。" + starLine + expectText(curve, ctx);
         notes.push({
           role: role,
           label: label,
           status: row.status,
           id: row.id,
           source: row.source,
-          text: prefix + label + " " + unit.display + " " + row.star + " 星 " + unit.cost + " 费，" + statusName[row.status] + "。" + starLine + expectText(curve, ctx),
+          text: noteText,
           upgrades: row.status === "ok" || !replace ? [] : suggest(role, board, ctx, curve)
         });
       }

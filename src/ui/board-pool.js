@@ -12,13 +12,6 @@ const MARKS = [
   ["bot", "挂件"]
 ];
 
-const DIRS = {
-  up: [-1, 0],
-  down: [1, 0],
-  left: [0, -1],
-  right: [0, 1]
-};
-
 function $(id) {
   return document.getElementById(id);
 }
@@ -217,19 +210,6 @@ export function mountBoardPool(store) {
       const markBtn = t.closest("[data-insp-mark]");
       if (markBtn) {
         store.act({ type: "set-mark", id: markBtn.dataset.unit, mark: markBtn.dataset.inspMark });
-        return;
-      }
-      const moveBtn = t.closest("[data-insp-dir]");
-      if (moveBtn && !moveBtn.disabled) {
-        const entry = store.getState().board.find((x) => x.id === moveBtn.dataset.unit);
-        if (!entry || !entry.position) return;
-        const d = DIRS[moveBtn.dataset.inspDir];
-        if (!d) return;
-        store.act({
-          type: "move-unit",
-          id: entry.id,
-          position: { row: entry.position.row + d[0], col: entry.position.col + d[1] }
-        });
         return;
       }
       const focusBtn = t.closest("[data-insp-focus]");
@@ -558,14 +538,6 @@ export function mountBoardPool(store) {
       '" data-unit="' + esc(e.id) + '" data-insp-mark="' + esc(mVal) + '" aria-pressed="' + (e.mark === mVal) + '">' + esc(mLabel) + "</button>"
     ).join("");
 
-    const nudgeBtn = (dir, arrow, dr, dc) => {
-      const nr = pos.row + dr;
-      const nc = pos.col + dc;
-      const off = nr < 0 || nr >= ROWS || nc < 0 || nc > COLS - span;
-      return '<button type="button" class="btn xs" data-unit="' + esc(e.id) + '" data-insp-dir="' + dir + '"' +
-        (off ? " disabled" : "") + ' title="移动位置">' + arrow + "</button>";
-    };
-
     const itemSlotsHtml = [0, 1, 2].map((i) => {
       const itemId = items[i];
       if (!itemId) {
@@ -600,11 +572,7 @@ export function mountBoardPool(store) {
       '<div class="insp-row">' +
         '<div class="insp-items" data-drop="inspector">' + itemSlotsHtml + "</div>" +
         '<div class="insp-controls">' +
-          nudgeBtn("left", "←", 0, -1) +
-          nudgeBtn("up", "↑", -1, 0) +
-          nudgeBtn("down", "↓", 1, 0) +
-          nudgeBtn("right", "→", 0, 1) +
-          '<button type="button" class="btn sm ghost danger" data-unit="' + esc(e.id) + '" data-insp-remove="1">移出棋盘</button>' +
+          '<button type="button" class="btn sm ghost danger" data-unit="' + esc(e.id) + '" data-insp-remove="1">移除</button>' +
         "</div>" +
       "</div>";
   }

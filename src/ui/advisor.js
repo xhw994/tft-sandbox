@@ -414,8 +414,9 @@ export function mountAdvisor(store) {
       `<div style="min-width:0">` +
       `<div class="unlock-title">` +
       `<strong>${esc(target.display || target.name)}</strong>` +
-      `<span class="unlock-badge">将以上场构筑</span>` +
-      `<span class="conf-pill">${onBoard ? "已上场" : "进行中"}</span>` +
+      (onBoard
+        ? `<span class="unlock-badge">已上场</span>`
+        : `<span class="unlock-badge">预设上场</span><span class="conf-pill">待解锁</span>`) +
       `</div>` +
       (condText ? `<p class="unlock-cond">${esc(condText + levelSuffix)}</p>` : "") +
       `</div>` +

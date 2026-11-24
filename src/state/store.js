@@ -644,7 +644,7 @@ export function createStore() {
       const newR = freshLabels[e.id] && freshLabels[e.id] !== "bot" ? freshLabels[e.id] : "";
       return oldR !== newR;
     });
-    if (roleChanged) mask |= DIRTY_BOARD;
+    if (roleChanged) mask |= DIRTY_BOARD | DIRTY_INSPECTOR;
     emit(mask);
   }
 

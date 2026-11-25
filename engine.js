@@ -304,6 +304,10 @@ var TFT = (function () {
       return out;
     }
 
+    function isNegativeAssessment(assessment) {
+      return !assessment || !assessment.score || assessment.score.mid < -1e-6;
+    }
+
     function isTraitOnlyUnknown(assessment) {
       if (!assessment || assessment.status !== "unknown") return false;
       if ((assessment.blockers && assessment.blockers.length) || (assessment.conditions && assessment.conditions.length)) return false;
@@ -357,9 +361,14 @@ var TFT = (function () {
 
     function orderSwapRows(rows) {
       var ordered = orderedAssessmentRows(rows);
-      var hasSys = ordered.some(function (r) { return typeof r.systemScore === "number" && Math.abs(r.systemScore) > 1e-9; });
+      var hasSys = ordered.some(function (r) {
+        return (typeof r.systemScore === "number" && Math.abs(r.systemScore) > 1e-9) || (r.swapTier || 0) > 0;
+      });
       if (!hasSys) return ordered;
       return ordered.slice().sort(function (a, b) {
+        var ta = a.swapTier || 0;
+        var tb = b.swapTier || 0;
+        if (ta !== tb) return ta - tb;
         var ga = effectiveStatusGroup(a.assessment);
         var gb = effectiveStatusGroup(b.assessment);
         if (ga !== gb) return ga - gb;
@@ -715,6 +724,7 @@ var TFT = (function () {
       var level = ctx.level || 8;
 
       var archetype = "open";
+      var strongVertical = top && top.isDeep && (top.effectiveBodies >= 5 || (top.trait.countMode === "stars" && top.count >= 7));
       if (!entries.length && !ranked.length) {
         archetype = "open";
       } else if (mode === "reroll" || (level <= 7 && entries.length >= 2 && lowCostStars >= 2 && avgCost <= 2.35 && highCostCount === 0)) {
@@ -722,10 +732,12 @@ var TFT = (function () {
       } else if ((ctx.targetTraitCount || 0) >= 6 || (hasFlexMultiplier && maxBodies < 5 && maxTraitTarget < 5) ||
                  (entries.length >= 4 && activeNonSolo >= 4 && topShare <= 0.55 && maxBodies <= 3 && maxTraitTarget < 5)) {
         archetype = "flex_web";
+      } else if (maxTraitTarget >= 5 || (strongVertical && mode !== "fast8")) {
+        archetype = "vertical";
       } else if ((mode === "fast8" && maxTraitTarget < 5) ||
                  (level >= 8 && entries.length >= 4 && (highCostCount >= Math.ceil(entries.length * 0.45) || (avgCost >= 3.2 && maxBodies <= 3)) && !hasFlexMultiplier && maxTraitTarget < 5)) {
         archetype = "fast_high";
-      } else if (maxTraitTarget >= 5 || (top && top.isDeep && (top.effectiveBodies >= 3 || (entries.length <= 3 && topShare >= 0.65) || top.emblemTotal >= 1)) ||
+      } else if ((top && top.isDeep && (top.effectiveBodies >= 3 || (entries.length <= 3 && topShare >= 0.65) || top.emblemTotal >= 1)) ||
                  (top && top.effectiveBodies >= 2 && topShare >= 0.5)) {
         archetype = "vertical";
       } else if (top && top.emblemTotal >= 1) {
@@ -1710,7 +1722,7 @@ var TFT = (function () {
       for (var i = 0; i < units.length; i++) {
         var trial = kept.concat([{ id: units[i].id, star: 1, items: [] }]);
         var assessment = assessAction(kept, { type: "add", id: units[i].id, star: 1, candidateId: "add:" + units[i].id }, ctx);
-        if (assessment.status === "blocked" || assessment.status === "not_recommended") continue;
+        if (assessment.status === "blocked" || assessment.status === "not_recommended" || isNegativeAssessment(assessment)) continue;
         assessment.preferenceMatch = TFTAssess.chasePreference(units[i].cost, ctx.level);
         var aff = candidateSystemAffinity(units[i], kept, ctx, sys);
         var row = {
@@ -1747,7 +1759,7 @@ var TFT = (function () {
         var row = { id: entry.id, from: entry.star, to: entry.star + 1, delta: delta, priority: priority, reasons: why };
         row.assessment = assessAction(kept, { type: "starUp", id: entry.id, from: entry.star, to: entry.star + 1, auto: true, candidateId: "starUp:" + entry.id }, ctx);
         row.assessment.preferenceMatch = TFTAssess.chasePreference(unit.cost, ctx.level);
-        if (row.assessment.status !== "blocked") rows.push(row);
+        if (row.assessment.status !== "blocked" && !isNegativeAssessment(row.assessment)) rows.push(row);
       }
       return orderedAssessmentRows(rows).slice(0, 3);
     }
@@ -1810,27 +1822,32 @@ var TFT = (function () {
       }, extra);
     }
 
-    // A swap must keep every active trait level and either raise cost or lift the carry's native trait count.
+    function topBreakpointNeed(trait, board, ctx) {
+      var count = traitCount(trait, board, ctx).total;
+      var pris = prismaticOn(ctx, trait.id);
+      var top = 0;
+      trait.breakpoints.forEach(function (bp) {
+        if (count >= bp.need && enabledStyle(bp, pris) > 0) top = Math.max(top, bp.need);
+      });
+      return top;
+    }
+
+    // A swap must keep every active trait level and either raise cost or activate a higher breakpoint on the carry's native trait.
     function swapHelps(kept, index, innUnit, ctx) {
-      var found = classify(kept, ctx), outId = kept[index].id;
+      var found = classify(kept, ctx), outId = kept[index].id, outUnit = byId[outId];
       var carryId = found.carry[0] ? found.carry[0].id : null, tankId = found.tank[0] ? found.tank[0].id : null;
       if (outId === carryId || outId === tankId) return false;
       var after = kept.map(function (e, idx) { return idx === index ? { id: innUnit.id, star: 1, items: e.items, mark: "" } : e; });
-      function topNeed(trait, board) {
-        var count = traitCount(trait, board, ctx).total, pris = prismaticOn(ctx, trait.id), top = 0;
-        trait.breakpoints.forEach(function (bp) { if (count >= bp.need && enabledStyle(bp, pris) > 0) top = Math.max(top, bp.need); });
-        return top;
-      }
       for (var t = 0; t < data.traits.length; t++) {
         var trait = data.traits[t];
         if (trait.kind === "solo") continue;
-        if (topNeed(trait, after) < topNeed(trait, kept)) return false;
+        if (topBreakpointNeed(trait, after, ctx) < topBreakpointNeed(trait, kept, ctx)) return false;
       }
-      if (innUnit.cost > byId[outId].cost) return true;
-      if (!carryId) return false;
+      if (innUnit.cost > outUnit.cost) return true;
+      if (outUnit.cost >= 4 || !carryId) return false;
       return byId[carryId].traits.some(function (tid) {
         var native = traitById[tid];
-        return !!native && traitCount(native, after, ctx).total > traitCount(native, kept, ctx).total;
+        return !!native && topBreakpointNeed(native, after, ctx) > topBreakpointNeed(native, kept, ctx);
       });
     }
 
@@ -1873,7 +1890,7 @@ var TFT = (function () {
         var units = legal(without, ctx, 99);
         for (var u = 0; u < units.length; u++) {
           var inn = units[u];
-          if (!sharesCore(inn, [out]) || !sameBucket(outUnit, inn) || !damageOk(outUnit, inn)) continue;
+          if (inn.cost <= outUnit.cost || !sharesCore(inn, [out]) || !sameBucket(outUnit, inn) || !damageOk(outUnit, inn)) continue;
           for (var star = 1; star <= 2; star++) {
             if (star === 2 && out.star < 2) continue;
             var rep = replacement(kept, i, inn, star, ctx);
@@ -1881,7 +1898,7 @@ var TFT = (function () {
             var candidateId = "swap:" + out.id + ">" + inn.id + "@" + star;
             var assessment = assessAction(kept, { type: "replace", out: out.id, in: inn.id, star: star, items: rep.items, candidateId: candidateId }, ctx);
             assessment.preferenceMatch = TFTAssess.chasePreference(inn.cost, ctx.level);
-            if (assessment.status === "blocked" || !swapHelps(kept, i, inn, ctx)) continue;
+            if (assessment.status === "blocked" || assessment.status === "not_recommended" || isNegativeAssessment(assessment) || !swapHelps(kept, i, inn, ctx)) continue;
             var shownRep = rep;
             if (star === 2 && !(ctx.benchCopies && (ctx.benchCopies[inn.id] || 0) >= 3)) {
               shownRep = replacement(kept, i, inn, 1, ctx) || rep;
@@ -1913,27 +1930,31 @@ var TFT = (function () {
     function fullSwaps(kept, ctx) {
       var rows = [];
       var sys = (ctx && ctx.system) || analyzeSystem(kept, ctx);
+      var highLvl5 = rollPct(ctx.level, 5) >= 15 && (ctx.mode || "auto") !== "reroll";
       for (var i = 0; i < kept.length; i++) {
         var outgoing = kept[i];
+        var outUnit = byId[outgoing.id];
         if (outgoing.id === ctx.focusId || outgoing.star === 3) continue;
         var without = kept.slice(0, i).concat(kept.slice(i + 1));
         var units = legal(without, ctx, 99);
         for (var u = 0; u < units.length; u++) {
           var inn = units[u];
-          if (!sharesCore(inn, kept) && !sharesCore(inn, [outgoing])) continue;
+          var standalone5 = highLvl5 && inn.cost >= 5 && !isLocked(inn) && outUnit.cost <= 3;
+          if (!standalone5 && !sharesCore(inn, kept) && !sharesCore(inn, [outgoing])) continue;
           var rep = replacement(kept, i, inn, 1, ctx);
           if (!rep) continue;
           var candidateId = "fullSwap:" + outgoing.id + ">" + inn.id;
           var assessment = assessAction(kept, { type: "replace", out: outgoing.id, in: inn.id, star: 1, items: rep.items, candidateId: candidateId }, ctx);
-          if (assessment.status === "blocked" || !swapHelps(kept, i, inn, ctx)) continue;
+          if (assessment.status === "blocked" || assessment.status === "not_recommended" || isNegativeAssessment(assessment) || !swapHelps(kept, i, inn, ctx)) continue;
           var swSys = swapSystemScore(kept, i, inn, ctx, sys);
-          if (swSys.score < -3.0) continue;
+          if (swSys.score < -3.0 && !standalone5) continue;
           rows.push(replaceRow(kept, i, inn, rep, ctx, 1, {
             innCost: inn.cost,
             delta: assessment.score.mid,
-            systemScore: swSys.score,
-            systemTag: swSys.tag,
-            systemTier: swSys.tier,
+            swapTier: 0,
+            systemScore: standalone5 ? Math.max(swSys.score, 6.0 + (inn.cost - outUnit.cost)) : swSys.score,
+            systemTag: swSys.tag || (standalone5 ? "高费升级" : ""),
+            systemTier: swSys.tier || (standalone5 ? "upgrade" : "splash"),
             assessment: assessment
           }));
         }
@@ -1946,6 +1967,101 @@ var TFT = (function () {
         seen[key] = 1; out.push(rows[r]);
       }
       return out;
+    }
+
+    // Late-game (Lv 9+) 5-cost cap upgrades for vertical boards: allows dropping 1 vertical tier
+    // (while keeping the trait active) UNLESS that trait has an active prismatic quest or explicit target.
+    // Always ranked in swapTier=1 strictly below breakpoint-preserving normal 5-cost swaps (swapTier=0).
+    function highLevelFlexSwaps(kept, ctx) {
+      if (rollPct(ctx.level, 5) < 15 || (ctx.mode || "auto") === "reroll") return [];
+      var sys = (ctx && ctx.system) || analyzeSystem(kept, ctx);
+      var traitTargets = (ctx && ctx.traitTargets) || {};
+      var rows = [];
+      for (var i = 0; i < kept.length; i++) {
+        var out = kept[i];
+        var outUnit = byId[out.id];
+        if (!outUnit) continue;
+        if (out.id === ctx.focusId || out.star >= 3) continue;
+        if (out.mark === "carry" || out.mark === "tank") continue;
+        if (outUnit.cost > 3 || (outUnit.cost === 3 && out.star >= 3)) continue;
+        var outInv = investmentOf(out);
+        var without = kept.slice(0, i).concat(kept.slice(i + 1));
+        var units = legal(without, ctx, 99);
+        for (var u = 0; u < units.length; u++) {
+          var inn = units[u];
+          if (inn.cost < 5 || inn.slots > 1) continue;
+          if (outInv >= 4 && (!sameBucket(outUnit, inn) || !damageOk(outUnit, inn))) continue;
+          var rep = replacement(kept, i, inn, 1, ctx);
+          if (!rep) continue;
+
+          // Inspect trait drops & activations.
+          var dropped = [];
+          var blockedByQuest = false;
+          var deactivated = 0;
+          var primaryDeactivated = false;
+          var activatedNew = 0;
+          for (var t = 0; t < data.traits.length; t++) {
+            var tr = data.traits[t];
+            if (tr.kind === "solo") continue;
+            var beforeTop = topBreakpointNeed(tr, kept, ctx);
+            var afterTop = topBreakpointNeed(tr, rep.board, ctx);
+            if (afterTop < beforeTop) {
+              if (prismaticOn(ctx, tr.id)) { blockedByQuest = true; break; }
+              var tgt = Number(traitTargets[tr.id]) || 0;
+              if (tgt > 0 && traitCount(tr, rep.board, ctx).total < tgt) { blockedByQuest = true; break; }
+              dropped.push({ trait: tr, beforeTop: beforeTop, afterTop: afterTop });
+              if (afterTop === 0) {
+                deactivated += 1;
+                if (sys && sys.primaryMap && sys.primaryMap[tr.id]) primaryDeactivated = true;
+              }
+            } else if (afterTop > beforeTop) {
+              activatedNew += 1;
+            }
+          }
+          // Only handle actual vertical/tier drops here (no-drop swaps belong to Tier 0 fullSwaps).
+          if (blockedByQuest || !dropped.length || primaryDeactivated) continue;
+          if (dropped.length > 2 || deactivated > 1) continue;
+          // At least one dropped trait must remain active (e.g., 7->5 or 6->4 or 5->3), or a 1/2-cost is replaced by a 5-cost activating a new trait.
+          var keptVerticalActive = dropped.some(function (d) { return d.afterTop > 0; });
+          if (!keptVerticalActive && !(outUnit.cost <= 2 && activatedNew > 0)) continue;
+
+          var candidateId = "flex5Swap:" + out.id + ">" + inn.id;
+          var assessment = assessAction(kept, { type: "replace", out: out.id, in: inn.id, star: 1, items: rep.items, candidateId: candidateId }, ctx);
+          if (assessment.status === "blocked" || assessment.status === "not_recommended" || isNegativeAssessment(assessment)) continue;
+
+          var flexScore = (inn.cost - outUnit.cost) * 1.45 + activatedNew * 3.8;
+          if (sharesCore(inn, without)) flexScore += 1.4;
+          if (inn.traits.some(function (tid) { return traitById[tid] && traitById[tid].kind === "solo"; })) flexScore += 0.9;
+          flexScore -= (dropped.length - 1) * 2.2 + deactivated * 2.8;
+          if (out.star >= 2) flexScore -= 1.2;
+          if (isLocked(inn) && !(ctx && (ctx.focusId === inn.id || ctx.unlockTargetId === inn.id))) flexScore -= 2.2;
+
+          var dropNote = dropped.map(function (d) {
+            return d.afterTop > 0 ? (d.trait.name + "降至" + d.afterTop) : ("下掉" + d.trait.name);
+          }).join("、") + "，换 " + inn.cost + " 费提上限";
+          var row = replaceRow(kept, i, inn, rep, ctx, 1, {
+            innCost: inn.cost,
+            delta: assessment.score.mid,
+            swapTier: 1,
+            flexDrop: true,
+            systemScore: flexScore,
+            systemTag: "5费上限",
+            systemTier: "flex5",
+            assessment: assessment
+          });
+          row.reasons = [dropNote].concat(row.reasons || []).slice(0, 4);
+          rows.push(row);
+        }
+      }
+      rows = orderSwapRows(rows);
+      // Prefer distinct incoming 5-costs so the player sees top legendary options instead of repeats.
+      var usedInn = {}, outRows = [];
+      for (var r = 0; r < rows.length && outRows.length < 3; r++) {
+        if (usedInn[rows[r].inn]) continue;
+        usedInn[rows[r].inn] = 1;
+        outRows.push(rows[r]);
+      }
+      return outRows;
     }
 
     function swaps(kept, ctx) {
@@ -1964,11 +2080,12 @@ var TFT = (function () {
             if (!rep) return;
             var candidateId = "tankSwap:" + out.id + ">" + tankUnit.id;
             var assessment = assessAction(kept, { type: "replace", out: out.id, in: tankUnit.id, star: 1, items: rep.items, candidateId: candidateId }, ctx);
-            if (assessment.status === "blocked" || assessment.score.mid <= 0) return;
+            if (assessment.status === "blocked" || assessment.status === "not_recommended" || assessment.score.mid <= 0) return;
             var swSys = swapSystemScore(kept, index, tankUnit, ctx, sys);
             var row = replaceRow(kept, index, tankUnit, rep, ctx, 1, {
               innCost: tankUnit.cost,
               delta: assessment.score.mid,
+              swapTier: 0,
               systemScore: swSys.score,
               systemTag: swSys.tag,
               systemTier: swSys.tier,
@@ -1984,7 +2101,8 @@ var TFT = (function () {
           usedOut[pairs[p].out] = true; usedIn[pairs[p].inn] = true; tankReplacements.push(pairs[p]);
         }
       }
-      var seen = {}, merged = [], all = tankReplacements.concat(core, fullSwaps(kept, ctx));
+      var flex5 = highLevelFlexSwaps(kept, ctx);
+      var seen = {}, merged = [], all = tankReplacements.concat(core, fullSwaps(kept, ctx), flex5);
       all = orderSwapRows(all);
       for (var s = 0; s < all.length && merged.length < 4; s++) {
         var key = all[s].out + ">" + all[s].inn;
@@ -2230,7 +2348,9 @@ var TFT = (function () {
         }
         plan.systemScore = planSystemBonus(kept, plan.adds, ctx, sys);
       });
-      plans = orderPlanRows(plans.filter(function (plan) { return plan.assessment.status !== "blocked" && plan.assessment.status !== "not_recommended"; })).slice(0, 3);
+      plans = orderPlanRows(plans.filter(function (plan) {
+        return plan.assessment.status !== "blocked" && plan.assessment.status !== "not_recommended" && !isNegativeAssessment(plan.assessment);
+      })).slice(0, 3);
       var warnings = norm.warnings.slice();
       if (fitted.dropped.length) {
         warnings.unshift("人口超过 " + capacity(owned, ctx) + "，建议先下场 " + fitted.dropped.map(function (e) { return byId[e.id].display; }).join("、"));

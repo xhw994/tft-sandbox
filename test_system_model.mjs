@@ -252,4 +252,87 @@ test("10. Emblem-Driven System Pivot (2/8 Lv8 + Pentakill Emblem): elevates Pent
     "top 3 nextBuys should pivot strongly into Pentakill units, got: " + namesOf(nextIds));
 });
 
+test("11. Lv10 10/10 Vertical Ocean Song (user screenshot repro): zero negative E swaps, recommends 5-cost cap swaps even when dropping 7->5 vertical", () => {
+  const board = [
+    { id: "DA_Zoe19", star: 1, items: [] },
+    { id: "DA_Ashe19", star: 1, items: [] },
+    { id: "DA_Zac19", star: 1, items: [] },
+    { id: "DA_Rell19", star: 1, items: [] },
+    { id: "DA_Renekton19", star: 1, items: [] },
+    { id: "DA_Nunu19", star: 1, items: [] },
+    { id: "DA_Graves19", star: 1, items: [] },
+    { id: "DA_Taliyah19", star: 1, items: [] },
+    { id: "DA_Syndra19", star: 1, items: [] },
+    { id: "DA_Mel19", star: 1, items: [] }
+  ];
+  const rec = game.recommend(board, { level: 10, mode: "auto", allowLocked: true, focusId: "DA_Ashe19" });
+  assert.equal(rec.system.archetype, "vertical", "7 Ocean Song should be vertical: " + JSON.stringify(rec.system));
+  assert.equal(rec.system.primaryIds[0], "DA_OceanSong19");
+
+  // ZERO negative-rated recommendations anywhere!
+  assert.ok(rec.swaps.every((s) => s.assessment.score.mid >= 0), "no negative-rated swaps allowed: " + JSON.stringify(rec.swaps.map((s) => [s.out, s.inn, s.assessment.score.mid])));
+  assert.ok(rec.plans.every((p) => p.assessment.score.mid >= 0), "no negative-rated plans allowed");
+  assert.ok(!rec.swaps.some((s) => game.byId[s.inn].cost < game.byId[s.out].cost), "never downgrade 5-cost to 3-cost Swain");
+
+  // Should recommend 5-cost legendary upgrades (e.g. Zeri / Twisted Fate / Vi) even when trimming 7->5 Ocean Song
+  assert.ok(rec.swaps.length >= 2, "Lv10 vertical board should still offer 5-cost cap swaps, got: " + rec.swaps.length);
+  assert.ok(rec.swaps.some((s) => game.byId[s.inn].cost >= 5 && s.systemTag === "5费上限"),
+    "should include 5-cost vertical cap swaps: " + rec.swaps.map((s) => `${game.byId[s.out].display}->${game.byId[s.inn].display}[${s.systemTag}]`).join(" | "));
+  // Focus unit Ashe must never be dropped
+  assert.ok(!rec.swaps.some((s) => s.out === "DA_Ashe19"), "focusId Ashe must never be swapped out");
+});
+
+test("12. Lv10 Vertical with Prismatic Quest ON (or explicit traitTarget): strictly forbids dropping vertical trait for 5-costs", () => {
+  const board = [
+    { id: "DA_Elise19", star: 1, items: [] },
+    { id: "DA_Yunara19", star: 2, items: [] },
+    { id: "DA_Annie19", star: 2, items: [] },
+    { id: "DA_Lux19", star: 2, items: [] },
+    { id: "DA_Briar19", star: 2, items: [] },
+    { id: "DA_Shyvana19", star: 2, items: ["DA_WarmogsArmor"], mark: "tank" },
+    { id: "DA_Jinx19", star: 2, items: ["DA_InfinityEdge"], mark: "carry" },
+    { id: "DA_Aurora19", star: 2, items: [] },
+    { id: "DA_Gwen19", star: 2, items: [] },
+    { id: "DA_Tibbers19", star: 2, items: [] }
+  ];
+  // Without prismatic: 10 Ionic Spark can trim low-cost Elise/Yunara/Lux for 5-cost legendaries
+  const noPrism = game.recommend(board, { level: 10, mode: "auto", allowLocked: true, prismatic: {} });
+  assert.ok(noPrism.swaps.some((s) => game.byId[s.inn].cost >= 5), "without prismatic, Lv10 Ionic Spark suggests 5-cost swaps");
+
+  // With prismatic enabled on Ionic Spark: NEVER suggest dropping Ionic Spark below 10!
+  const withPrism = game.recommend(board, { level: 10, mode: "auto", allowLocked: true, prismatic: { DA_IonicSpark19: true } });
+  const dropsIonic = withPrism.swaps.some((s) =>
+    s.board.filter((e) => game.byId[e.id].traits.includes("DA_IonicSpark19")).length < 10
+  );
+  assert.equal(dropsIonic, false, "with prismatic quest ON, must NEVER drop Ionic Spark 10: " +
+    withPrism.swaps.map((s) => `${game.byId[s.out].display}->${game.byId[s.inn].display}`).join(" | "));
+});
+
+test("13. Lv9 Vertical Priority Order: normal no-drop 5-cost upgrade strictly outranks vertical-dropping 5-cost swaps", () => {
+  // 9/9 Lv9 board: 7 Ionic Spark + 1-cost non-Ionic filler Neeko + Ekko.
+  // Swapping filler Neeko -> normal 5-cost (no Ionic Spark drop!) MUST outrank swapping Elise -> 5-cost (drops 7->5 Ionic Spark)!
+  const board = [
+    { id: "DA_Elise19", star: 1, items: [] },
+    { id: "DA_Yunara19", star: 2, items: [] },
+    { id: "DA_Annie19", star: 2, items: [] },
+    { id: "DA_Lux19", star: 2, items: [] },
+    { id: "DA_Briar19", star: 2, items: [] },
+    { id: "DA_Shyvana19", star: 2, items: ["DA_WarmogsArmor"], mark: "tank" },
+    { id: "DA_Jinx19", star: 2, items: ["DA_InfinityEdge"], mark: "carry" },
+    { id: "DA_Neeko19", star: 1, items: [] },
+    { id: "DA_Kennen19", star: 1, items: [] }
+  ];
+  const rec = game.recommend(board, { level: 9, mode: "auto", allowLocked: true });
+  assert.ok(rec.swaps.length >= 2, "Lv9 board should have swaps");
+  // Rank #1 MUST be a Tier-0 (non-dropping) upgrade (swapTier 0, NOT flexDrop)
+  assert.ok(!rec.swaps[0].flexDrop, "normal breakpoint-preserving upgrade must outrank vertical-dropping 5-cost swap, got #1: " +
+    `${game.byId[rec.swaps[0].out].display}->${game.byId[rec.swaps[0].inn].display}[${rec.swaps[0].systemTag}]`);
+  // Any flexDrop swaps must appear strictly after all Tier-0 swaps
+  let seenFlex = false;
+  for (const sw of rec.swaps) {
+    if (sw.flexDrop) seenFlex = true;
+    else assert.equal(seenFlex, false, "no Tier-0 swap may appear after a flexDrop swap");
+  }
+});
+
 console.log(`All ${passed} Set 19 meta system-model benchmarks passed!`);

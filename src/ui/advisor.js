@@ -435,7 +435,7 @@ export function mountAdvisor(store) {
 
   function renderPlanCard(ctx, p, i) {
     if (!p) return "";
-    if (p.assessment && (p.assessment.status === "blocked" || p.assessment.status === "not_recommended")) return "";
+    if (p.assessment && (p.assessment.status === "blocked" || p.assessment.status === "not_recommended" || (p.assessment.score && p.assessment.score.mid < -1e-6))) return "";
     const { game, ui, state } = ctx;
     const previewing = isPreviewActive(ui, "plan", i);
 
@@ -475,7 +475,7 @@ export function mountAdvisor(store) {
 
   function renderSwapCard(ctx, s, i) {
     if (!s) return "";
-    if (s.assessment && (s.assessment.status === "blocked" || s.assessment.status === "not_recommended")) return "";
+    if (s.assessment && (s.assessment.status === "blocked" || s.assessment.status === "not_recommended" || (s.assessment.score && s.assessment.score.mid < -1e-6))) return "";
     const { game, ui } = ctx;
     const previewing = isPreviewActive(ui, "swap", i);
     const starChange = s.assessment && s.assessment.materialization && s.assessment.materialization.starChanges && s.assessment.materialization.starChanges[0];
@@ -496,7 +496,7 @@ export function mountAdvisor(store) {
       `<article class="plan-item${previewing ? " is-previewing" : ""}">` +
       `<div class="plan-top">` +
       `<div style="min-width:0">` +
-      `<div class="plan-title">${esc(s.text || `${store.unitName(s.out)} → ${store.unitName(s.inn)}`)}${sysTagHtml}</div>` +
+      `<div class="plan-title">${esc(s.text || `${store.unitName(s.out)} → ${store.unitName(s.inn)}`)}${sysTagHtml ? " " + sysTagHtml : ""}</div>` +
       (inheritNames ? `<div class="plan-sub">继承装备：${esc(inheritNames)}</div>` : "") +
       `</div>` +
       gradeBoxHtml(s) +

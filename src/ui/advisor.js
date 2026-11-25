@@ -268,20 +268,47 @@ export function mountAdvisor(store) {
     return `<span class="trait-delta fit" data-tip="item:${esc(ids[0])}"><span>契合装备：${esc(names)}</span></span>`;
   }
 
-  function gradeBoxHtml(row) {
+  function gradeBoxHtml(row, opts) {
+    const o = opts || {};
     const a = row && row.assessment;
     if (!a || !a.score || a.score.mid == null) return "";
     const mid = a.score.mid;
     const finite = typeof mid === "number" && isFinite(mid);
-    const unknown = a.status === "unknown";
-    const letter = finite ? gradeOf(mid) : "—";
-    const letterCls = finite ? `grade-${letter.toLowerCase()}` : "grade-c";
-    const unknownPill = unknown ? `<span class="conf-pill">资料待补</span>` : "";
+    const hasNumericModel = a.status === "now" && finite && mid >= 1;
+    if (hasNumericModel) {
+      const letter = gradeOf(mid);
+      const letterCls = `grade-${letter.toLowerCase()}`;
+      return (
+        `<div class="grade-box">` +
+        `<span class="grade-letter ${letterCls}">${esc(letter)}</span>` +
+        `<span class="grade-delta">${esc(fmtScore(mid))}</span>` +
+        `</div>`
+      );
+    }
+    if (o.kind === "swap") {
+      const game = o.game;
+      const outCost = game && game.byId && game.byId[row.out] ? game.byId[row.out].cost : 0;
+      const inCost = game && game.byId && game.byId[row.inn] ? game.byId[row.inn].cost : 0;
+      const costDiff = inCost - outCost;
+      const tag = row.systemTag || (costDiff > 0 ? "高费升级" : "优化替换");
+      const tier = row.systemTier || (costDiff > 0 ? "upgrade" : "core");
+      const costChip = costDiff > 0 ? `<span class="tactical-delta">+${costDiff}费</span>` : "";
+      return (
+        `<div class="tactical-box">` +
+        costChip +
+        `<span class="sys-tag sys-${esc(tier)}">${esc(tag)}</span>` +
+        `</div>`
+      );
+    }
+    const idx = Number(o.index) || 0;
+    const label = idx === 0 ? "首选推荐" : idx === 1 ? "体系备选" : "延伸方向";
+    const cls = idx === 0 ? "is-primary" : "is-alt";
+    const traitCnt = Array.isArray(row.traits) ? row.traits.length : 0;
+    const subChip = traitCnt > 0 ? `<span class="tactical-delta">${traitCnt}羁绊</span>` : "";
     return (
-      `<div class="grade-box">` +
-      `<span class="grade-letter ${letterCls}">${esc(letter)}</span>` +
-      `<span class="grade-delta">${esc(fmtScore(mid))}</span>` +
-      unknownPill +
+      `<div class="tactical-box">` +
+      subChip +
+      `<span class="tactical-pill ${cls}">${esc(label)}</span>` +
       `</div>`
     );
   }
@@ -457,7 +484,7 @@ export function mountAdvisor(store) {
       `<div style="min-width:0">` +
       `<div class="plan-title">${esc(p.title || "推荐方案")}</div>` +
       `</div>` +
-      gradeBoxHtml(p) +
+      gradeBoxHtml(p, { kind: "plan", index: i, game }) +
       `</div>` +
       (unitsHtml ? `<div class="plan-units">${unitsHtml}</div>` : "") +
       (traitsHtml || fitHtml ? `<div class="plan-traits">${traitsHtml}${fitHtml}</div>` : "") +
@@ -488,18 +515,15 @@ export function mountAdvisor(store) {
     const inheritNames = uniqueStrings(inherited).map((id) => store.itemName(id)).join("、");
     const traitsHtml = (s.traitChanges || []).slice(0, 6).map((c) => traitDeltaHtml(game, c)).join("");
     const applyText = s.requiredStars > 1 ? `按 ${s.requiredStars} 星应用替换` : "应用替换";
-    const sysTagHtml = s.systemTag
-      ? `<span class="sys-tag sys-${esc(s.systemTier || "upgrade")}">${esc(s.systemTag)}</span>`
-      : "";
 
     return (
       `<article class="plan-item${previewing ? " is-previewing" : ""}">` +
       `<div class="plan-top">` +
       `<div style="min-width:0">` +
-      `<div class="plan-title">${esc(s.text || `${store.unitName(s.out)} → ${store.unitName(s.inn)}`)}${sysTagHtml ? " " + sysTagHtml : ""}</div>` +
+      `<div class="plan-title">${esc(s.text || `${store.unitName(s.out)} → ${store.unitName(s.inn)}`)}</div>` +
       (inheritNames ? `<div class="plan-sub">继承装备：${esc(inheritNames)}</div>` : "") +
       `</div>` +
-      gradeBoxHtml(s) +
+      gradeBoxHtml(s, { kind: "swap", index: i, game }) +
       `</div>` +
       `<div class="plan-units">${outHtml}<span style="color:var(--text-muted);align-self:center">→</span>${inHtml}</div>` +
       (traitsHtml ? `<div class="plan-traits">${traitsHtml}</div>` : "") +

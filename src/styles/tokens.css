@@ -1,4 +1,4 @@
-@layer reset, tokens, base, layout, components, board, armory, advisor;
+@layer reset, tokens, base, layout, components, board, armory, advisor, responsive;
 
 @layer reset {
   *, *::before, *::after {

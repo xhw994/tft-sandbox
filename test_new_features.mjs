@@ -14,6 +14,13 @@ import {
   buildUnlockContext
 } from "./src/logic/unlock-planner.js";
 import { planBoardReorg } from "./src/logic/reorg-planner.js";
+import {
+  encodeShareCode,
+  buildShareUrl,
+  buildShareText,
+  decodeShareInput
+} from "./src/logic/share-codec.js";
+import { createStore } from "./src/state/store.js";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const sandbox = { console };
@@ -610,6 +617,115 @@ test("board: reset clears targetTraitCount and extraSlots cleanly", () => {
   assert.equal(r.state.extraSlots, 0);
   assert.equal(r.state.targetTraitCount, 0);
   assert.deepEqual(plain(r.state.traitTargets), {});
+});
+
+test("engine: classify() continuous carryRank picks 5-cost Taliyah over 1-cost Zoe on 1* Lv10 Ocean Song board", () => {
+  const board = [
+    "DA_Zoe19", "DA_Ashe19", "DA_Zac19", "DA_Rell19", "DA_Renekton19",
+    "DA_Nunu19", "DA_Graves19", "DA_Taliyah19", "DA_Syndra19", "DA_Mel19"
+  ].map((id) => ({ id, star: 1, items: [] }));
+  const rec = game.recommend(board, { level: 10, allowLocked: true });
+  assert.equal(rec.labels.DA_Taliyah19, "carry", "5-cost Taliyah should be inferred carry, got: " + JSON.stringify(rec.labels));
+  assert.notEqual(rec.labels.DA_Zoe19, "carry", "1-cost Zoe should not beat 5-cost Taliyah");
+});
+
+test("share-codec: encodes and decodes plain text code, chat-wrapped text, and URL hash with full fidelity", () => {
+  const state = freshState({
+    level: 9,
+    extraSlots: 1,
+    mode: "fast8",
+    allowLocked: false,
+    focusId: "DA_Jinx19",
+    unlockTargetId: "DA_Tibbers19",
+    board: [
+      { id: "DA_Jinx19", star: 2, mark: "carry", position: { row: 3, col: 0 }, items: ["DA_InfinityEdge", "DA_LastWhisper"] },
+      { id: "DA_Shyvana19", star: 2, mark: "tank", position: { row: 0, col: 3 }, items: ["DA_WarmogsArmor"] }
+    ],
+    looseItems: ["DA_IonicSpark19_Emblem"],
+    emblems: { DA_IonicSpark19: 1 },
+    prismatic: { DA_IonicSpark19: true },
+    traitTargets: { DA_IonicSpark19: 7 },
+    bannedIds: { DA_Zoe19: true },
+    targetTraitCount: 6
+  });
+
+  const code = encodeShareCode(state, game);
+  assert.ok(code.startsWith("TFT19:"), "code starts with TFT19:");
+
+  const dec1 = decodeShareInput(code, game);
+  assert.equal(dec1.error, null);
+  assert.equal(dec1.state.level, 9);
+  assert.equal(dec1.state.extraSlots, 1);
+  assert.equal(dec1.state.mode, "fast8");
+  assert.equal(dec1.state.allowLocked, false);
+  assert.equal(dec1.state.focusId, "DA_Jinx19");
+  assert.equal(dec1.state.unlockTargetId, "DA_Tibbers19");
+  assert.equal(dec1.state.board.length, 2);
+  assert.deepEqual(dec1.state.board[0].items, ["DA_InfinityEdge", "DA_LastWhisper"]);
+  assert.deepEqual(dec1.state.looseItems, ["DA_IonicSpark19_Emblem"]);
+  assert.deepEqual(dec1.state.prismatic, { DA_IonicSpark19: true });
+  assert.deepEqual(dec1.state.traitTargets, { DA_IonicSpark19: 7 });
+  assert.deepEqual(dec1.state.bannedIds, { DA_Zoe19: true });
+
+  // Chat-wrapped plain text share works seamlessly
+  const chatText = buildShareText(state, game, { system: { primaryTraits: [{ name: "离子火花" }], archetypeLabel: "垂直高羁绊" } });
+  assert.ok(chatText.includes("云顶沙盘") && chatText.includes("TFT19:"));
+  const dec2 = decodeShareInput(`兄弟帮我看看这盘怎么转：\n${chatText}\n在线等！`, game);
+  assert.equal(dec2.error, null);
+  assert.equal(dec2.state.board.length, 2);
+  assert.equal(dec2.state.focusId, "DA_Jinx19");
+
+  // Full URL hash link works seamlessly
+  const url = buildShareUrl(state, game, "https://xhw994.github.io/tft-sandbox/");
+  assert.ok(url.includes("#s=TFT19:"));
+  const dec3 = decodeShareInput(url, game);
+  assert.equal(dec3.error, null);
+  assert.equal(dec3.state.level, 9);
+
+  // Invalid / garbled input rejected cleanly
+  assert.ok(decodeShareInput("hello world", game).error);
+  assert.ok(decodeShareInput("TFT19:not-valid-base64!!!", game).error);
+});
+
+test("store: Undo/Redo stack tracks edits, reset, and share-code import cleanly", () => {
+  globalThis.SET19 = data;
+  globalThis.TFT = sandbox.TFT;
+  globalThis.TFTBoard = sandbox.TFTBoard;
+  globalThis.TFTAssess = sandbox.TFTAssess;
+
+  const store = createStore();
+  store.init();
+  assert.equal(store.canUndo(), false);
+
+  store.act({ type: "add-unit", id: "DA_Elise19", position: { row: 0, col: 2 } });
+  assert.equal(store.getState().board.length, 1);
+  assert.equal(store.canUndo(), true);
+
+  store.act({ type: "set-star", id: "DA_Elise19", star: 2 });
+  assert.equal(store.getState().board[0].star, 2);
+
+  assert.equal(store.undo(), true);
+  assert.equal(store.getState().board[0].star, 1);
+  assert.equal(store.canRedo(), true);
+
+  assert.equal(store.redo(), true);
+  assert.equal(store.getState().board[0].star, 2);
+
+  const code = store.getShareCode();
+  store.resetAll();
+  assert.equal(store.getState().board.length, 0);
+
+  // Ctrl+Z undo restores pre-reset state too
+  assert.equal(store.undo(), true);
+  assert.equal(store.getState().board.length, 1);
+
+  // Import share code is also undoable
+  store.resetAll();
+  const imp = store.importShareText(code);
+  assert.equal(imp.ok, true);
+  assert.equal(store.getState().board.length, 1);
+  assert.equal(store.undo(), true);
+  assert.equal(store.getState().board.length, 0);
 });
 
 console.log(`All ${passed} new feature tests passed!`);

@@ -31,6 +31,15 @@ export function mountHeader(store) {
   const modeLabel = $("mode-label");
   const modeMenu = $("mode-menu");
   const btnAllowLocked = $("btn-allow-locked");
+  const btnUndo = $("btn-undo");
+  const btnShareTrigger = $("btn-share-trigger");
+  const shareMenu = $("share-menu");
+  const btnCopyShareText = $("btn-copy-share-text");
+  const btnCopyShareUrl = $("btn-copy-share-url");
+  const shareCodePreview = $("share-code-preview");
+  const shareImportInput = $("share-import-input");
+  const btnImportShare = $("btn-import-share");
+  const shareStatus = $("share-status");
   const btnQuickReset = $("btn-quick-reset");
   const settingsMenu = $("settings-menu");
   const themeSeg = $("theme-seg");
@@ -139,6 +148,79 @@ export function mountHeader(store) {
       store.resetAll();
     });
   }
+  if (btnUndo) {
+    btnUndo.addEventListener("click", () => {
+      store.undo();
+    });
+  }
+
+  function copyText(text, okMsg) {
+    const done = (ok) => {
+      if (shareStatus) shareStatus.textContent = ok ? okMsg : "请手动全选复制上方文本码";
+    };
+    if (typeof navigator !== "undefined" && navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      navigator.clipboard.writeText(text).then(() => done(true), () => done(false));
+      return;
+    }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      ta.remove();
+      done(ok);
+    } catch {
+      done(false);
+    }
+  }
+
+  function refreshSharePreview() {
+    if (shareCodePreview) shareCodePreview.value = store.getShareCode();
+    if (shareStatus) shareStatus.textContent = "";
+  }
+
+  if (btnShareTrigger) {
+    btnShareTrigger.addEventListener("click", () => {
+      refreshSharePreview();
+    });
+  }
+  if (shareMenu) {
+    shareMenu.addEventListener("toggle", (e) => {
+      if (e.newState === "open") refreshSharePreview();
+    });
+  }
+  if (shareCodePreview) {
+    shareCodePreview.addEventListener("focus", () => shareCodePreview.select());
+  }
+  if (btnCopyShareText) {
+    btnCopyShareText.addEventListener("click", () => {
+      refreshSharePreview();
+      copyText(store.getShareText(), "已复制纯文本阵容码");
+    });
+  }
+  if (btnCopyShareUrl) {
+    btnCopyShareUrl.addEventListener("click", () => {
+      refreshSharePreview();
+      copyText(store.getShareUrl(), "已复制分享链接");
+    });
+  }
+  if (btnImportShare && shareImportInput) {
+    btnImportShare.addEventListener("click", () => {
+      const raw = shareImportInput.value;
+      const res = store.importShareText(raw);
+      if (res.ok) {
+        shareImportInput.value = "";
+        if (shareStatus) shareStatus.textContent = "";
+        closePopover(shareMenu);
+      } else if (shareStatus) {
+        shareStatus.textContent = res.error || "导入失败";
+      }
+    });
+  }
+
   if (btnQuickReset) {
     btnQuickReset.addEventListener("click", () => {
       store.resetAll();
@@ -171,6 +253,7 @@ export function mountHeader(store) {
       state.extraSlots || 0,
       playstyle,
       state.allowLocked ? 1 : 0,
+      store.canUndo() ? 1 : 0,
       theme
     ].join("|");
 
@@ -217,6 +300,9 @@ export function mountHeader(store) {
       const on = !!state.allowLocked;
       btnAllowLocked.setAttribute("aria-pressed", String(on));
       btnAllowLocked.classList.toggle("toggle-on", on);
+    }
+    if (btnUndo) {
+      btnUndo.disabled = !store.canUndo();
     }
 
     if (themeSeg) {

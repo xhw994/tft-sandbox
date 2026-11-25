@@ -63,7 +63,125 @@
     background: var(--bg-surface);
   }
 
-  @media (max-width: 1279px) {
+  @media (max-width: 1360px) {
+    .workspace {
+      grid-template-columns: 232px minmax(0, 1fr) 348px;
+    }
+    .topbar {
+      padding: 0 12px;
+      gap: 8px;
+    }
+  }
+}
+
+@layer responsive {
+  /* Half-screen / split-screen desktop (e.g. 960px wide beside TFT client) */
+  @media (max-width: 1159px) {
+    .app-shell {
+      grid-template-rows: auto minmax(0, 1fr);
+      height: 100dvh;
+    }
+    .topbar {
+      height: auto;
+      min-height: 44px;
+      flex-wrap: wrap;
+      padding: 6px 10px;
+      gap: 6px;
+    }
+    .brand .save-dot {
+      display: none;
+    }
+    .cmd-group {
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .cmd-divider {
+      display: none;
+    }
+    .workspace {
+      grid-template-columns: minmax(0, 1.28fr) minmax(292px, 0.92fr);
+      grid-template-rows: auto minmax(0, 1fr);
+      min-height: 0;
+    }
+    .traits-rail {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      align-items: stretch;
+      border-right: 0;
+      border-bottom: 1px solid var(--border-subtle);
+      max-height: 92px;
+      min-height: 68px;
+      overflow: hidden;
+    }
+    .traits-rail .pane-head {
+      display: none;
+    }
+    .traits-rail .traits-scroll {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 6px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 6px 10px;
+    }
+    .traits-rail .trait-row {
+      flex: 0 0 auto;
+      min-width: 136px;
+      max-width: 178px;
+      padding: 4px 7px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      background: var(--bg-elevated);
+    }
+    .traits-rail .traits-target-bar {
+      flex: 0 0 auto;
+      border-top: 0;
+      border-left: 1px solid var(--border-subtle);
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+    }
+    .traits-rail .traits-target-bar[hidden] {
+      display: none;
+    }
+    .traits-rail .equip-dock {
+      flex: 0 0 228px;
+      border-top: 0;
+      border-left: 1px solid var(--border-subtle);
+      padding: 5px 8px;
+      gap: 4px;
+      justify-content: center;
+    }
+    .traits-rail .equip-grid {
+      max-height: 44px;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+    }
+    .center-stage {
+      min-height: 0;
+      overflow: hidden;
+    }
+    .center-stage .pop-sub {
+      display: none;
+    }
+    .board-mat {
+      padding: 6px 8px;
+    }
+    .hex-board {
+      --w: clamp(46px, 6.2vw, 66px);
+    }
+    .advisor-rail {
+      min-height: 0;
+    }
+  }
+
+  /* Narrow / mobile stacked view */
+  @media (max-width: 779px) {
     body {
       overflow-y: auto;
       overflow-x: hidden;
@@ -73,57 +191,43 @@
       min-height: 100dvh;
     }
     .workspace {
-      grid-template-columns: 256px minmax(0, 1fr);
-      grid-template-rows: auto auto;
-    }
-    .traits-rail {
-      max-height: calc(100dvh - 50px);
-      position: sticky;
-      top: 0;
-    }
-    .center-stage {
-      overflow: visible;
-    }
-    .advisor-rail {
-      grid-column: 1 / -1;
-      border-left: 0;
-      border-top: 1px solid var(--border-subtle);
-    }
-    .advisor-scroll {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 12px;
-      align-items: start;
-      overflow-y: visible;
-    }
-  }
-
-  @media (max-width: 859px) {
-    .topbar {
-      height: auto;
-      min-height: 50px;
-      flex-wrap: wrap;
-      padding: 8px 12px;
-      gap: 8px;
-    }
-    .cmd-group {
-      flex-wrap: wrap;
-    }
-    .workspace {
       grid-template-columns: 1fr;
       grid-template-rows: auto auto auto;
     }
     .traits-rail {
-      border-right: 0;
-      border-bottom: 1px solid var(--border-subtle);
-      position: static;
-      max-height: 380px;
+      grid-column: auto;
+      flex-direction: column;
+      max-height: 260px;
+    }
+    .traits-rail .pane-head {
+      display: flex;
+    }
+    .traits-rail .traits-scroll {
+      flex-direction: column;
+      align-items: stretch;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    .traits-rail .trait-row {
+      max-width: none;
+    }
+    .traits-rail .equip-dock {
+      flex: 0 0 auto;
+      border-left: 0;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .traits-rail .equip-grid {
+      max-height: 86px;
+    }
+    .center-stage {
+      overflow: visible;
+    }
+    .hex-board {
+      --w: clamp(40px, 11.4vw, 60px);
     }
     .advisor-rail {
-      grid-column: auto;
-    }
-    .advisor-scroll {
-      grid-template-columns: 1fr;
+      border-left: 0;
+      border-top: 1px solid var(--border-subtle);
     }
   }
 }

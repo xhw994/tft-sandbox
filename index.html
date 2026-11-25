@@ -89,6 +89,26 @@
 
       <div class="cmd-divider"></div>
 
+      <button type="button" id="btn-undo" class="btn" disabled title="撤销上一步 (Ctrl+Z)" aria-label="撤销上一步">撤销</button>
+      <button type="button" id="btn-share-trigger" class="btn" popovertarget="share-menu" aria-haspopup="dialog" title="生成分享链接 / 纯文本阵容码或导入残局">分享</button>
+      <div id="share-menu" class="share-popover" popover="auto" role="dialog" aria-label="残局分享与导入">
+        <div class="share-head">
+          <strong>残局分享与导入</strong>
+          <span class="share-sub">纯文本码 / 链接均通用</span>
+        </div>
+        <div class="share-copy-row">
+          <button type="button" id="btn-copy-share-text" class="btn sm primary">复制纯文本码</button>
+          <button type="button" id="btn-copy-share-url" class="btn sm">复制分享链接</button>
+        </div>
+        <input id="share-code-preview" class="share-code-box" type="text" readonly aria-label="当前残局纯文本分享码">
+        <div class="mode-sep" role="separator"></div>
+        <label class="share-label" for="share-import-input">粘贴纯文本码、聊天记录或链接导入：</label>
+        <textarea id="share-import-input" class="share-textarea" rows="3" placeholder="粘贴 TFT19:... 或分享链接"></textarea>
+        <div class="share-foot">
+          <span id="share-status" class="share-status" role="status"></span>
+          <button type="button" id="btn-import-share" class="btn sm primary">导入残局</button>
+        </div>
+      </div>
       <button type="button" id="btn-quick-reset" class="btn" title="一键清空棋盘、装备、目标与禁用（支持撤销）">重置</button>
       <button type="button" id="btn-settings-trigger" class="btn" popovertarget="settings-menu" aria-haspopup="menu">设定 ▾</button>
       <div id="settings-menu" class="settings-popover" popover="auto" role="menu" aria-label="工作台设定">

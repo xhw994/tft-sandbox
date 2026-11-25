@@ -1053,6 +1053,12 @@ var TFT = (function () {
         var frontlineQ = TFTAssess.qFor(entry, entry.star || 1, "frontline", ctx.profile || defaultProf, data);
         rows.push({ id: entry.id, star: entry.star || 1, mark: entry.mark || "", invest: investmentOf(entry), damageQ: damageQ, frontlineQ: frontlineQ, status: fullStatus(unit, entry.star, curve, mode), carryRole: isCarryRole(unit), tankRole: isTankRole(unit), cost: unit.cost, fit: traitFit(entry, board, ctx) });
       }
+      function carryRank(row) {
+        var gold = goldValue(row.cost, row.star);
+        var traitBonus = row.fit > 0 ? 3.0 + Math.min(3.5, row.fit * 0.04) : 0;
+        var investBonus = Math.min(0.6, (row.invest || 0) * 0.12);
+        return gold + traitBonus + investBonus;
+      }
       function tankRank(row) {
         var gold = goldValue(row.cost, row.star);
         var investBonus = (row.invest || 0) * 2.5;
@@ -1062,10 +1068,10 @@ var TFT = (function () {
       function cmpKey(a, b, kind) {
         var qA = kind === "carry" ? a.damageQ : a.frontlineQ, qB = kind === "carry" ? b.damageQ : b.frontlineQ;
         var tupleA = kind === "carry"
-          ? [a.star, a.fit, a.cost, a.invest, qA.mid, qA.lo]
+          ? [carryRank(a), a.star, a.cost, a.fit, a.invest, qA.mid, qA.lo]
           : [tankRank(a), a.star, a.cost, a.invest, a.fit, qA.mid, qA.lo];
         var tupleB = kind === "carry"
-          ? [b.star, b.fit, b.cost, b.invest, qB.mid, qB.lo]
+          ? [carryRank(b), b.star, b.cost, b.fit, b.invest, qB.mid, qB.lo]
           : [tankRank(b), b.star, b.cost, b.invest, b.fit, qB.mid, qB.lo];
         for (var k = 0; k < tupleA.length; k++) if (tupleA[k] !== tupleB[k]) return tupleB[k] - tupleA[k];
         return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;

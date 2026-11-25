@@ -112,6 +112,21 @@ document.addEventListener("keydown", (e) => {
 
   if (isTypingTarget(document.activeElement)) return;
 
+  if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+    const k = e.key.toLowerCase();
+    if (k === "z") {
+      e.preventDefault();
+      if (e.shiftKey) store.redo();
+      else store.undo();
+      return;
+    }
+    if (k === "y") {
+      e.preventDefault();
+      store.redo();
+      return;
+    }
+  }
+
   if (e.key === "/") {
     e.preventDefault();
     const search = document.getElementById("search-q");

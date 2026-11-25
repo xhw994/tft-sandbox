@@ -1,6 +1,7 @@
 import { classifyItem, itemUnitScore, resolveLooseItems, findEmblemItemForTrait } from "../logic/item-affinity.js";
 import { parseUnlockMeta, buildUnlockContext } from "../logic/unlock-planner.js";
 import { planBoardReorg } from "../logic/reorg-planner.js";
+import { encodeShareCode, buildShareUrl, buildShareText, decodeShareInput, extractShareToken } from "../logic/share-codec.js";
 
 export const DIRTY_HEADER     = 1 << 0;
 export const DIRTY_POP        = 1 << 1;
@@ -157,6 +158,10 @@ export function createStore() {
   let analyzeRaf = null;
   let lastResetSnapshot = null;
   let resetUndoTimer = null;
+  let noticeAutoTimer = null;
+  const MAX_HISTORY = 40;
+  let undoStack = [];
+  let redoStack = [];
 
   const ui = {
     q: "",
@@ -936,9 +941,95 @@ export function createStore() {
     return null;
   }
 
+  function snapshotState(src) {
+    return JSON.parse(JSON.stringify(src || state));
+  }
+
+  function pushUndo(snap) {
+    if (!snap) return;
+    undoStack.push(snap);
+    if (undoStack.length > MAX_HISTORY) undoStack.shift();
+    redoStack = [];
+  }
+
+  function isUndoableAction(action) {
+    if (!action) return false;
+    if (action.type === "update-settings") {
+      const keys = Object.keys(action.settings || {});
+      return keys.some((k) => k !== "libraryTab" && k !== "viewMode");
+    }
+    return true;
+  }
+
+  function flashNotice(msg, ms) {
+    if (noticeAutoTimer != null) {
+      clearTimeout(noticeAutoTimer);
+      noticeAutoTimer = null;
+    }
+    ui.canUndoReset = false;
+    ui.notice = msg || "";
+    emit(DIRTY_NOTICE);
+    if (msg && ms > 0) {
+      noticeAutoTimer = setTimeout(() => {
+        noticeAutoTimer = null;
+        if (ui.notice === msg && !ui.canUndoReset) {
+          ui.notice = "";
+          emit(DIRTY_NOTICE);
+        }
+      }, ms);
+    }
+  }
+
+  function restoreSnapshot(snap, msg) {
+    if (!snap || !game) return false;
+    if (resetUndoTimer != null) {
+      clearTimeout(resetUndoTimer);
+      resetUndoTimer = null;
+    }
+    lastResetSnapshot = null;
+    ui.canUndoReset = false;
+    clearAllPendingBans();
+    state = Object.assign(freshState(), snapshotState(snap));
+    ui.selected = null;
+    ui.preview = null;
+    analysis.previewDiff = null;
+    normalizeState();
+    analysis.loosePlan = computeQuickLoosePlan();
+    save();
+    scheduleAnalyze();
+    emit(DIRTY_ALL);
+    if (msg) flashNotice(msg, 2400);
+    return true;
+  }
+
+  function undo() {
+    if (!undoStack.length || !game) return false;
+    const prev = undoStack.pop();
+    redoStack.push(snapshotState(state));
+    if (redoStack.length > MAX_HISTORY) redoStack.shift();
+    return restoreSnapshot(prev, "已撤销上一步");
+  }
+
+  function redo() {
+    if (!redoStack.length || !game) return false;
+    const next = redoStack.pop();
+    undoStack.push(snapshotState(state));
+    if (undoStack.length > MAX_HISTORY) undoStack.shift();
+    return restoreSnapshot(next, "已重做");
+  }
+
+  function canUndo() {
+    return undoStack.length > 0;
+  }
+
+  function canRedo() {
+    return redoStack.length > 0;
+  }
+
   function act(action) {
     if (!game || !TFTBoard()) return false;
     const prevState = state;
+    const prevSnap = isUndoableAction(action) ? snapshotState(prevState) : null;
     let r = TFTBoard().apply(state, action, game);
     if (r.error && /^unknown action/.test(r.error)) {
       const fb = applyBoardActionFallback(state, action);
@@ -949,6 +1040,7 @@ export function createStore() {
       return false;
     }
 
+    if (r.changed && prevSnap) pushUndo(prevSnap);
     state = r.state;
     if (action.type !== "reset" && (ui.canUndoReset || lastResetSnapshot)) {
       if (resetUndoTimer != null) {
@@ -983,7 +1075,8 @@ export function createStore() {
     }
 
     save();
-    const mask = dirtyMaskForAction(action, prevState, state);
+    let mask = dirtyMaskForAction(action, prevState, state);
+    if (r.changed && prevSnap) mask |= DIRTY_HEADER;
     if (needAnalyze) scheduleAnalyze();
     emit(mask);
     return true;
@@ -1286,6 +1379,7 @@ export function createStore() {
 
   function loadDemo() {
     if (!game) return;
+    pushUndo(snapshotState(state));
     clearAllPendingBans();
     const demo = [
       { id: "DA_Elise19", star: 2 },
@@ -1352,14 +1446,49 @@ export function createStore() {
 
   function undoReset() {
     if (!lastResetSnapshot || !game) return false;
-    if (resetUndoTimer != null) {
-      clearTimeout(resetUndoTimer);
-      resetUndoTimer = null;
+    const snap = lastResetSnapshot;
+    if (undoStack.length) undoStack.pop();
+    return restoreSnapshot(snap, "已撤销重置");
+  }
+
+  function getShareCode() {
+    return game ? encodeShareCode(state, game) : "";
+  }
+
+  function getShareUrl() {
+    return game ? buildShareUrl(state, game) : "";
+  }
+
+  function getShareText() {
+    return game ? buildShareText(state, game, analysis.rec) : "";
+  }
+
+  function importShareText(raw, opts) {
+    if (!game) return { ok: false, error: "引擎未初始化" };
+    const decoded = decodeShareInput(raw, game);
+    if (decoded.error || !decoded.state) {
+      if (!(opts && opts.silent)) notify(decoded.error || "导入失败");
+      return { ok: false, error: decoded.error || "导入失败" };
     }
-    state = Object.assign(freshState(), JSON.parse(JSON.stringify(lastResetSnapshot)));
-    lastResetSnapshot = null;
-    ui.canUndoReset = false;
-    ui.notice = "";
+    if (!(opts && opts.noUndo)) pushUndo(snapshotState(state));
+    clearAllPendingBans();
+    const d = decoded.state;
+    state = Object.assign(freshState(), {
+      level: d.level,
+      extraSlots: d.extraSlots,
+      mode: d.mode,
+      viewMode: "normal",
+      allowLocked: d.allowLocked,
+      focusId: d.focusId,
+      unlockTargetId: d.unlockTargetId,
+      board: d.board.map(migrateEntry),
+      looseItems: d.looseItems.slice(),
+      emblems: Object.assign({}, d.emblems),
+      prismatic: Object.assign({}, d.prismatic),
+      traitTargets: Object.assign({}, d.traitTargets),
+      bannedIds: Object.assign({}, d.bannedIds),
+      targetTraitCount: d.targetTraitCount
+    });
     ui.selected = null;
     ui.preview = null;
     analysis.previewDiff = null;
@@ -1368,7 +1497,11 @@ export function createStore() {
     save();
     scheduleAnalyze();
     emit(DIRTY_ALL);
-    return true;
+    const suffix = decoded.warnings && decoded.warnings.length ? `（${decoded.warnings[0]}）` : "";
+    if (!(opts && opts.silent)) {
+      flashNotice(`已导入残局：${state.level}级 · ${state.board.length} 弈子${suffix}`, 3600);
+    }
+    return { ok: true, error: null, warnings: decoded.warnings || [] };
   }
 
   function cancelTracker() {
@@ -1408,7 +1541,24 @@ export function createStore() {
     }
     setGame(globalThis.SET19, false);
     load();
-    if (!state.board.length && typeof location !== "undefined" && /[?&]demo=1/.test(location.search)) {
+    let loadedFromShare = false;
+    if (typeof location !== "undefined") {
+      const shareSource = (location.hash || "") + " " + (location.search || "");
+      const shareToken = extractShareToken(shareSource);
+      if (shareToken) {
+        const res = importShareText(shareToken, { noUndo: true, silent: true });
+        if (res.ok) {
+          loadedFromShare = true;
+          try {
+            if (typeof history !== "undefined" && typeof history.replaceState === "function" && location.hash) {
+              history.replaceState(null, "", location.href.split("#")[0]);
+            }
+          } catch { /* ignore */ }
+          flashNotice(`已从分享链接载入残局（${state.level}级 · ${state.board.length} 弈子）`, 4200);
+        }
+      }
+    }
+    if (!loadedFromShare && !state.board.length && typeof location !== "undefined" && /[?&]demo=1/.test(location.search)) {
       const demo = [
         { id: "DA_Elise19", star: 2 },
         { id: "DA_Yunara19", star: 2 },
@@ -1421,10 +1571,12 @@ export function createStore() {
       state.level = 8;
       normalizeState();
     }
-    analysis.loosePlan = computeQuickLoosePlan();
-    save();
-    emit(DIRTY_ALL);
-    scheduleAnalyze();
+    if (!loadedFromShare) {
+      analysis.loosePlan = computeQuickLoosePlan();
+      save();
+      emit(DIRTY_ALL);
+      scheduleAnalyze();
+    }
   }
 
   return {
@@ -1467,6 +1619,14 @@ export function createStore() {
     loadDemo,
     resetAll,
     undoReset,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    getShareCode,
+    getShareUrl,
+    getShareText,
+    importShareText,
     cancelTracker,
     dismissEmblemPrompt,
     notify,

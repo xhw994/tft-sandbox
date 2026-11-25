@@ -4,6 +4,7 @@ const PLAYSTYLE_LABELS = {
   normal: "普通补强",
   reroll: "赌狗低费",
   fast8: "高费运营",
+  reorg: "阵容整理",
   ladder: "羁绊天梯"
 };
 
@@ -30,6 +31,7 @@ export function mountHeader(store) {
   const modeLabel = $("mode-label");
   const modeMenu = $("mode-menu");
   const btnAllowLocked = $("btn-allow-locked");
+  const btnQuickReset = $("btn-quick-reset");
   const settingsMenu = $("settings-menu");
   const themeSeg = $("theme-seg");
   const btnImport = $("btn-import");
@@ -137,6 +139,17 @@ export function mountHeader(store) {
       store.resetAll();
     });
   }
+  if (btnQuickReset) {
+    btnQuickReset.addEventListener("click", () => {
+      store.resetAll();
+    });
+  }
+  if (noticeBar) {
+    noticeBar.addEventListener("click", (e) => {
+      const btn = e.target.closest && e.target.closest("[data-undo-reset]");
+      if (btn) store.undoReset();
+    });
+  }
 
   let prevHeaderKey = "";
   let prevNotice = null;
@@ -217,11 +230,25 @@ export function mountHeader(store) {
 
   function renderNotice() {
     if (!noticeBar) return;
-    const msg = store.getUI().notice || "";
-    if (msg === prevNotice) return;
-    prevNotice = msg;
-    noticeBar.textContent = msg;
-    noticeBar.hidden = !msg;
+    const ui = store.getUI();
+    const msg = ui.notice || "";
+    const undo = !!ui.canUndoReset;
+    const key = msg + "|" + (undo ? 1 : 0);
+    if (key === prevNotice) return;
+    prevNotice = key;
+    if (!msg) {
+      noticeBar.textContent = "";
+      noticeBar.hidden = true;
+      return;
+    }
+    if (undo) {
+      noticeBar.innerHTML =
+        "<span>" + store.esc(msg) + "</span>" +
+        '<button type="button" class="btn xs primary" data-undo-reset="1">撤销重置</button>';
+    } else {
+      noticeBar.textContent = msg;
+    }
+    noticeBar.hidden = false;
   }
 
   function update(dirtyMask) {

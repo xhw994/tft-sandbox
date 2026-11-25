@@ -39,12 +39,28 @@ export function mountTraitsPool(store) {
   const valGoalEl = $("val-goal");
   const btnGoalInc = $("btn-goal-inc");
   const listEl = $("traits-list");
+  const targetBarEl = $("traits-target-bar");
 
   const rowPool = new Map();
   let emptyNoteEl = null;
   let lastOrderKey = "";
   let lastSetVersion = -1;
   let lastGoalKey = "";
+  let lastTargetBarKey = "";
+
+  if (targetBarEl) {
+    targetBarEl.addEventListener("click", (e) => {
+      const t = e.target;
+      if (!t || !t.closest) return;
+      if (t.closest("[data-open-reorg]")) {
+        store.setPlaystyle("reorg");
+        return;
+      }
+      if (t.closest("[data-clear-targets]")) {
+        store.clearTraitTargets();
+      }
+    });
+  }
 
   if (btnGoalDec) {
     btnGoalDec.addEventListener("click", () => {
@@ -333,6 +349,29 @@ export function mountTraitsPool(store) {
       const v = visible[i];
       const ref = rowPool.get(v.t.id);
       if (ref) updateRow(ref, v.n, v.best, v.target, prisMap);
+    }
+
+    if (targetBarEl) {
+      const targetIds = Object.keys(targets).filter((k) => Number(targets[k]) > 0);
+      const inReorg = state.viewMode === "reorg";
+      const barKey = targetIds.length + "|" + (inReorg ? 1 : 0);
+      if (barKey !== lastTargetBarKey) {
+        lastTargetBarKey = barKey;
+        if (!targetIds.length) {
+          targetBarEl.hidden = true;
+          targetBarEl.textContent = "";
+        } else {
+          targetBarEl.hidden = false;
+          targetBarEl.innerHTML =
+            '<span class="ttb-label">目标羁绊 <b>' + targetIds.length + "</b> 项</span>" +
+            '<div class="ttb-actions">' +
+            (inReorg
+              ? '<span class="ttb-active">整理中</span>'
+              : '<button type="button" class="btn xs primary" data-open-reorg="1">整理阵容</button>') +
+            '<button type="button" class="btn xs ghost" data-clear-targets="1" title="清空目标羁绊">清空</button>' +
+            "</div>";
+        }
+      }
     }
   }
 

@@ -13,6 +13,7 @@ import {
   parseUnlockMeta,
   buildUnlockContext
 } from "./src/logic/unlock-planner.js";
+import { planBoardReorg } from "./src/logic/reorg-planner.js";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const sandbox = { console };
@@ -512,6 +513,103 @@ test("engine: 3-item 2-star 4-cost tank retains main tank over naked 2-star 5-co
   ];
   const rec = game.recommend(board, { level: 9, mode: "auto", allowLocked: true });
   assert.equal(rec.labels.DA_Braum19, "tank", "3-item 2-star 4-cost tank retains main tank: " + JSON.stringify(rec.labels));
+});
+
+test("track: requireBoardRelatedLocked filters unrelated locked units and allows related ones", () => {
+  const board = [
+    { id: "DA_Elise19", star: 2, items: [] },
+    { id: "DA_Yunara19", star: 2, items: [] },
+    { id: "DA_Annie19", star: 2, items: [] }
+  ];
+  const task = game.track(
+    board,
+    { level: 8, mode: "auto", allowLocked: true, emblems: {}, prismatic: {} },
+    { targetTraitCount: 6, maxLevel: 9, requireBoardRelatedLocked: true }
+  );
+  let snap = task.step(25000);
+  assert.ok(snap.plans.length > 0, "should find ladder plans with board-related locked filter");
+  const unrelated = new Set([
+    "DA_Samira19", "DA_Alune19", "DA_Tristana19", "DA_Lulu19", "DA_Ashe19",
+    "DA_Kayle19", "DA_Zac19", "DA_Vayne19", "DA_Kobuko19", "DA_Aphelios19",
+    "DA_Wukong19", "DA_LeeSin19", "DA_Janna19", "DA_Smeech19"
+  ]);
+  for (const p of snap.plans) {
+    for (const a of p.adds) {
+      assert.ok(!unrelated.has(a.id), "unrelated locked unit should not appear in ladder: " + a.id);
+    }
+  }
+
+  // Explicitly targeting Ionic Spark 7 on this Annie-2* board SHOULD allow related Tibbers/Jinx
+  const taskRel = game.track(
+    board,
+    { level: 8, mode: "auto", allowLocked: true, emblems: {}, prismatic: {} },
+    { traitTargets: { DA_IonicSpark19: 7 }, targetTraitCount: 1, maxLevel: 8, requireBoardRelatedLocked: true }
+  );
+  let snapRel = taskRel.step(20000);
+  while (!snapRel.done) snapRel = taskRel.step(20000);
+  assert.ok(snapRel.plans.length > 0, "Ionic Spark 7 should succeed using board-related Tibbers/Jinx");
+});
+
+test("reorg-planner: reorganizes full 8/8 board toward target traits while protecting starred/itemized cores", () => {
+  const board = [
+    { id: "DA_Elise19", star: 2, items: ["DA_WarmogsArmor", "DA_GargoyleStoneplate"] },
+    { id: "DA_Yunara19", star: 2, items: ["DA_GuinsoosRageblade", "DA_InfinityEdge"] },
+    { id: "DA_Annie19", star: 2, items: [] },
+    { id: "DA_Lux19", star: 2, items: [] },
+    { id: "DA_Olaf19", star: 1, items: [] },
+    { id: "DA_Kayn19", star: 1, items: [] },
+    { id: "DA_Braum19", star: 1, items: [] },
+    { id: "DA_Bard19", star: 1, items: [] }
+  ];
+  const res = planBoardReorg(
+    board,
+    { level: 8, extraSlots: 0, emblems: {}, prismatic: {}, looseItems: [], bannedIds: {}, allowLocked: true, focusId: "DA_Yunara19" },
+    game,
+    { traitTargets: { DA_IonicSpark19: 7, DA_Bodyguard19: 2 } }
+  );
+  assert.equal(res.status, "ok", "should find Lv8 reorg plan: " + res.status);
+  assert.ok(res.plans.length >= 1, "at least 1 reorg plan");
+  const top = res.plans[0];
+  assert.ok(top.slots <= 8, "fits within Lv8 cap");
+  assert.ok(top.removes.length > 0 && top.adds.length > 0, "swaps fillers for target units");
+  const finalIds = new Set(top.board.map((e) => e.id));
+  assert.ok(finalIds.has("DA_Yunara19") && finalIds.has("DA_Elise19") && finalIds.has("DA_Annie19") && finalIds.has("DA_Lux19"), "keeps 2* itemized Ionic Spark core");
+  const ev = game.evaluate(top.board, { level: 8, emblems: {}, prismatic: {} }, null);
+  const ionic = ev.traits.find((t) => t.id === "DA_IonicSpark19");
+  const bg = ev.traits.find((t) => t.id === "DA_Bodyguard19");
+  assert.ok(ionic && ionic.count >= 7, "meets Ionic Spark 7: " + (ionic && ionic.count));
+  assert.ok(bg && bg.count >= 2, "meets Bodyguard 2: " + (bg && bg.count));
+});
+
+test("reorg-planner: handles no-targets, already-met, blocked prismatic, and need-level lookahead", () => {
+  const baseBoard = [
+    { id: "DA_Elise19", star: 2, items: [] },
+    { id: "DA_Yunara19", star: 2, items: [] },
+    { id: "DA_Annie19", star: 2, items: [] }
+  ];
+  const noT = planBoardReorg(baseBoard, { level: 8 }, game, { traitTargets: {} });
+  assert.equal(noT.status, "no-targets");
+  assert.ok(noT.quickSuggestions.length > 0, "suggests quick target presets from current board");
+
+  const met = planBoardReorg(baseBoard, { level: 8 }, game, { traitTargets: { DA_IonicSpark19: 3 } });
+  assert.equal(met.status, "already-met");
+
+  const blk = planBoardReorg(baseBoard, { level: 8, prismatic: {} }, game, { traitTargets: { DA_IonicSpark19: 10 } });
+  assert.equal(blk.status, "blocked");
+  assert.equal(blk.blockedTargets[0].id, "DA_IonicSpark19");
+
+  const needLvl = planBoardReorg(baseBoard, { level: 6, allowLocked: true }, game, { traitTargets: { DA_IonicSpark19: 7 } });
+  assert.equal(needLvl.status, "need-level", "Lv6 cannot fit 7 Ionic Spark units without leveling: " + needLvl.status);
+  assert.ok(needLvl.minLevel >= 7 && needLvl.plans.length > 0, "lookahead finds plan at minLevel >= 7");
+});
+
+test("board: reset clears targetTraitCount and extraSlots cleanly", () => {
+  const s0 = freshState({ level: 9, extraSlots: 2, targetTraitCount: 7, traitTargets: { DA_IonicSpark19: 7 } });
+  const r = TB.apply(s0, { type: "reset" }, game);
+  assert.equal(r.error, null);
+  assert.equal(r.state.extraSlots, 0);
+  assert.equal(r.state.targetTraitCount, 0);
+  assert.deepEqual(plain(r.state.traitTargets), {});
 });
 
 console.log(`All ${passed} new feature tests passed!`);

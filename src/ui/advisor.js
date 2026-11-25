@@ -65,6 +65,7 @@ export function mountAdvisor(store) {
 
   let lastRenderKey = null;
   let lastRecRef = null;
+  let lastReorgRef = null;
   let lastTrackerResRef = null;
   let lastUnlockResRef = null;
   let lastUnlockCtxRef = null;
@@ -84,6 +85,7 @@ export function mountAdvisor(store) {
       ui,
       analysis,
       rec: analysis.rec || ui.rec || null,
+      reorg: analysis.reorg || null,
       tracker: analysis.tracker || ui.tracker || null,
       unlockPlan: analysis.unlockCtx || analysis.unlockPlan || analysis.unlock || ui.unlockPlan || null,
       unlockTracker: analysis.unlockTracker || ui.unlockTracker || null
@@ -807,17 +809,152 @@ export function mountAdvisor(store) {
     );
   }
 
+  function renderReorgMode(ctx) {
+    const { state, game, ui, reorg } = ctx;
+    const rawTargets = state.traitTargets || {};
+    const targetEntries = Object.keys(rawTargets)
+      .filter((tid) => Number(rawTargets[tid]) > 0 && game.traitById && game.traitById[tid])
+      .map((tid) => ({ id: tid, trait: game.traitById[tid], need: Number(rawTargets[tid]) }));
+
+    const targetChipsHtml = targetEntries.map(({ id, trait, need }) =>
+      `<button type="button" class="reorg-target-chip" data-remove-target="${esc(id)}" data-need="${need}" data-tip="trait:${esc(id)}" title="点击取消此目标">` +
+      imgHtml(trait, "trait-delta-ico", trait.name, false) +
+      `<span>${esc(trait.name)} ${need}</span><span aria-hidden="true">×</span></button>`
+    ).join("");
+
+    let headBox = "";
+    if (targetEntries.length) {
+      headBox =
+        `<section class="reorg-targets">` +
+        `<div class="reorg-targets-head">` +
+        `<span class="eyebrow">目标羁绊 (${targetEntries.length})</span>` +
+        `<button type="button" class="btn xs ghost" data-clear-targets="1">清空目标</button>` +
+        `</div>` +
+        `<div class="reorg-target-chips">${targetChipsHtml}</div>` +
+        `</section>`;
+    }
+
+    if (!reorg || reorg.status === "no-targets") {
+      const quick = (reorg && reorg.quickSuggestions) || [];
+      const quickHtml = quick.length
+        ? `<div class="reorg-quick">` +
+          `<div class="plan-sub" style="margin-top:0">或直接按当前棋盘一键设为目标：</div>` +
+          `<div class="reorg-target-chips">` +
+          quick.map((q) => {
+            const tr = game.traitById && game.traitById[q.id];
+            return `<button type="button" class="emblem-pick-pill" data-quick-target="${esc(q.id)}" data-need="${q.need}">` +
+              (tr ? imgHtml(tr, "", tr.name, false) : "") +
+              `<span>${esc(q.name)} ${q.need}</span></button>`;
+          }).join("") +
+          `</div></div>`
+        : "";
+      return (
+        `<section class="reorg-targets">` +
+        `<div class="emblem-prompt-title">按目标羁绊整理当前阵容</div>` +
+        `<p class="emblem-prompt-sub">在左侧羁绊栏点击想要达成的档位（例如「离子火花 7」「护卫 2」），整理器会尽量保留高星与带装备核心，给出最少换人的调整方案。</p>` +
+        quickHtml +
+        `</section>` +
+        renderBannedBar(ctx)
+      );
+    }
+
+    if (reorg.status === "blocked") {
+      const items = (reorg.blockedTargets || []).map((b) =>
+        `<div class="reorg-banner is-warn">` +
+        `<span><b>${esc(b.name)} ${b.need}</b>：${esc(b.reason)}</span>` +
+        (b.reason.includes("棱彩")
+          ? `<button type="button" class="btn xs primary" data-enable-prism="${esc(b.id)}">开启棱彩</button>`
+          : "") +
+        `</div>`
+      ).join("");
+      return headBox + items + renderBannedBar(ctx);
+    }
+
+    if (reorg.status === "already-met") {
+      return (
+        headBox +
+        `<div class="reorg-banner is-good">` +
+        `<span>当前棋盘（${reorg.used} / ${reorg.cap} 人口）已达成全部目标羁绊，无需换人！</span>` +
+        `</div>` +
+        renderBannedBar(ctx)
+      );
+    }
+
+    const levelBanner = reorg.status === "need-level"
+      ? `<div class="reorg-banner is-warn"><span>当前 <b>${reorg.level} 级（${reorg.cap} 人口）</b>无法同时达成所选目标，升至 <b>${reorg.minLevel} 级</b> 后可行：</span></div>`
+      : "";
+
+    const plans = reorg.plans || [];
+    if (!plans.length) {
+      return (
+        headBox +
+        `<p class="advisor-empty">当前等级与禁用/解锁约束下暂无可行调整，可尝试减少目标羁绊、开启棱彩、或提高等级。</p>` +
+        renderBannedBar(ctx)
+      );
+    }
+
+    const cardsHtml = plans.map((p, i) => {
+      const previewing = isPreviewActive(ui, "reorg", i);
+      const remHtml = (p.removes || []).map((id) => {
+        const cur = (state.board || []).find((e) => e.id === id);
+        return miniUnitHtml(game, id, { out: true, star: cur ? cur.star : 1 });
+      }).join("");
+      const addHtml = (p.adds || []).map((a) => miniUnitHtml(game, a)).join("");
+      const diffHtml =
+        `<div class="reorg-diff">` +
+        (remHtml ? `<div class="reorg-diff-row"><span class="reorg-diff-label out">换下</span><div class="plan-units">${remHtml}</div></div>` : "") +
+        (addHtml ? `<div class="reorg-diff-row"><span class="reorg-diff-label in">换上</span><div class="plan-units">${addHtml}</div></div>` : "") +
+        `</div>`;
+
+      const xferNames = uniqueStrings((p.itemTransfers || []).flatMap((tr) => tr.items || [])).map((id) => store.itemName(id));
+      const xferHtml = xferNames.length
+        ? `<div class="plan-sub">装备继承：${esc(xferNames.join("、"))}</div>`
+        : "";
+      const keptHtml = p.keptCount > 0
+        ? `<div class="plan-sub">保留 ${p.keptCount} 张现有棋子${p.keptCoreNames && p.keptCoreNames.length ? "（含 " + esc(p.keptCoreNames.join("、")) + "）" : ""} · 核心保留率 ${p.keepPct}%</div>`
+        : "";
+      const traitsHtml = (p.traitChanges || []).slice(0, 6).map((c) => traitDeltaHtml(game, c)).join("");
+
+      return (
+        `<article class="plan-item${previewing ? " is-previewing" : ""}">` +
+        `<div class="plan-top">` +
+        `<div style="min-width:0">` +
+        `<div class="plan-title">${esc(p.title)}</div>` +
+        `<div class="plan-sub">人口 ${p.slots} / ${p.cap} · 激活 ${p.activeTraits} 条羁绊</div>` +
+        `</div>` +
+        `<span class="unlock-badge">保留 ${p.keepPct}%</span>` +
+        `</div>` +
+        diffHtml +
+        (traitsHtml ? `<div class="plan-traits">${traitsHtml}</div>` : "") +
+        xferHtml +
+        keptHtml +
+        `<div class="plan-foot">` +
+        `<span class="plan-sub">等级 ${p.requiredLevel}</span>` +
+        `<div class="plan-btns">` +
+        `<button type="button" class="btn sm${previewing ? " toggle-on" : ""}" data-preview-kind="reorg" data-preview-index="${i}">${previewing ? "预览中" : "预览棋盘"}</button>` +
+        `<button type="button" class="btn sm primary" data-apply-kind="reorg" data-apply-index="${i}">一键应用</button>` +
+        `</div>` +
+        `</div>` +
+        `</article>`
+      );
+    }).join("");
+
+    return headBox + levelBanner + `<section class="adv-sec">${cardsHtml}</section>` + renderBannedBar(ctx);
+  }
+
   function computeRenderKey(ctx) {
-    const { state, ui, rec, tracker, unlockPlan, unlockTracker } = ctx;
+    const { state, ui, rec, reorg, tracker, unlockPlan, unlockTracker } = ctx;
     const p = getActivePreview(ui);
     const previewKey = p ? `${p.kind}:${p.index}` : String(ui.preview ?? "");
     const bansKey = Object.keys(state.bannedIds || {}).filter((k) => state.bannedIds[k]).sort().join(",");
+    const targetsKey = Object.keys(state.traitTargets || {}).sort().map((k) => `${k}:${state.traitTargets[k]}`).join(",");
     const tr = tracker && tracker.res;
     const utr = unlockTracker && unlockTracker.res;
     return [
       state.viewMode || "normal",
       state.unlockTargetId || "",
       bansKey,
+      targetsKey,
       previewKey,
       ui.emblemPromptDismissed ? 1 : 0,
       state.targetTraitCount || 0,
@@ -827,6 +964,7 @@ export function mountAdvisor(store) {
       state.level || 8,
       state.extraSlots || 0,
       rec === null ? "null" : `${rec.slots?.used}/${rec.slots?.max}:${(rec.plans || []).length}:${(rec.swaps || []).length}:${(rec.next || []).length}:${(rec.starUps || []).length}:${(rec.warnings || []).length}`,
+      reorg === null ? "null" : `${reorg.status}:${reorg.minLevel || ""}:${(reorg.plans || []).length}`,
       tr ? `${tr.done}:${tr.visited}:${tr.cancelled}:${(tr.plans || []).length}` : (tracker ? tracker.error || "init" : "none"),
       utr ? `${utr.done}:${utr.visited}:${utr.cancelled}:${(utr.plans || []).length}` : (unlockTracker ? unlockTracker.error || "init" : "none"),
       unlockPlan ? `${unlockPlan.active}:${unlockPlan.alreadyOnBoard}:${unlockPlan.needsMiniTrack}:${(unlockPlan.prereqActions || []).length}` : "none"
@@ -834,29 +972,38 @@ export function mountAdvisor(store) {
   }
 
   function renderAll(ctx) {
-    const { state, rec } = ctx;
+    const { state, game, reorg } = ctx;
     if (titleEl) {
-      titleEl.textContent = state.viewMode === "ladder" ? "羁绊天梯" : "策略建议";
+      titleEl.textContent = state.viewMode === "ladder" ? "羁绊天梯"
+        : state.viewMode === "reorg" ? "阵容整理"
+          : "策略建议";
     }
     if (subEl) {
       if (state.viewMode === "ladder") {
         const goalTxt = state.targetTraitCount ? `目标 ${state.targetTraitCount} 条` : "目标 自动";
         subEl.textContent = `${goalTxt} · 上限 ${state.trackerMaxLevel || 10} 级`;
+      } else if (state.viewMode === "reorg") {
+        const tCnt = Object.keys(state.traitTargets || {}).filter((k) => Number(state.traitTargets[k]) > 0).length;
+        const cap = reorg && reorg.cap ? reorg.cap : (game && typeof game.capacity === "function" ? game.capacity(state.board || [], store.getContext()) : state.level || 8);
+        subEl.textContent = tCnt ? `目标 ${tCnt} 项 · 人口上限 ${cap}` : "请在左栏点击目标羁绊";
       } else {
         subEl.textContent = "右键推荐棋子可禁用";
       }
     }
     if (bodyEl) {
-      bodyEl.innerHTML = state.viewMode === "ladder" ? renderLadderMode(ctx) : renderNormalMode(ctx);
+      bodyEl.innerHTML = state.viewMode === "ladder" ? renderLadderMode(ctx)
+        : state.viewMode === "reorg" ? renderReorgMode(ctx)
+          : renderNormalMode(ctx);
       syncPendingBans();
     }
   }
 
   function applyActionByKind(ctx, kind, index) {
-    const { rec, tracker, unlockPlan, unlockTracker } = ctx;
+    const { rec, reorg, tracker, unlockPlan, unlockTracker } = ctx;
     let plan = null;
     if (kind === "plan") plan = rec && rec.plans && rec.plans[index];
     else if (kind === "swap") plan = rec && rec.swaps && rec.swaps[index];
+    else if (kind === "reorg") plan = reorg && reorg.plans && reorg.plans[index];
     else if (kind === "ladder") plan = tracker && tracker.res && tracker.res.plans && tracker.res.plans[index];
     else if (kind === "unlock-route") {
       const ut = unlockTracker || (unlockPlan && unlockPlan.tracker);
@@ -954,6 +1101,22 @@ export function mountAdvisor(store) {
       }
       if ((el = t.closest("[data-ladder-maxlvl]"))) {
         store.setSettings({ trackerMaxLevel: Number(el.getAttribute("data-ladder-maxlvl")) || 10 });
+        return;
+      }
+      if ((el = t.closest("[data-remove-target]"))) {
+        store.toggleTraitTarget(el.getAttribute("data-remove-target"), Number(el.getAttribute("data-need")) || 0);
+        return;
+      }
+      if ((el = t.closest("[data-quick-target]"))) {
+        store.toggleTraitTarget(el.getAttribute("data-quick-target"), Number(el.getAttribute("data-need")) || 0);
+        return;
+      }
+      if (t.closest("[data-clear-targets]")) {
+        store.clearTraitTargets();
+        return;
+      }
+      if ((el = t.closest("[data-enable-prism]"))) {
+        store.togglePrismatic(el.getAttribute("data-enable-prism"));
       }
     });
 
@@ -986,6 +1149,7 @@ export function mountAdvisor(store) {
       const utRes = ctx.unlockTracker ? ctx.unlockTracker.res : null;
       const refsSame =
         ctx.rec === lastRecRef &&
+        ctx.reorg === lastReorgRef &&
         trRes === lastTrackerResRef &&
         utRes === lastUnlockResRef &&
         ctx.unlockPlan === lastUnlockCtxRef;
@@ -996,6 +1160,7 @@ export function mountAdvisor(store) {
       }
       lastRenderKey = key;
       lastRecRef = ctx.rec;
+      lastReorgRef = ctx.reorg;
       lastTrackerResRef = trRes;
       lastUnlockResRef = utRes;
       lastUnlockCtxRef = ctx.unlockPlan;

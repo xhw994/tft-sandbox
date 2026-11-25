@@ -1,5 +1,6 @@
 import { classifyItem, itemUnitScore, resolveLooseItems, findEmblemItemForTrait } from "../logic/item-affinity.js";
 import { parseUnlockMeta, buildUnlockContext } from "../logic/unlock-planner.js";
+import { planBoardReorg } from "../logic/reorg-planner.js";
 
 export const DIRTY_HEADER     = 1 << 0;
 export const DIRTY_POP        = 1 << 1;
@@ -154,6 +155,8 @@ export function createStore() {
   let state = freshState();
   let analyzeTimer = null;
   let analyzeRaf = null;
+  let lastResetSnapshot = null;
+  let resetUndoTimer = null;
 
   const ui = {
     q: "",
@@ -166,6 +169,7 @@ export function createStore() {
     setVersion: 0,
     preview: null,
     notice: "",
+    canUndoReset: false,
     saveOk: true,
     theme: getInitialTheme(),
     pendingBans: new Map(),
@@ -176,6 +180,7 @@ export function createStore() {
 
   const analysis = {
     rec: null,
+    reorg: null,
     loosePlan: null,
     unlockCtx: { active: false },
     tracker: null,
@@ -623,7 +628,8 @@ export function createStore() {
     if (unlockCtx.active && unlockCtx.needsMiniTrack) {
       startTrackerTask("unlockTracker", gen, cloneBoard(state.board), ctx, {
         targetTraitCount: unlockCtx.miniTrackGoal,
-        maxLevel: unlockCtx.miniTrackMaxLevel || 9
+        maxLevel: unlockCtx.miniTrackMaxLevel || 9,
+        requireBoardRelatedLocked: true
       });
     }
 
@@ -632,8 +638,20 @@ export function createStore() {
       startTrackerTask("tracker", gen, cloneBoard(state.board), ctx, {
         targetTraitCount: state.targetTraitCount || undefined,
         traitTargets: state.traitTargets,
-        maxLevel: state.trackerMaxLevel || 10
+        maxLevel: state.trackerMaxLevel || 10,
+        requireBoardRelatedLocked: true
       });
+    }
+
+    // 7b. Run board reorganization planner when in reorg view
+    if (state.viewMode === "reorg") {
+      analysis.reorg = planBoardReorg(state.board, ctx, game, {
+        traitTargets: state.traitTargets,
+        labels: freshLabels,
+        requireBoardRelatedLocked: true
+      });
+    } else {
+      analysis.reorg = null;
     }
 
     // 8. Emit Frame 2 dirty mask (add DIRTY_BOARD only if role badges changed)
@@ -685,6 +703,7 @@ export function createStore() {
     const idx = Number(spec.index);
     if (spec.kind === "plan") return analysis.rec && analysis.rec.plans ? analysis.rec.plans[idx] || null : null;
     if (spec.kind === "swap") return analysis.rec && analysis.rec.swaps ? analysis.rec.swaps[idx] || null : null;
+    if (spec.kind === "reorg") return analysis.reorg && analysis.reorg.plans ? analysis.reorg.plans[idx] || null : null;
     if (spec.kind === "ladder") {
       return analysis.tracker && analysis.tracker.res && analysis.tracker.res.plans
         ? analysis.tracker.res.plans[idx] || null
@@ -883,7 +902,7 @@ export function createStore() {
       keys.forEach((k) => {
         if (k === "libraryTab") mask |= DIRTY_LIB_FILTER;
         else if (k === "level" || k === "extraSlots") mask |= DIRTY_HEADER | DIRTY_POP | DIRTY_RECS;
-        else if (k === "mode" || k === "viewMode" || k === "allowLocked") mask |= DIRTY_HEADER | DIRTY_RECS;
+        else if (k === "mode" || k === "viewMode" || k === "allowLocked") mask |= DIRTY_HEADER | DIRTY_TRAITS | DIRTY_RECS;
         else if (k === "traitTargets" || k === "targetTraitCount" || k === "prismatic" || k === "emblems") mask |= DIRTY_TRAITS | DIRTY_RECS;
         else if (k === "focusId") mask |= DIRTY_BOARD | DIRTY_INSPECTOR | DIRTY_RECS;
         else if (k === "unlockTargetId") mask |= DIRTY_RECS | DIRTY_LIB_STATE | DIRTY_BOARD;
@@ -930,6 +949,14 @@ export function createStore() {
     }
 
     state = r.state;
+    if (action.type !== "reset" && (ui.canUndoReset || lastResetSnapshot)) {
+      if (resetUndoTimer != null) {
+        clearTimeout(resetUndoTimer);
+        resetUndoTimer = null;
+      }
+      lastResetSnapshot = null;
+      ui.canUndoReset = false;
+    }
     if (ui.notice) {
       ui.notice = "";
       emit(DIRTY_NOTICE);
@@ -992,6 +1019,7 @@ export function createStore() {
 
   function setPlaystyle(preset) {
     if (preset === "ladder") return setSettings({ viewMode: "ladder" });
+    if (preset === "reorg") return setSettings({ viewMode: "reorg" });
     if (preset === "reroll") return setSettings({ viewMode: "normal", mode: "reroll" });
     if (preset === "fast8") return setSettings({ viewMode: "normal", mode: "fast8" });
     return setSettings({ viewMode: "normal", mode: "auto" });
@@ -999,9 +1027,14 @@ export function createStore() {
 
   function getPlaystyle() {
     if (state.viewMode === "ladder") return "ladder";
+    if (state.viewMode === "reorg") return "reorg";
     if (state.mode === "reroll") return "reroll";
     if (state.mode === "fast8") return "fast8";
     return "normal";
+  }
+
+  function clearTraitTargets() {
+    return setSettings({ traitTargets: {} });
   }
 
   function setUnlockTarget(unitId) {
@@ -1283,7 +1316,58 @@ export function createStore() {
   }
 
   function resetAll() {
-    return act({ type: "reset" });
+    const hasContent =
+      (state.board && state.board.length > 0) ||
+      (state.looseItems && state.looseItems.length > 0) ||
+      Object.keys(state.emblems || {}).length > 0 ||
+      Object.keys(state.prismatic || {}).length > 0 ||
+      Object.keys(state.traitTargets || {}).length > 0 ||
+      Object.keys(state.bannedIds || {}).length > 0 ||
+      !!state.unlockTargetId ||
+      !!state.focusId ||
+      (state.extraSlots || 0) > 0 ||
+      (state.targetTraitCount || 0) > 0;
+    const snap = hasContent ? JSON.parse(JSON.stringify(state)) : null;
+    const ok = act({ type: "reset" });
+    if (!ok) return false;
+    if (snap) {
+      if (resetUndoTimer != null) clearTimeout(resetUndoTimer);
+      lastResetSnapshot = snap;
+      ui.canUndoReset = true;
+      ui.notice = "已一键重置棋盘、装备与全部目标";
+      emit(DIRTY_NOTICE);
+      resetUndoTimer = setTimeout(() => {
+        resetUndoTimer = null;
+        lastResetSnapshot = null;
+        if (ui.canUndoReset) {
+          ui.canUndoReset = false;
+          ui.notice = "";
+          emit(DIRTY_NOTICE);
+        }
+      }, 8000);
+    }
+    return true;
+  }
+
+  function undoReset() {
+    if (!lastResetSnapshot || !game) return false;
+    if (resetUndoTimer != null) {
+      clearTimeout(resetUndoTimer);
+      resetUndoTimer = null;
+    }
+    state = Object.assign(freshState(), JSON.parse(JSON.stringify(lastResetSnapshot)));
+    lastResetSnapshot = null;
+    ui.canUndoReset = false;
+    ui.notice = "";
+    ui.selected = null;
+    ui.preview = null;
+    analysis.previewDiff = null;
+    normalizeState();
+    analysis.loosePlan = computeQuickLoosePlan();
+    save();
+    scheduleAnalyze();
+    emit(DIRTY_ALL);
+    return true;
   }
 
   function cancelTracker() {
@@ -1362,6 +1446,7 @@ export function createStore() {
     setUnlockTarget,
     togglePrismatic,
     toggleTraitTarget,
+    clearTraitTargets,
     togglePreview,
     applyPreview,
     applyPlan,
@@ -1380,6 +1465,7 @@ export function createStore() {
     useBundled,
     loadDemo,
     resetAll,
+    undoReset,
     cancelTracker,
     dismissEmblemPrompt,
     notify,

@@ -70,6 +70,12 @@
             </div>
           </button>
           <div class="mode-sep" role="separator"></div>
+          <button type="button" class="mode-opt" data-preset="reorg" role="menuitemradio" aria-checked="false">
+            <div>
+              <strong>阵容整理</strong>
+              <span>按左侧目标羁绊，计算当前棋盘换人调整</span>
+            </div>
+          </button>
           <button type="button" class="mode-opt" data-preset="ladder" role="menuitemradio" aria-checked="false">
             <div>
               <strong>羁绊天梯</strong>
@@ -83,6 +89,7 @@
 
       <div class="cmd-divider"></div>
 
+      <button type="button" id="btn-quick-reset" class="btn" title="一键清空棋盘、装备、目标与禁用（支持撤销）">重置</button>
       <button type="button" id="btn-settings-trigger" class="btn" popovertarget="settings-menu" aria-haspopup="menu">设定 ▾</button>
       <div id="settings-menu" class="settings-popover" popover="auto" role="menu" aria-label="工作台设定">
         <div class="settings-row">
@@ -119,6 +126,7 @@
       </div>
 
       <div id="traits-list" class="traits-scroll"></div>
+      <div id="traits-target-bar" class="traits-target-bar" hidden></div>
 
       <div class="equip-dock">
         <div class="equip-dock-head">

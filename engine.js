@@ -1657,10 +1657,94 @@ var TFT = (function () {
 
       var ownedIds = {};
       owned.forEach(function (e) { ownedIds[e.id] = 1; });
+
+      var UNLOCK_TRAIT_ALIASES = {
+        "hyperpop": "DA_GlitterBomb19",
+        "classical": "DA_Virtuosos19",
+        "renegade": "DA_Renegade19",
+        "混沌战士": "DA_Renegade19",
+        "trickshot": "DA_Trickshot19",
+        "pentakill": "DA_Pentakill19",
+        "swiftstriker": "DA_Swiftstriker19",
+        "ionic spark": "DA_IonicSpark19",
+        "离子火花粉丝": "DA_IonicSpark19",
+        "hitmaker": "DA_Hitmaker19",
+        "裁决战士": "DA_Mosher19"
+      };
+      function extractUnlockTraitIds(text) {
+        if (!text) return [];
+        var raw = String(text);
+        var lower = raw.toLowerCase();
+        var out = [];
+        var seen = {};
+        function pushId(tid) {
+          if (tid && traitById[tid] && !seen[tid]) {
+            seen[tid] = 1;
+            out.push(tid);
+          }
+        }
+        var m, re = /【([^】]+)】/g;
+        while ((m = re.exec(raw)) !== null) {
+          var token = m[1].trim();
+          var tokLow = token.toLowerCase();
+          if (UNLOCK_TRAIT_ALIASES[tokLow]) pushId(UNLOCK_TRAIT_ALIASES[tokLow]);
+          for (var ti = 0; ti < data.traits.length; ti++) {
+            var tr = data.traits[ti];
+            if (tr.name === token || tr.id === token) pushId(tr.id);
+          }
+        }
+        Object.keys(UNLOCK_TRAIT_ALIASES).forEach(function (alias) {
+          if (lower.indexOf(alias) >= 0) pushId(UNLOCK_TRAIT_ALIASES[alias]);
+        });
+        return out;
+      }
+
+      var boardTraitIds = {};
+      owned.forEach(function (e) {
+        effectiveTraits(e).forEach(function (tid) { boardTraitIds[tid] = 1; });
+      });
+      if (ctx.emblems) {
+        Object.keys(ctx.emblems).forEach(function (tid) {
+          if ((ctx.emblems[tid] || 0) > 0) boardTraitIds[tid] = 1;
+        });
+      }
+      (ctx.looseItems || []).forEach(function (itemId) {
+        var it = itemOf(itemId);
+        if (it && it.kind === "emblem" && it.trait) boardTraitIds[it.trait] = 1;
+      });
+      var ownedActiveCount = countActive(ownedCounts);
+
+      function lockedRelatedToBoard(u) {
+        var info = unlockInfo(u);
+        if (!info) return true;
+        if (info.units && info.units.length) {
+          if (info.mode === "any") {
+            return info.units.some(function (r) { return !!ownedIds[r.id]; });
+          }
+          return info.units.every(function (r) { return !!ownedIds[r.id]; });
+        }
+        var text = String(info.text || "");
+        var cntMatch = text.match(/激活\s*(\d+)\s*个/);
+        if (cntMatch) {
+          var needTraits = Number(cntMatch[1]) || 0;
+          if (needTraits > 0 && ownedActiveCount < needTraits - 1) return false;
+        }
+        var reqTraits = extractUnlockTraitIds(text);
+        if (reqTraits.length) {
+          return reqTraits.some(function (tid) { return !!boardTraitIds[tid]; });
+        }
+        return (u.traits || []).some(function (tid) {
+          var tr = traitById[tid];
+          return tr && tr.kind !== "solo" && !!boardTraitIds[tid];
+        });
+      }
+
+      var requireBoardLocked = !!options.requireBoardRelatedLocked;
       var cands = data.units.filter(function (u) {
         if (ownedIds[u.id]) return false;
         if (isBanned(ctx, u.id)) return false;
         if (!ctx.allowLocked && isLocked(u)) return false;
+        if (requireBoardLocked && isLocked(u) && !lockedRelatedToBoard(u)) return false;
         var info = unlockInfo(u);
         for (var L = cur; L <= maxLevel; L++) {
           if (info && info.level && L < info.level) continue;
@@ -1681,7 +1765,7 @@ var TFT = (function () {
             else if (need === 2) s += 3;
             else if (ownedCounts[j] < activeMin[j] && activeMin[j] < Infinity) s += 1;
           }
-          return s + cnt * 2;
+          return s + cnt * 2 - (isLocked(u) ? 4 : 0);
         };
         return scoreOf(b) - scoreOf(a) || a.cost - b.cost || (a.id < b.id ? -1 : 1);
       });
@@ -1807,7 +1891,8 @@ var TFT = (function () {
         else if (L === 8) stage = 4;
         else stage = 5;
         if (mode === "reroll") stage = Math.min(3, stage);
-        return -Math.log(rollPct(L, unit.cost) / 100) + 0.7 * Math.abs(unit.cost - stage);
+        var lockPen = isLocked(unit) ? 1.5 : 0;
+        return -Math.log(rollPct(L, unit.cost) / 100) + 0.7 * Math.abs(unit.cost - stage) + lockPen;
       }
 
       // Orders one chosen set of adds: subset DP over (added subset, level). Returns best path or null.

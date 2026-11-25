@@ -508,6 +508,7 @@ export function createStore() {
       extraSlots: state.extraSlots,
       looseItems: state.looseItems.slice(),
       focusId: state.focusId,
+      unlockTargetId: state.unlockTargetId,
       traitTargets: state.traitTargets,
       targetTraitCount: state.targetTraitCount,
       bannedIds: Object.assign({}, state.bannedIds || {}),

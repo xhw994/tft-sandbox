@@ -304,26 +304,71 @@ var TFT = (function () {
       return out;
     }
 
+    function isTraitOnlyUnknown(assessment) {
+      if (!assessment || assessment.status !== "unknown") return false;
+      if ((assessment.blockers && assessment.blockers.length) || (assessment.conditions && assessment.conditions.length)) return false;
+      return assessment.score && assessment.score.mid >= -0.01 && assessment.score.hi > 10;
+    }
+
+    function effectiveStatusGroup(assessment) {
+      if (!assessment) return 3;
+      if (assessment.status === "now" || assessment.status === "alternative" || isTraitOnlyUnknown(assessment)) return 0;
+      if (assessment.status === "conditional") return 1;
+      return 2;
+    }
+
+    function modeledLoBonus(assessment) {
+      return assessment && assessment.status === "now" && assessment.score && assessment.score.lo >= 2 ? assessment.score.lo * 0.35 : 0;
+    }
+
     function orderNextRows(rows, ctx) {
       var ordered = orderedAssessmentRows(rows);
-      if (!ctx || !ctx.looseItemFit || !ordered.some(function (r) { return r.itemFitBonus > 0; })) {
-        return ordered;
-      }
-      var statusOrder = { now: 0, alternative: 1, conditional: 2, unknown: 3 };
+      var hasBoost = ordered.some(function (r) {
+        return (r.itemFitBonus || 0) > 0 || (typeof r.systemScore === "number" && Math.abs(r.systemScore) > 1e-9);
+      });
+      if (!hasBoost) return ordered;
       return ordered.slice().sort(function (a, b) {
-        var sa = statusOrder[a.assessment.status];
-        var sb = statusOrder[b.assessment.status];
-        if (sa !== sb) return sa - sb;
-        var aLo = a.assessment.score.lo + (a.itemFitBonus || 0) * 0.45;
-        var bLo = b.assessment.score.lo + (b.itemFitBonus || 0) * 0.45;
-        if (Math.abs(aLo - bLo) > 1e-9) return bLo - aLo;
-        var aMid = a.assessment.score.mid + (a.itemFitBonus || 0) * 0.45;
-        var bMid = b.assessment.score.mid + (b.itemFitBonus || 0) * 0.45;
-        if (Math.abs(aMid - bMid) > 1e-9) return bMid - aMid;
+        var ga = effectiveStatusGroup(a.assessment);
+        var gb = effectiveStatusGroup(b.assessment);
+        if (ga !== gb) return ga - gb;
+        var aRank = a.assessment.score.mid + modeledLoBonus(a.assessment) + (a.systemScore || 0) * 0.95 + (a.itemFitBonus || 0) * 0.95;
+        var bRank = b.assessment.score.mid + modeledLoBonus(b.assessment) + (b.systemScore || 0) * 0.95 + (b.itemFitBonus || 0) * 0.95;
+        if (Math.abs(aRank - bRank) > 1e-9) return bRank - aRank;
         if (a.assessment.risks.length !== b.assessment.risks.length) return a.assessment.risks.length - b.assessment.risks.length;
         var ap = a.assessment.preferenceMatch || 0;
         var bp = b.assessment.preferenceMatch || 0;
         if (ap !== bp) return bp - ap;
+        return String(a.assessment.candidateId).localeCompare(String(b.assessment.candidateId));
+      });
+    }
+
+    function orderPlanRows(plans) {
+      var ordered = orderedAssessmentRows(plans);
+      return ordered.slice().sort(function (a, b) {
+        var ga = effectiveStatusGroup(a.assessment);
+        var gb = effectiveStatusGroup(b.assessment);
+        if (ga !== gb) return ga - gb;
+        var aRank = a.assessment.score.mid + modeledLoBonus(a.assessment) + (a.systemScore || 0) * 0.55 + (a.score || 0) * 0.06;
+        var bRank = b.assessment.score.mid + modeledLoBonus(b.assessment) + (b.systemScore || 0) * 0.55 + (b.score || 0) * 0.06;
+        if (Math.abs(aRank - bRank) > 1e-6) return bRank - aRank;
+        return String(a.assessment.candidateId).localeCompare(String(b.assessment.candidateId));
+      });
+    }
+
+    function orderSwapRows(rows) {
+      var ordered = orderedAssessmentRows(rows);
+      var hasSys = ordered.some(function (r) { return typeof r.systemScore === "number" && Math.abs(r.systemScore) > 1e-9; });
+      if (!hasSys) return ordered;
+      return ordered.slice().sort(function (a, b) {
+        var ga = effectiveStatusGroup(a.assessment);
+        var gb = effectiveStatusGroup(b.assessment);
+        if (ga !== gb) return ga - gb;
+        var aRank = a.assessment.score.mid + modeledLoBonus(a.assessment) + (a.systemScore || 0) * 0.95;
+        var bRank = b.assessment.score.mid + modeledLoBonus(b.assessment) + (b.systemScore || 0) * 0.95;
+        if (Math.abs(aRank - bRank) > 1e-9) return bRank - aRank;
+        var aCost = (a.innCost || (byId[a.inn] && byId[a.inn].cost) || 0) - ((byId[a.out] && byId[a.out].cost) || 0);
+        var bCost = (b.innCost || (byId[b.inn] && byId[b.inn].cost) || 0) - ((byId[b.out] && byId[b.out].cost) || 0);
+        if (aCost !== bCost) return bCost - aCost;
         return String(a.assessment.candidateId).localeCompare(String(b.assessment.candidateId));
       });
     }
@@ -372,6 +417,516 @@ var TFT = (function () {
         if (!heldAt(board, info.units[j].id, info.units[j].star)) return false;
       }
       return true;
+    }
+
+    // Shared unlock-text trait parser & board-relatedness gate (used by both normal mode and trait ladder).
+    var UNLOCK_TRAIT_ALIASES = {
+      "hyperpop": "DA_GlitterBomb19",
+      "classical": "DA_Virtuosos19",
+      "renegade": "DA_Renegade19",
+      "混沌战士": "DA_Renegade19",
+      "trickshot": "DA_Trickshot19",
+      "pentakill": "DA_Pentakill19",
+      "swiftstriker": "DA_Swiftstriker19",
+      "ionic spark": "DA_IonicSpark19",
+      "离子火花粉丝": "DA_IonicSpark19",
+      "hitmaker": "DA_Hitmaker19",
+      "裁决战士": "DA_Mosher19"
+    };
+
+    function extractUnlockTraitIds(text) {
+      if (!text) return [];
+      var raw = String(text);
+      var lower = raw.toLowerCase();
+      var out = [];
+      var seen = {};
+      function pushId(tid) {
+        if (tid && traitById[tid] && !seen[tid]) {
+          seen[tid] = 1;
+          out.push(tid);
+        }
+      }
+      var m, re = /【([^】]+)】/g;
+      while ((m = re.exec(raw)) !== null) {
+        var token = m[1].trim();
+        var tokLow = token.toLowerCase();
+        if (UNLOCK_TRAIT_ALIASES[tokLow]) pushId(UNLOCK_TRAIT_ALIASES[tokLow]);
+        for (var ti = 0; ti < data.traits.length; ti++) {
+          var tr = data.traits[ti];
+          if (tr.name === token || tr.id === token) pushId(tr.id);
+        }
+      }
+      Object.keys(UNLOCK_TRAIT_ALIASES).forEach(function (alias) {
+        if (lower.indexOf(alias) >= 0) pushId(UNLOCK_TRAIT_ALIASES[alias]);
+      });
+      return out;
+    }
+
+    function countActiveNonSolo(board, ctx) {
+      var active = 0;
+      for (var i = 0; i < data.traits.length; i++) {
+        var tr = data.traits[i];
+        if (tr.kind === "solo") continue;
+        var st = breakpointState(tr, traitCount(tr, board, ctx).total, ctx);
+        if (st.best && st.best.style > 0) active++;
+      }
+      return active;
+    }
+
+    function collectBoardTraitPresence(board, ctx) {
+      var present = {};
+      for (var i = 0; i < board.length; i++) {
+        var ets = effectiveTraits(board[i]);
+        for (var j = 0; j < ets.length; j++) present[ets[j]] = 1;
+      }
+      if (ctx && ctx.emblems) {
+        Object.keys(ctx.emblems).forEach(function (tid) {
+          if ((ctx.emblems[tid] || 0) > 0) present[tid] = 1;
+        });
+      }
+      ((ctx && ctx.looseItems) || []).forEach(function (itemId) {
+        var it = itemOf(itemId);
+        if (it && it.kind === "emblem" && it.trait) present[it.trait] = 1;
+      });
+      if (ctx && ctx.traitTargets) {
+        Object.keys(ctx.traitTargets).forEach(function (tid) {
+          if (Number(ctx.traitTargets[tid]) > 0) present[tid] = 1;
+        });
+      }
+      return present;
+    }
+
+    function lockedRelatedToBoard(unit, board, ctx, opts) {
+      var info = unlockInfo(unit);
+      if (!info) return true;
+      if (ctx && (ctx.focusId === unit.id || ctx.unlockTargetId === unit.id)) return true;
+      if (unit.grantsUnit && ctx && (ctx.mode || "auto") === "reroll") return true;
+      if (!board || !board.length) return true;
+      var strict = !(opts && opts.relaxed);
+      var ownedIds = boardIds(board);
+      if (info.units && info.units.length) {
+        if (info.mode === "any") {
+          return info.units.some(function (r) { return !!ownedIds[r.id]; });
+        }
+        return info.units.every(function (r) { return !!ownedIds[r.id]; });
+      }
+      var boardTraitIds = collectBoardTraitPresence(board, ctx);
+      var text = String(info.text || "");
+      var cntMatch = text.match(/激活\s*(\d+)\s*个/);
+      if (cntMatch) {
+        var needTraits = Number(cntMatch[1]) || 0;
+        var ownedActive = countActiveNonSolo(board, ctx);
+        var minActive = strict ? Math.max(4, needTraits - 2) : (needTraits - 1);
+        if (needTraits > 0 && ownedActive < minActive) return false;
+      }
+      var reqTraits = extractUnlockTraitIds(text);
+      if (reqTraits.length) {
+        // Explicit user trait target on any required trait always admits the unlockable.
+        if (ctx && ctx.traitTargets && reqTraits.some(function (tid) { return Number(ctx.traitTargets[tid]) > 0; })) {
+          return true;
+        }
+        var anyPresent = reqTraits.some(function (tid) { return !!boardTraitIds[tid]; });
+        if (!anyPresent) return false;
+        // Progress gate for multi-unit / multi-star threshold unlocks (prevents 1-trait splashes leaking locked 4/5-costs).
+        var reqSet = {};
+        reqTraits.forEach(function (tid) { reqSet[tid] = 1; });
+        var unionUnits = 0;
+        var unionStars = 0;
+        for (var bi = 0; bi < board.length; bi++) {
+          var bts = effectiveTraits(board[bi]);
+          var hit = false;
+          for (var bt = 0; bt < bts.length; bt++) {
+            if (reqSet[bts[bt]]) { hit = true; break; }
+          }
+          if (hit) {
+            unionUnits += 1;
+            unionStars += board[bi].star || 1;
+          }
+        }
+        var embUnion = 0;
+        reqTraits.forEach(function (tid) { embUnion += emblemOf(ctx || {}, tid); });
+        var starMatch = text.match(/(\d+)\s*独特星级/);
+        if (starMatch) {
+          var needStars = Number(starMatch[1]) || 0;
+          var minStars = strict ? Math.max(3, Math.ceil(needStars * 0.45)) : Math.max(2, Math.ceil(needStars * 0.3));
+          if (unionStars + embUnion * 2 < minStars) return false;
+        }
+        var unitMatch = text.match(/(\d+)\s*(?:个(?:不同的)?|unique\b)/i);
+        if (unitMatch && !/item|装备|件|场|回合|金币|级/i.test(text.slice(unitMatch.index, unitMatch.index + 24))) {
+          var needUnits = Number(unitMatch[1]) || 0;
+          if (needUnits >= 3) {
+            var minUnits = strict ? Math.max(2, Math.ceil(needUnits * 0.5)) : Math.max(2, Math.ceil(needUnits * 0.4));
+            if (unionUnits + embUnion < minUnits) return false;
+          }
+        }
+        return true;
+      }
+      return (unit.traits || []).some(function (tid) {
+        var tr = traitById[tid];
+        return tr && tr.kind !== "solo" && !!boardTraitIds[tid];
+      });
+    }
+
+    // ---- System Identification & Priority Model ----
+    var ARCHETYPE_LABELS = {
+      vertical: "垂直高羁绊",
+      flex_web: "多羁绊拼多多",
+      reroll: "低费赌狗",
+      fast_high: "高费升级",
+      open: "灵活过渡"
+    };
+
+    function isFlexMultiplierTrait(trait) {
+      if (!trait || !trait.desc) return false;
+      return /每(?:拥有|激活|个)[^。]*激活[^。]*羁绊|each active trait/i.test(trait.desc);
+    }
+
+    function maxBreakpointNeed(trait, ctx) {
+      var pris = prismaticOn(ctx || {}, trait.id);
+      var maxN = 0;
+      for (var i = 0; i < trait.breakpoints.length; i++) {
+        if (enabledStyle(trait.breakpoints[i], pris) > 0) {
+          maxN = Math.max(maxN, trait.breakpoints[i].need);
+        }
+      }
+      return maxN;
+    }
+
+    function analyzeSystem(board, ctx) {
+      ctx = ctx || {};
+      var entries = board || [];
+      var ranked = [];
+      var activeNonSolo = 0;
+      var hasFlexMultiplier = false;
+      var maxTraitTarget = 0;
+      var traitTargets = ctx.traitTargets || {};
+      Object.keys(traitTargets).forEach(function (tid) {
+        var n = Number(traitTargets[tid]) || 0;
+        if (n > maxTraitTarget) maxTraitTarget = n;
+      });
+
+      for (var i = 0; i < data.traits.length; i++) {
+        var trait = data.traits[i];
+        if (trait.kind === "solo") continue;
+        var counted = traitCount(trait, entries, ctx);
+        var targetNeed = Number(traitTargets[trait.id]) || 0;
+        if (!counted.total && targetNeed <= 0) continue;
+
+        var bodies = 0;
+        var stars = 0;
+        var wornEmblems = 0;
+        var anchorScore = 0;
+        for (var b = 0; b < entries.length; b++) {
+          var e = entries[b];
+          var u = byId[e.id];
+          if (!u) continue;
+          var ets = effectiveTraits(e);
+          if (ets.indexOf(trait.id) < 0) continue;
+          bodies += 1;
+          stars += e.star || 1;
+          if (u.traits.indexOf(trait.id) < 0) wornEmblems += 1;
+          if (e.id === ctx.focusId) anchorScore += 8.0;
+          if (e.mark === "carry" || e.mark === "tank") anchorScore += 4.5;
+          else if (e.mark === "carry2") anchorScore += 2.5;
+          if (e.star >= 3) anchorScore += 6.0;
+          else if (e.star === 2) anchorScore += u.cost >= 3 ? 2.8 : 1.8;
+          var inv = investmentOf(e);
+          if (inv >= 2) anchorScore += Math.min(6.0, inv * 1.1);
+          if (u.cost >= 4) anchorScore += 2.0;
+        }
+        var emblemTotal = counted.emblem + wornEmblems;
+        var effectiveBodies = bodies + counted.emblem;
+        var state = breakpointState(trait, counted.total, ctx);
+        var active = !!(state.best && state.best.style > 0);
+        if (active) activeNonSolo += 1;
+        var flexMulTrait = isFlexMultiplierTrait(trait);
+        if (flexMulTrait && (effectiveBodies >= 2 || (effectiveBodies >= 1 && activeNonSolo >= 3))) {
+          hasFlexMultiplier = true;
+        }
+        var maxNeed = maxBreakpointNeed(trait, ctx);
+        var isDeep = maxNeed >= 5 || trait.countMode === "stars";
+        var share = entries.length ? (effectiveBodies / entries.length) : 0;
+        var shareScore = effectiveBodies * 3.0 + share * 8.0;
+        var bpScore = 0;
+        if (active) {
+          bpScore += state.best.style * 3.5 + (state.best.need >= 4 ? 4.0 : state.best.need >= 3 ? 2.0 : 0.8);
+        }
+        if (state.next) {
+          var stepGap = state.next.need - counted.total;
+          if (stepGap > 0 && stepGap <= (trait.countMode === "stars" ? 2 : 1)) bpScore += 2.5;
+        }
+        var base = (shareScore + bpScore) * (trait.kind === "band" ? 1.22 : 1.0);
+        var emblemScore = emblemTotal * 9.5;
+        var targetScore = targetNeed > 0 ? 14.0 : 0;
+        var flexScore = flexMulTrait && effectiveBodies >= 2 ? 4.5 : 0;
+        var commitment = base + anchorScore + emblemScore + targetScore + flexScore;
+
+        ranked.push({
+          id: trait.id,
+          name: trait.name,
+          trait: trait,
+          kind: trait.kind,
+          count: counted.total,
+          bodies: bodies,
+          effectiveBodies: effectiveBodies,
+          stars: stars,
+          emblemTotal: emblemTotal,
+          targetNeed: targetNeed,
+          active: active,
+          maxNeed: maxNeed,
+          isDeep: isDeep,
+          flexMulTrait: flexMulTrait,
+          score: commitment
+        });
+      }
+
+      // Second pass check for flex multiplier trait in case activeNonSolo grew after it in trait order.
+      if (!hasFlexMultiplier) {
+        for (var fi = 0; fi < ranked.length; fi++) {
+          if (ranked[fi].flexMulTrait && (ranked[fi].effectiveBodies >= 2 || (ranked[fi].effectiveBodies >= 1 && activeNonSolo >= 3))) {
+            hasFlexMultiplier = true;
+            break;
+          }
+        }
+      }
+
+      ranked.sort(function (a, b) {
+        return b.score - a.score || b.effectiveBodies - a.effectiveBodies || (a.id < b.id ? -1 : 1);
+      });
+
+      var top = ranked[0] || null;
+      var maxBodies = 0;
+      for (var ri = 0; ri < ranked.length; ri++) {
+        if (ranked[ri].effectiveBodies > maxBodies) maxBodies = ranked[ri].effectiveBodies;
+      }
+      var topShare = top && entries.length ? (top.effectiveBodies / entries.length) : 0;
+      var totalCost = 0;
+      var lowCostStars = 0;
+      var highCostCount = 0;
+      for (var ei = 0; ei < entries.length; ei++) {
+        var uu = byId[entries[ei].id];
+        if (!uu) continue;
+        totalCost += uu.cost;
+        if (uu.cost <= 2 && entries[ei].star >= 2) lowCostStars += 1;
+        if (uu.cost >= 4) highCostCount += 1;
+      }
+      var avgCost = entries.length ? totalCost / entries.length : 0;
+      var mode = ctx.mode || "auto";
+      var level = ctx.level || 8;
+
+      var archetype = "open";
+      if (!entries.length && !ranked.length) {
+        archetype = "open";
+      } else if (mode === "reroll" || (level <= 7 && entries.length >= 2 && lowCostStars >= 2 && avgCost <= 2.35 && highCostCount === 0)) {
+        archetype = "reroll";
+      } else if ((ctx.targetTraitCount || 0) >= 6 || (hasFlexMultiplier && maxBodies < 5 && maxTraitTarget < 5) ||
+                 (entries.length >= 4 && activeNonSolo >= 4 && topShare <= 0.55 && maxBodies <= 3 && maxTraitTarget < 5)) {
+        archetype = "flex_web";
+      } else if ((mode === "fast8" && maxTraitTarget < 5) ||
+                 (level >= 8 && entries.length >= 4 && (highCostCount >= Math.ceil(entries.length * 0.45) || (avgCost >= 3.2 && maxBodies <= 3)) && !hasFlexMultiplier && maxTraitTarget < 5)) {
+        archetype = "fast_high";
+      } else if (maxTraitTarget >= 5 || (top && top.isDeep && (top.effectiveBodies >= 3 || (entries.length <= 3 && topShare >= 0.65) || top.emblemTotal >= 1)) ||
+                 (top && top.effectiveBodies >= 2 && topShare >= 0.5)) {
+        archetype = "vertical";
+      } else if (top && top.emblemTotal >= 1) {
+        archetype = "vertical";
+      }
+
+      var primaryTraits = [];
+      var primaryMap = {};
+      var supportTraits = [];
+      var supportMap = {};
+      if (top) {
+        var topQualified = top.effectiveBodies >= 2 || top.active || top.emblemTotal >= 1 || top.targetNeed > 0 || entries.length === 1;
+        if (topQualified) {
+          primaryTraits.push(top);
+          primaryMap[top.id] = top;
+        }
+        for (var pi = 1; pi < ranked.length; pi++) {
+          var cand = ranked[pi];
+          var isSecondPrimary =
+            cand.targetNeed > 0 ||
+            (primaryTraits.length < 2 && cand.score >= top.score * 0.62 && (cand.effectiveBodies >= 2 || cand.emblemTotal >= 1)) ||
+            (archetype === "flex_web" && primaryTraits.length < 3 && cand.active && cand.score >= top.score * 0.72);
+          if (isSecondPrimary) {
+            primaryTraits.push(cand);
+            primaryMap[cand.id] = cand;
+          } else {
+            supportTraits.push(cand);
+            supportMap[cand.id] = cand;
+          }
+        }
+      }
+
+      var confidence = !entries.length ? 0 : entries.length === 1 && !(top && (top.emblemTotal > 0 || top.targetNeed > 0)) ? 0.45 : Math.min(1, 0.55 + entries.length * 0.1);
+      return {
+        archetype: archetype,
+        archetypeLabel: ARCHETYPE_LABELS[archetype] || "灵活过渡",
+        primaryTraits: primaryTraits,
+        supportTraits: supportTraits,
+        primaryMap: primaryMap,
+        supportMap: supportMap,
+        activeNonSolo: activeNonSolo,
+        hasFlexMultiplier: hasFlexMultiplier,
+        confidence: confidence
+      };
+    }
+
+    function candidateSystemAffinity(unit, board, ctx, sys) {
+      if (!unit || !sys || !board || !board.length) {
+        return { score: 0, tier: "splash", tag: "", hitPrimary: false, hitsPrimaryBp: false, activatedCount: 0, sharedCount: 0 };
+      }
+      var arch = sys.archetype || "open";
+      var curve = curveOf(ctx || { level: 8 });
+      var level = (ctx && ctx.level) || 8;
+      var traitTargets = (ctx && ctx.traitTargets) || {};
+      var primaryBase = arch === "vertical" ? 7.2 : arch === "reroll" ? 7.0 : arch === "fast_high" ? 5.2 : arch === "flex_web" ? 4.2 : 3.2;
+      var bpBonus = arch === "vertical" ? 6.8 : arch === "reroll" ? 6.5 : arch === "fast_high" ? 5.0 : arch === "flex_web" ? 4.8 : 3.5;
+
+      var score = 0;
+      var hitPrimary = false;
+      var hitsPrimaryBp = false;
+      var activatedCount = 0;
+      var sharedCount = 0;
+      var foreignBands = 0;
+
+      for (var i = 0; i < unit.traits.length; i++) {
+        var tid = unit.traits[i];
+        var tr = traitById[tid];
+        if (!tr || tr.kind === "solo") continue;
+        var c0 = traitCount(tr, board, ctx).total;
+        var c1 = c0 + 1;
+        var s0 = breakpointState(tr, c0, ctx);
+        var s1 = breakpointState(tr, c1, ctx);
+        var n0 = s0.best ? s0.best.need : 0;
+        var n1 = s1.best ? s1.best.need : 0;
+        var hitsBp = n1 > n0;
+        var progresses = !hitsBp && !!s1.next && c1 > c0;
+        if (hitsBp) activatedCount += 1;
+
+        if (sys.primaryMap[tid]) {
+          hitPrimary = true;
+          sharedCount += 1;
+          if (hitsBp) {
+            hitsPrimaryBp = true;
+            score += primaryBase + bpBonus;
+          } else if (progresses) {
+            var rem = s1.next.need - c1;
+            score += primaryBase + (rem <= (tr.countMode === "stars" ? 2 : 1) ? 1.8 : 0);
+          } else {
+            score += 1.2;
+          }
+          if (Number(traitTargets[tid]) > c0) score += 4.5;
+        } else if (sys.supportMap[tid]) {
+          sharedCount += 1;
+          if (arch === "flex_web") {
+            score += hitsBp ? 6.8 : progresses ? 2.4 : 0.4;
+          } else if (arch === "fast_high") {
+            score += hitsBp ? 4.5 : progresses ? 1.6 : 0.3;
+          } else {
+            score += hitsBp ? 3.4 : progresses ? 1.1 : 0.2;
+          }
+          if (Number(traitTargets[tid]) > c0) score += 4.0;
+        } else if (tr.kind === "band") {
+          foreignBands += 1;
+        }
+      }
+
+      // Multi-trait synergy web bonuses
+      if (activatedCount >= 2) {
+        score += (arch === "flex_web" ? 6.5 : 2.8) * (activatedCount - 1);
+      } else if (sharedCount >= 2) {
+        score += arch === "flex_web" ? 2.5 : 1.6;
+      }
+
+      // Foreign-band splash penalty when not advancing any primary trait
+      if (foreignBands > 0 && !hitPrimary) {
+        if (arch === "vertical" || arch === "reroll") {
+          score -= activatedCount === 0 ? 5.8 : activatedCount === 1 ? 3.8 : 3.2;
+        } else if (arch === "fast_high") {
+          score -= (unit.cost >= 4 && activatedCount >= 1) ? 0.8 : 3.2;
+        } else if (arch === "flex_web") {
+          if (activatedCount === 0) score -= 2.2;
+        } else if (activatedCount === 0) {
+          score -= 2.0;
+        }
+      }
+
+      // Cost curve alignment by archetype and level
+      if (arch === "reroll") {
+        if (unit.cost <= 3 && (hitPrimary || activatedCount >= 1)) score += 2.2;
+        else if (unit.cost >= 4 && !hitPrimary) score -= 2.8;
+      } else if (arch === "fast_high") {
+        if (unit.cost >= 4 && (hitPrimary || activatedCount >= 1)) score += 3.8;
+        else if (unit.cost <= 2 && !hitsPrimaryBp && activatedCount === 0) score -= 2.5;
+      } else if (level >= 7) {
+        if (unit.cost >= curve.ideal && (hitPrimary || activatedCount >= 1)) score += 2.4;
+        else if (unit.cost === curve.floor && (hitPrimary || activatedCount >= 1)) score += 1.2;
+        else if (unit.cost === 1 && !hitsPrimaryBp) score -= 1.8;
+        else if (unit.cost === 2 && level >= 8 && !hitsPrimaryBp && activatedCount === 0) score -= 0.9;
+      }
+
+      // Role-gap bonus for in-system frontline / carry
+      if (board.length >= 2) {
+        var hasTank = false;
+        var hasCarry = false;
+        for (var bi = 0; bi < board.length; bi++) {
+          var bu = byId[board[bi].id];
+          if (!bu) continue;
+          if (isTankRole(bu)) hasTank = true;
+          if (isCarryRole(bu)) hasCarry = true;
+        }
+        if (!hasTank && isTankRole(unit) && (hitPrimary || activatedCount >= 1)) score += 2.6;
+        if (!hasCarry && isCarryRole(unit) && (hitPrimary || activatedCount >= 1)) score += 2.2;
+      }
+
+      // Soft penalty for locked units (consistent with trait ladder priority)
+      if (isLocked(unit) && !(ctx && (ctx.focusId === unit.id || ctx.unlockTargetId === unit.id))) {
+        score -= 2.2;
+      }
+
+      // Scale gently on very early 1-unit boards without emblems/targets
+      if (sys.confidence < 0.5) score *= 0.6;
+
+      var tier = "splash";
+      var tag = "";
+      if (hitPrimary && (hitsPrimaryBp || arch === "vertical" || arch === "reroll" || score >= 8)) {
+        tier = "core";
+        tag = "体系核心";
+      } else if (activatedCount >= 2 || (arch === "flex_web" && activatedCount >= 1)) {
+        tier = "bridge";
+        tag = "拼羁绊";
+      } else if (unit.cost >= curve.ideal && (hitPrimary || sharedCount >= 1) && score >= 5) {
+        tier = "upgrade";
+        tag = "高费升级";
+      } else if (hitPrimary) {
+        tier = "core";
+        tag = "体系内";
+      }
+
+      return {
+        score: score,
+        tier: tier,
+        tag: tag,
+        hitPrimary: hitPrimary,
+        hitsPrimaryBp: hitsPrimaryBp,
+        activatedCount: activatedCount,
+        sharedCount: sharedCount
+      };
+    }
+
+    function planSystemBonus(start, adds, ctx, sys) {
+      if (!sys || !start || !start.length || !adds || !adds.length) return 0;
+      var board = start.map(copyEntry);
+      var total = 0;
+      for (var i = 0; i < adds.length; i++) {
+        var id = typeof adds[i] === "string" ? adds[i] : adds[i].id;
+        var u = byId[id];
+        if (!u) continue;
+        total += candidateSystemAffinity(u, board, ctx, sys).score;
+        board.push({ id: id, star: 1, mark: "", items: [] });
+      }
+      return total / Math.max(1, adds.length);
     }
 
     function exclusiveBlocked(unit, ids) {
@@ -556,6 +1111,7 @@ var TFT = (function () {
 
     function suggest(role, board, ctx) {
       var ids = {}, shared = {};
+      var sys = (ctx && ctx.system) || analyzeSystem(board, ctx);
       board.forEach(function (entry) {
         ids[entry.id] = 1;
         effectiveTraits(entry).forEach(function (tid) { shared[tid] = 1; });
@@ -564,14 +1120,20 @@ var TFT = (function () {
       for (var u = 0; u < data.units.length; u++) {
         var unit = data.units[u];
         if (ids[unit.id] || isBanned(ctx, unit.id) || !rollable(unit, ctx) || (!ctx.allowLocked && isLocked(unit)) || !hasKeys(unit, board) || exclusiveBlocked(unit, ids)) continue;
+        if (board.length && ctx.allowLocked && !ctx.disableBoardLockedFilter && isLocked(unit) && !lockedRelatedToBoard(unit, board, ctx)) continue;
         if (!(role === "tank" ? isTankRole(unit) : isCarryRole(unit))) continue;
         var overlap = 0;
-        for (var k = 0; k < unit.traits.length; k++) if (shared[unit.traits[k]]) overlap++;
+        var primaryOverlap = 0;
+        for (var k = 0; k < unit.traits.length; k++) {
+          if (shared[unit.traits[k]]) overlap++;
+          if (sys && sys.primaryMap && sys.primaryMap[unit.traits[k]]) primaryOverlap++;
+        }
         var q = TFTAssess.qFor({ id: unit.id, items: [] }, 1, role === "tank" ? "frontline" : "damage", ctx.profile || defaultProf, data);
-        rows.push({ id: unit.id, overlap: overlap, q: q, pref: TFTAssess.chasePreference(unit.cost, ctx.level) });
+        var lockedPen = isLocked(unit) ? -1 : 0;
+        rows.push({ id: unit.id, primaryOverlap: primaryOverlap, overlap: overlap, lockedPen: lockedPen, q: q, pref: TFTAssess.chasePreference(unit.cost, ctx.level) });
       }
       rows.sort(function (a, b) {
-        return b.overlap - a.overlap || b.q.mid - a.q.mid || b.q.lo - a.q.lo || b.pref - a.pref || (a.id < b.id ? -1 : 1);
+        return b.primaryOverlap - a.primaryOverlap || b.overlap - a.overlap || b.lockedPen - a.lockedPen || b.q.mid - a.q.mid || b.q.lo - a.q.lo || b.pref - a.pref || (a.id < b.id ? -1 : 1);
       });
       return rows.slice(0, 3).map(function (row) { return row.id; });
     }
@@ -808,6 +1370,7 @@ var TFT = (function () {
     function legal(board, ctx, remain) {
       var ids = boardIds(board);
       var out = [];
+      var filterLocked = board.length > 0 && ctx.allowLocked && !ctx.disableBoardLockedFilter;
       for (var i = 0; i < data.units.length; i++) {
         var unit = data.units[i];
         if (ids[unit.id]) continue;
@@ -816,6 +1379,7 @@ var TFT = (function () {
         if (!rollable(unit, ctx)) continue;
         if (!ctx.allowLocked && isLocked(unit)) continue;
         if (!hasKeys(unit, board)) continue;
+        if (filterLocked && isLocked(unit) && !lockedRelatedToBoard(unit, board, ctx)) continue;
         if (exclusiveBlocked(unit, ids)) continue;
         out.push(unit);
       }
@@ -841,6 +1405,7 @@ var TFT = (function () {
     // Foreign units (no shared non-solo trait) are never offered; low-cost ones must activate or advance a trait.
     function admissible(unit, board, ctx) {
       if (!board.length) return true;
+      if (unit.grantsUnit && (ctx.mode || "auto") === "reroll") return true;
       if (!sharesCore(unit, board)) return false;
       if (unit.cost >= curveOf(ctx).floor) return true;
       var trial = board.concat([{ id: unit.id, star: 1, mark: "" }]);
@@ -849,6 +1414,8 @@ var TFT = (function () {
 
     function shortlist(board, ctx, opt, remain) {
       var base = evaluate(board, ctx, opt);
+      var baseActive = opt && opt.flexMode ? countActiveNonSolo(board, ctx) : 0;
+      var sys = ctx && ctx.system;
       var rows = [];
       var units = legal(board, ctx, remain).filter(function (unit) { return admissible(unit, board, ctx); });
       for (var i = 0; i < units.length; i++) {
@@ -857,7 +1424,24 @@ var TFT = (function () {
         var ev = evaluate(trial, ctx, opt);
         var fit = looseFitOf(ctx, unit);
         var fitDelta = fit && fit.bonus > 0 ? fit.bonus * 0.6 : 0;
-        rows.push({ id: unit.id, delta: ev.total - base.total + fitDelta, trait: ev.traitPart - base.traitPart, score: ev.total });
+        var sysDelta = 0;
+        if (board.length && sys) {
+          var aff = candidateSystemAffinity(unit, board, ctx, sys);
+          sysDelta = aff.score * 2.4;
+        }
+        if (opt && opt.flexMode) {
+          var activeGain = countActiveNonSolo(trial, ctx) - baseActive;
+          if (activeGain > 0) sysDelta += activeGain * 14;
+        }
+        if (opt && opt.highCostFocus && unit.cost >= 4) {
+          sysDelta += 10;
+        }
+        rows.push({
+          id: unit.id,
+          delta: ev.total - base.total + fitDelta + sysDelta,
+          trait: ev.traitPart - base.traitPart,
+          score: ev.total + sysDelta
+        });
       }
       rows.sort(function (a, b) { return b.delta - a.delta || (a.id < b.id ? -1 : 1); });
       var picked = [];
@@ -1121,13 +1705,23 @@ var TFT = (function () {
     function nextBuys(kept, ctx) {
       var remain = room(kept, ctx);
       if (remain <= 0) return [];
+      var sys = (ctx && ctx.system) || analyzeSystem(kept, ctx);
       var rows = [], units = legal(kept, ctx, remain).filter(function (unit) { return admissible(unit, kept, ctx); });
       for (var i = 0; i < units.length; i++) {
         var trial = kept.concat([{ id: units[i].id, star: 1, items: [] }]);
         var assessment = assessAction(kept, { type: "add", id: units[i].id, star: 1, candidateId: "add:" + units[i].id }, ctx);
         if (assessment.status === "blocked" || assessment.status === "not_recommended") continue;
         assessment.preferenceMatch = TFTAssess.chasePreference(units[i].cost, ctx.level);
-        var row = { id: units[i].id, delta: assessment.score.mid, reasons: reasons(kept, trial, ctx), assessment: assessment };
+        var aff = candidateSystemAffinity(units[i], kept, ctx, sys);
+        var row = {
+          id: units[i].id,
+          delta: assessment.score.mid,
+          reasons: reasons(kept, trial, ctx),
+          assessment: assessment,
+          systemScore: aff.score,
+          systemTier: aff.tier,
+          systemTag: aff.tag
+        };
         var fit = looseFitOf(ctx, units[i]);
         if (fit && fit.matchedItems && fit.matchedItems.length) {
           row.matchedItems = fit.matchedItems.slice();
@@ -1240,10 +1834,38 @@ var TFT = (function () {
       });
     }
 
+    function swapSystemScore(kept, i, inn, ctx, sys) {
+      var out = kept[i];
+      var outUnit = byId[out.id];
+      var without = kept.slice(0, i).concat(kept.slice(i + 1));
+      var innAff = candidateSystemAffinity(inn, without, ctx, sys);
+      var outAff = candidateSystemAffinity(outUnit, without, ctx, sys);
+      var score = innAff.score - outAff.score * 0.65;
+      var costDiff = inn.cost - outUnit.cost;
+      var inSystem = innAff.hitPrimary || innAff.sharedCount > 0;
+      if (costDiff > 0 && inSystem) score += costDiff * 2.4;
+      if (sharesCore(inn, [out]) && costDiff > 0) score += 2.6;
+      // Protect primary-trait contributors from being swapped out for non-primary splash units.
+      if (outAff.hitPrimary && !innAff.hitPrimary) score -= 4.5;
+      var tag = "";
+      var tier = innAff.tier;
+      if (innAff.hitPrimary && costDiff > 0) {
+        tag = "体系内升级";
+        tier = "upgrade";
+      } else if (innAff.tag) {
+        tag = innAff.tag;
+      } else if (costDiff > 0 && sharesCore(inn, [out])) {
+        tag = "高费升级";
+        tier = "upgrade";
+      }
+      return { score: score, tag: tag, tier: tier };
+    }
+
     // Core upgrades: same shared trait, same role bucket, compatible damage, higher cost, legal now.
     // 1-star is immediate when its strength beats the outgoing unit; otherwise 2-star is offered as later.
     function coreUpgrades(kept, ctx) {
       var focus = ctx.focusId || null, rows = [];
+      var sys = (ctx && ctx.system) || analyzeSystem(kept, ctx);
       for (var i = 0; i < kept.length; i++) {
         var out = kept[i], outUnit = byId[out.id];
         if (out.id === focus || out.star === 3) continue;
@@ -1264,37 +1886,59 @@ var TFT = (function () {
             if (star === 2 && !(ctx.benchCopies && (ctx.benchCopies[inn.id] || 0) >= 3)) {
               shownRep = replacement(kept, i, inn, 1, ctx) || rep;
             }
+            var swSys = swapSystemScore(kept, i, inn, ctx, sys);
+            if (swSys.score < -3.0) continue;
             var row = replaceRow(kept, i, inn, shownRep, ctx, star, {
               innCost: inn.cost, gain: assessment.score.mid, strength: { out: 0, inn: assessment.score.mid },
               outInv: investmentOfItems(out.items) + (out.mark === "carry" || out.mark === "tank" ? 4 : out.mark === "carry2" ? 2 : 0),
+              systemScore: swSys.score, systemTag: swSys.tag, systemTier: swSys.tier,
               assessment: assessment
             });
             rows.push(row);
           }
         }
       }
-      rows = orderedAssessmentRows(rows);
-      return rows.slice(0, 4);
+      rows = orderSwapRows(rows);
+      var seenCore = {}, dedupCore = [];
+      for (var cr = 0; cr < rows.length && dedupCore.length < 4; cr++) {
+        var cKey = rows[cr].out + ">" + rows[cr].inn;
+        if (seenCore[cKey]) continue;
+        seenCore[cKey] = 1;
+        dedupCore.push(rows[cr]);
+      }
+      return dedupCore;
     }
 
-    // Full-board swaps: replacement that adds real trait value (delta > 1).
+    // Full-board swaps: replacement that improves system quality / trait structure without dropping active breakpoints.
     function fullSwaps(kept, ctx) {
       var rows = [];
+      var sys = (ctx && ctx.system) || analyzeSystem(kept, ctx);
       for (var i = 0; i < kept.length; i++) {
         var outgoing = kept[i];
         if (outgoing.id === ctx.focusId || outgoing.star === 3) continue;
         var without = kept.slice(0, i).concat(kept.slice(i + 1));
         var units = legal(without, ctx, 99);
         for (var u = 0; u < units.length; u++) {
-          var rep = replacement(kept, i, units[u], 1, ctx);
+          var inn = units[u];
+          if (!sharesCore(inn, kept) && !sharesCore(inn, [outgoing])) continue;
+          var rep = replacement(kept, i, inn, 1, ctx);
           if (!rep) continue;
-          var candidateId = "fullSwap:" + outgoing.id + ">" + units[u].id;
-          var assessment = assessAction(kept, { type: "replace", out: outgoing.id, in: units[u].id, star: 1, items: rep.items, candidateId: candidateId }, ctx);
-          if (assessment.status === "blocked" || !swapHelps(kept, i, units[u], ctx)) continue;
-          rows.push(replaceRow(kept, i, units[u], rep, ctx, 1, { delta: assessment.score.mid, assessment: assessment }));
+          var candidateId = "fullSwap:" + outgoing.id + ">" + inn.id;
+          var assessment = assessAction(kept, { type: "replace", out: outgoing.id, in: inn.id, star: 1, items: rep.items, candidateId: candidateId }, ctx);
+          if (assessment.status === "blocked" || !swapHelps(kept, i, inn, ctx)) continue;
+          var swSys = swapSystemScore(kept, i, inn, ctx, sys);
+          if (swSys.score < -3.0) continue;
+          rows.push(replaceRow(kept, i, inn, rep, ctx, 1, {
+            innCost: inn.cost,
+            delta: assessment.score.mid,
+            systemScore: swSys.score,
+            systemTag: swSys.tag,
+            systemTier: swSys.tier,
+            assessment: assessment
+          }));
         }
       }
-      rows = orderedAssessmentRows(rows);
+      rows = orderSwapRows(rows);
       var seen = {}, out = [];
       for (var r = 0; r < rows.length && out.length < 3; r++) {
         var key = rows[r].out + ">" + rows[r].inn;
@@ -1306,7 +1950,8 @@ var TFT = (function () {
 
     function swaps(kept, ctx) {
       var core = coreUpgrades(kept, ctx);
-      if (room(kept, ctx) > 0 || kept.length < 2) return orderedAssessmentRows(core);
+      if (room(kept, ctx) > 0 || kept.length < 2) return orderSwapRows(core);
+      var sys = (ctx && ctx.system) || analyzeSystem(kept, ctx);
       var tankReplacements = [];
       if (!kept.some(function (entry) { return qualifiedTankEntry(entry, ctx, ctx.profile || defaultProf); })) {
         var primary = classify(kept, ctx).carry[0], pairs = [];
@@ -1320,11 +1965,19 @@ var TFT = (function () {
             var candidateId = "tankSwap:" + out.id + ">" + tankUnit.id;
             var assessment = assessAction(kept, { type: "replace", out: out.id, in: tankUnit.id, star: 1, items: rep.items, candidateId: candidateId }, ctx);
             if (assessment.status === "blocked" || assessment.score.mid <= 0) return;
-            var row = replaceRow(kept, index, tankUnit, rep, ctx, 1, { delta: assessment.score.mid, assessment: assessment });
+            var swSys = swapSystemScore(kept, index, tankUnit, ctx, sys);
+            var row = replaceRow(kept, index, tankUnit, rep, ctx, 1, {
+              innCost: tankUnit.cost,
+              delta: assessment.score.mid,
+              systemScore: swSys.score,
+              systemTag: swSys.tag,
+              systemTier: swSys.tier,
+              assessment: assessment
+            });
             pairs.push(row);
           });
         });
-        pairs = orderedAssessmentRows(pairs);
+        pairs = orderSwapRows(pairs);
         var usedOut = {}, usedIn = {};
         for (var p = 0; p < pairs.length && tankReplacements.length < 2; p++) {
           if (usedOut[pairs[p].out] || usedIn[pairs[p].inn]) continue;
@@ -1332,7 +1985,7 @@ var TFT = (function () {
         }
       }
       var seen = {}, merged = [], all = tankReplacements.concat(core, fullSwaps(kept, ctx));
-      all = orderedAssessmentRows(all);
+      all = orderSwapRows(all);
       for (var s = 0; s < all.length && merged.length < 4; s++) {
         var key = all[s].out + ">" + all[s].inn;
         if (seen[key]) continue;
@@ -1473,15 +2126,36 @@ var TFT = (function () {
         : { kept: owned.slice(), dropped: [], conflict: false };
       var kept = fitted.kept;
       ctx.anchor = buildAnchor(kept, ctx);
+      var sys = analyzeSystem(kept, ctx);
+      ctx.system = sys;
       var current = evaluate(owned, ctx, null);
       var plans = [];
       if (!owned.length) {
         plans = openings(ctx);
       } else if (room(kept, ctx) > 0) {
         var commits = committedTraits(kept, ctx);
-        var specs = [{ beam: 8 }];
-        if (commits[0]) specs.push({ focus: commits[0].trait.id, focusMul: 1.9, beam: 6, title: "顺着「" + commits[0].trait.name + "」" });
-        if (commits[1]) specs.push({ focus: commits[1].trait.id, focusMul: 1.75, beam: 5, title: "转「" + commits[1].trait.name + "」" });
+        var p0 = sys.primaryTraits[0] || (commits[0] ? { id: commits[0].trait.id, name: commits[0].trait.name } : null);
+        var p1 = sys.primaryTraits[1] || (commits[1] && (!p0 || commits[1].trait.id !== p0.id) ? { id: commits[1].trait.id, name: commits[1].trait.name } : null);
+        var specs = [];
+        if (sys.archetype === "vertical" && p0) {
+          specs.push({ focus: p0.id, focusMul: 2.15, beam: 7, title: "垂直「" + p0.name + "」" });
+          specs.push({ beam: 8 });
+          if (p1) specs.push({ focus: p1.id, focusMul: 1.75, beam: 5, title: "兼顾「" + p1.name + "」" });
+        } else if (sys.archetype === "flex_web") {
+          specs.push({ flexMode: true, beam: 8, title: "拼多多多羁绊" });
+          if (p0) specs.push({ focus: p0.id, focusMul: 1.85, beam: 6, title: "顺着「" + p0.name + "」" });
+          if (p1) specs.push({ focus: p1.id, focusMul: 1.7, beam: 5, title: "转「" + p1.name + "」" });
+        } else if (sys.archetype === "reroll") {
+          if (p0) specs.push({ focus: p0.id, focusMul: 2.0, beam: 7, title: "赌狗「" + p0.name + "」" });
+          specs.push({ beam: 7 });
+        } else if (sys.archetype === "fast_high") {
+          specs.push({ highCostFocus: true, beam: 8, title: "高费体系上限" });
+          if (p0) specs.push({ focus: p0.id, focusMul: 1.85, beam: 6, title: "顺着「" + p0.name + "」" });
+        } else {
+          specs.push({ beam: 8 });
+          if (p0) specs.push({ focus: p0.id, focusMul: 1.9, beam: 6, title: "顺着「" + p0.name + "」" });
+          if (p1) specs.push({ focus: p1.id, focusMul: 1.75, beam: 5, title: "转「" + p1.name + "」" });
+        }
         for (var s = 0; s < specs.length; s++) {
           var filled = fill(kept, ctx, specs[s]);
           if (!filled.adds.length) continue;
@@ -1554,8 +2228,9 @@ var TFT = (function () {
           var additions = (plan.adds || []).map(function (a) { return a.id; }).sort().join("+");
           plan.assessment = assessAction(kept, { type: "plan", afterBoard: plan.board, candidateId: "plan:" + additions + ":" + plan.title }, ctx);
         }
+        plan.systemScore = planSystemBonus(kept, plan.adds, ctx, sys);
       });
-      plans = orderedAssessmentRows(plans.filter(function (plan) { return plan.assessment.status !== "blocked" && plan.assessment.status !== "not_recommended"; })).slice(0, 3);
+      plans = orderPlanRows(plans.filter(function (plan) { return plan.assessment.status !== "blocked" && plan.assessment.status !== "not_recommended"; })).slice(0, 3);
       var warnings = norm.warnings.slice();
       if (fitted.dropped.length) {
         warnings.unshift("人口超过 " + capacity(owned, ctx) + "，建议先下场 " + fitted.dropped.map(function (e) { return byId[e.id].display; }).join("、"));
@@ -1593,7 +2268,19 @@ var TFT = (function () {
         odds: oddsView(ctx.level),
         holders: holderNotes(owned, ctx),
         keep: keepReport(owned),
-        locks: lockNotes(owned, ctx, suggested)
+        locks: lockNotes(owned, ctx, suggested),
+        system: {
+          archetype: sys.archetype,
+          archetypeLabel: sys.archetypeLabel,
+          primaryTraits: sys.primaryTraits.map(function (t) {
+            return { id: t.id, name: t.name, count: t.count, score: Math.round(t.score * 10) / 10 };
+          }),
+          supportTraits: sys.supportTraits.slice(0, 4).map(function (t) {
+            return { id: t.id, name: t.name, count: t.count };
+          }),
+          primaryIds: sys.primaryTraits.map(function (t) { return t.id; }),
+          confidence: sys.confidence
+        }
       };
     }
 
@@ -1658,93 +2345,12 @@ var TFT = (function () {
       var ownedIds = {};
       owned.forEach(function (e) { ownedIds[e.id] = 1; });
 
-      var UNLOCK_TRAIT_ALIASES = {
-        "hyperpop": "DA_GlitterBomb19",
-        "classical": "DA_Virtuosos19",
-        "renegade": "DA_Renegade19",
-        "混沌战士": "DA_Renegade19",
-        "trickshot": "DA_Trickshot19",
-        "pentakill": "DA_Pentakill19",
-        "swiftstriker": "DA_Swiftstriker19",
-        "ionic spark": "DA_IonicSpark19",
-        "离子火花粉丝": "DA_IonicSpark19",
-        "hitmaker": "DA_Hitmaker19",
-        "裁决战士": "DA_Mosher19"
-      };
-      function extractUnlockTraitIds(text) {
-        if (!text) return [];
-        var raw = String(text);
-        var lower = raw.toLowerCase();
-        var out = [];
-        var seen = {};
-        function pushId(tid) {
-          if (tid && traitById[tid] && !seen[tid]) {
-            seen[tid] = 1;
-            out.push(tid);
-          }
-        }
-        var m, re = /【([^】]+)】/g;
-        while ((m = re.exec(raw)) !== null) {
-          var token = m[1].trim();
-          var tokLow = token.toLowerCase();
-          if (UNLOCK_TRAIT_ALIASES[tokLow]) pushId(UNLOCK_TRAIT_ALIASES[tokLow]);
-          for (var ti = 0; ti < data.traits.length; ti++) {
-            var tr = data.traits[ti];
-            if (tr.name === token || tr.id === token) pushId(tr.id);
-          }
-        }
-        Object.keys(UNLOCK_TRAIT_ALIASES).forEach(function (alias) {
-          if (lower.indexOf(alias) >= 0) pushId(UNLOCK_TRAIT_ALIASES[alias]);
-        });
-        return out;
-      }
-
-      var boardTraitIds = {};
-      owned.forEach(function (e) {
-        effectiveTraits(e).forEach(function (tid) { boardTraitIds[tid] = 1; });
-      });
-      if (ctx.emblems) {
-        Object.keys(ctx.emblems).forEach(function (tid) {
-          if ((ctx.emblems[tid] || 0) > 0) boardTraitIds[tid] = 1;
-        });
-      }
-      (ctx.looseItems || []).forEach(function (itemId) {
-        var it = itemOf(itemId);
-        if (it && it.kind === "emblem" && it.trait) boardTraitIds[it.trait] = 1;
-      });
-      var ownedActiveCount = countActive(ownedCounts);
-
-      function lockedRelatedToBoard(u) {
-        var info = unlockInfo(u);
-        if (!info) return true;
-        if (info.units && info.units.length) {
-          if (info.mode === "any") {
-            return info.units.some(function (r) { return !!ownedIds[r.id]; });
-          }
-          return info.units.every(function (r) { return !!ownedIds[r.id]; });
-        }
-        var text = String(info.text || "");
-        var cntMatch = text.match(/激活\s*(\d+)\s*个/);
-        if (cntMatch) {
-          var needTraits = Number(cntMatch[1]) || 0;
-          if (needTraits > 0 && ownedActiveCount < needTraits - 1) return false;
-        }
-        var reqTraits = extractUnlockTraitIds(text);
-        if (reqTraits.length) {
-          return reqTraits.some(function (tid) { return !!boardTraitIds[tid]; });
-        }
-        return (u.traits || []).some(function (tid) {
-          var tr = traitById[tid];
-          return tr && tr.kind !== "solo" && !!boardTraitIds[tid];
-        });
-      }
-
       var requireBoardLocked = !!options.requireBoardRelatedLocked;
       var cands = data.units.filter(function (u) {
         if (ownedIds[u.id]) return false;
         if (isBanned(ctx, u.id)) return false;
         if (!ctx.allowLocked && isLocked(u)) return false;
-        if (requireBoardLocked && isLocked(u) && !lockedRelatedToBoard(u)) return false;
+        if (requireBoardLocked && isLocked(u) && !lockedRelatedToBoard(u, owned, ctx, { relaxed: true })) return false;
         var info = unlockInfo(u);
         for (var L = cur; L <= maxLevel; L++) {
           if (info && info.level && L < info.level) continue;
@@ -2096,6 +2702,7 @@ var TFT = (function () {
       evaluate: evaluate,
       place: place,
       recommend: recommend,
+      analyzeSystem: analyzeSystem,
       assessCandidate: function (beforeBoard, action, context, profile) {
         if (!TFTAssess) throw new Error("assess.js must load before engine.js");
         return TFTAssess.assess(data, beforeBoard, action, context, profile);

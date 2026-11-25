@@ -488,12 +488,15 @@ export function mountAdvisor(store) {
     const inheritNames = uniqueStrings(inherited).map((id) => store.itemName(id)).join("、");
     const traitsHtml = (s.traitChanges || []).slice(0, 6).map((c) => traitDeltaHtml(game, c)).join("");
     const applyText = s.requiredStars > 1 ? `按 ${s.requiredStars} 星应用替换` : "应用替换";
+    const sysTagHtml = s.systemTag
+      ? `<span class="sys-tag sys-${esc(s.systemTier || "upgrade")}">${esc(s.systemTag)}</span>`
+      : "";
 
     return (
       `<article class="plan-item${previewing ? " is-previewing" : ""}">` +
       `<div class="plan-top">` +
       `<div style="min-width:0">` +
-      `<div class="plan-title">${esc(s.text || `${store.unitName(s.out)} → ${store.unitName(s.inn)}`)}</div>` +
+      `<div class="plan-title">${esc(s.text || `${store.unitName(s.out)} → ${store.unitName(s.inn)}`)}${sysTagHtml}</div>` +
       (inheritNames ? `<div class="plan-sub">继承装备：${esc(inheritNames)}</div>` : "") +
       `</div>` +
       gradeBoxHtml(s) +
@@ -544,6 +547,9 @@ export function mountAdvisor(store) {
       const u = unitById(game, row.id);
       const name = u ? (u.display || u.name) : store.unitName(row.id);
       const cost = u ? u.cost : 1;
+      const sysTagHtml = row.systemTag
+        ? `<span class="sys-tag sys-${esc(row.systemTier || "core")}">${esc(row.systemTag)}</span>`
+        : "";
       const fitHtml = (row.matchedItems || []).length ? itemFitPillsHtml(game, row.matchedItems.slice(0, 2), true) : "";
       const rs = (row.reasons || []).slice(0, 2).map(describe).filter(Boolean).join("；");
       return (
@@ -551,7 +557,7 @@ export function mountAdvisor(store) {
         `<div class="action-who" style="--cost:${esc(costVar(cost))};--cost-solid:${esc(costHex(cost))}">` +
         `<span class="action-ava-wrap" data-tip="unit:${esc(row.id)}">${imgHtml(u, "action-ava", name, false)}</span>` +
         `<div class="action-text">` +
-        `<strong><span data-tip="unit:${esc(row.id)}">${esc(name)}</span> <span style="font-family:var(--font-mono);font-size:10.5px;color:var(--text-muted)">${cost}费</span>${fitHtml}</strong>` +
+        `<strong><span data-tip="unit:${esc(row.id)}">${esc(name)}</span> <span style="font-family:var(--font-mono);font-size:10.5px;color:var(--text-muted)">${cost}费</span>${sysTagHtml}${fitHtml}</strong>` +
         (rs ? `<span>${esc(rs)}</span>` : "") +
         `</div>` +
         `</div>` +
@@ -642,6 +648,29 @@ export function mountAdvisor(store) {
     );
   }
 
+  function renderSystemBanner(ctx) {
+    const { game, rec, state } = ctx;
+    const sys = rec && rec.system;
+    if (!sys || sys.archetype === "open") return "";
+    const primaries = Array.isArray(sys.primaryTraits) ? sys.primaryTraits : [];
+    if (!primaries.length && (state.board || []).length < 2) return "";
+    const traitsHtml = primaries.slice(0, 3).map((pt) => {
+      const tr = game.traitById && game.traitById[pt.id];
+      const ico = tr ? imgHtml(tr, "trait-delta-ico", pt.name, false) : "";
+      return `<span class="sys-trait" data-tip="trait:${esc(pt.id)}">${ico}<span>${esc(pt.name)}</span></span>`;
+    }).join("");
+    const archCls = `arch-${esc(sys.archetype || "vertical")}`;
+    return (
+      `<section class="system-strip" aria-label="当前识别体系">` +
+      `<div class="system-strip-left">` +
+      `<span class="eyebrow">识别体系</span>` +
+      `<div class="system-traits">${traitsHtml || '<span class="plan-sub" style="margin:0">多羁绊协同</span>'}</div>` +
+      `</div>` +
+      `<span class="sys-arch-pill ${archCls}">${esc(sys.archetypeLabel || "体系优先")}</span>` +
+      `</section>`
+    );
+  }
+
   function renderNormalMode(ctx) {
     const { rec } = ctx;
     let html = renderUnlockZone(ctx);
@@ -653,6 +682,7 @@ export function mountAdvisor(store) {
       html += `<div class="advisor-empty" style="color:var(--danger);border-color:var(--danger)">${esc(rec.error)}</div>`;
       return html + renderBannedBar(ctx);
     }
+    html += renderSystemBanner(ctx);
     if (rec.warnings && rec.warnings.length) {
       html += `<div class="plan-item" style="border-color:var(--accent-border);background:var(--accent-soft)">` +
         rec.warnings.map((w) => `<div class="plan-sub" style="color:var(--text-primary);margin-top:0">${esc(describe(w))}</div>`).join("") +
@@ -963,7 +993,7 @@ export function mountAdvisor(store) {
       (state.looseItems || []).length,
       state.level || 8,
       state.extraSlots || 0,
-      rec === null ? "null" : `${rec.slots?.used}/${rec.slots?.max}:${(rec.plans || []).length}:${(rec.swaps || []).length}:${(rec.next || []).length}:${(rec.starUps || []).length}:${(rec.warnings || []).length}`,
+      rec === null ? "null" : `${rec.slots?.used}/${rec.slots?.max}:${(rec.plans || []).length}:${(rec.swaps || []).length}:${(rec.next || []).length}:${(rec.starUps || []).length}:${(rec.warnings || []).length}:${rec.system?.archetype || ""}:${(rec.system?.primaryIds || []).join(",")}`,
       reorg === null ? "null" : `${reorg.status}:${reorg.minLevel || ""}:${(reorg.plans || []).length}`,
       tr ? `${tr.done}:${tr.visited}:${tr.cancelled}:${(tr.plans || []).length}` : (tracker ? tracker.error || "init" : "none"),
       utr ? `${utr.done}:${utr.visited}:${utr.cancelled}:${(utr.plans || []).length}` : (unlockTracker ? unlockTracker.error || "init" : "none"),

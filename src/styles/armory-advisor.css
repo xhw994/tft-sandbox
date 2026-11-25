@@ -1011,4 +1011,101 @@
     background: var(--good-soft);
     color: var(--good);
   }
+
+  /* System Identification Strip & Priority Badges */
+  .system-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-elevated);
+  }
+  .system-strip-left {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+  .system-traits {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .sys-trait {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1.5px 6px;
+    border-radius: 99px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .sys-trait img {
+    width: 12px;
+    height: 12px;
+    filter: var(--trait-micro-filter);
+  }
+  .sys-arch-pill {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 99px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border: 1px solid transparent;
+  }
+  .sys-arch-pill.arch-vertical {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: var(--accent-border);
+  }
+  .sys-arch-pill.arch-flex_web {
+    background: var(--good-soft);
+    color: var(--good);
+    border-color: color-mix(in oklch, var(--good) 40%, transparent);
+  }
+  .sys-arch-pill.arch-reroll {
+    background: color-mix(in oklch, #e07b4a 16%, transparent);
+    color: #e8966b;
+    border-color: color-mix(in oklch, #e07b4a 42%, transparent);
+  }
+  .sys-arch-pill.arch-fast_high {
+    background: color-mix(in oklch, var(--sky) 16%, transparent);
+    color: var(--sky);
+    border-color: color-mix(in oklch, var(--sky) 40%, transparent);
+  }
+  .sys-tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-left: 4px;
+    line-height: 1.3;
+    vertical-align: middle;
+  }
+  .sys-tag.sys-core {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+  }
+  .sys-tag.sys-bridge {
+    background: var(--good-soft);
+    color: var(--good);
+    border: 1px solid color-mix(in oklch, var(--good) 40%, transparent);
+  }
+  .sys-tag.sys-upgrade {
+    background: color-mix(in oklch, var(--sky) 16%, transparent);
+    color: var(--sky);
+    border: 1px solid color-mix(in oklch, var(--sky) 40%, transparent);
+  }
 }

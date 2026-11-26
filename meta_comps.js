@@ -6,7 +6,7 @@ window.META_COMPS = {
   "source": "MetaTFT (PBE)",
   "sourceUrl": "https://www.metatft.com/comps",
   "updatedAt": "2026-11-26",
-  "sampleGames": 2421364,
+  "sampleGames": 2422888,
   "comps": [
     {
       "id": "mt_429003",
@@ -20,7 +20,7 @@ window.META_COMPS = {
       "avgPlace": 3.93,
       "top4Rate": 59.2,
       "winRate": 21.4,
-      "games": 190349,
+      "games": 190498,
       "units": [
         {
           "id": "DA_Smeech19",
@@ -134,7 +134,7 @@ window.META_COMPS = {
       "avgPlace": 3.93,
       "top4Rate": 61.8,
       "winRate": 15.8,
-      "games": 59844,
+      "games": 59883,
       "units": [
         {
           "id": "DA_Ezreal19",
@@ -243,7 +243,7 @@ window.META_COMPS = {
       "avgPlace": 3.96,
       "top4Rate": 60.6,
       "winRate": 14.6,
-      "games": 50488,
+      "games": 50518,
       "units": [
         {
           "id": "DA_Amumu19",
@@ -337,7 +337,7 @@ window.META_COMPS = {
       "avgPlace": 4.04,
       "top4Rate": 58.6,
       "winRate": 18.1,
-      "games": 157536,
+      "games": 157623,
       "units": [
         {
           "id": "DA_Teemo19",
@@ -451,7 +451,7 @@ window.META_COMPS = {
       "avgPlace": 4.04,
       "top4Rate": 59.1,
       "winRate": 13,
-      "games": 35790,
+      "games": 35807,
       "units": [
         {
           "id": "DA_Alune19",
@@ -540,7 +540,7 @@ window.META_COMPS = {
       "avgPlace": 4.12,
       "top4Rate": 56.8,
       "winRate": 13.3,
-      "games": 164689,
+      "games": 164772,
       "units": [
         {
           "id": "DA_Gwen19",
@@ -645,8 +645,8 @@ window.META_COMPS = {
       "mode": "reroll",
       "avgPlace": 4.16,
       "top4Rate": 58.1,
-      "winRate": 13.1,
-      "games": 71111,
+      "winRate": 13.2,
+      "games": 71140,
       "units": [
         {
           "id": "DA_Jax19",
@@ -754,8 +754,8 @@ window.META_COMPS = {
       "mode": "reroll",
       "avgPlace": 4.07,
       "top4Rate": 61.2,
-      "winRate": 7.8,
-      "games": 9529,
+      "winRate": 7.9,
+      "games": 9533,
       "units": [
         {
           "id": "DA_Graves19",
@@ -856,7 +856,7 @@ window.META_COMPS = {
       "avgPlace": 4.17,
       "top4Rate": 58.2,
       "winRate": 7.8,
-      "games": 50935,
+      "games": 50971,
       "units": [
         {
           "id": "DA_Pyke19",
@@ -963,7 +963,7 @@ window.META_COMPS = {
       "avgPlace": 4.25,
       "top4Rate": 55.6,
       "winRate": 10.3,
-      "games": 67790,
+      "games": 67855,
       "units": [
         {
           "id": "DA_Taliyah19",
@@ -1075,8 +1075,8 @@ window.META_COMPS = {
       "mode": "auto",
       "avgPlace": 4.17,
       "top4Rate": 59,
-      "winRate": 6.6,
-      "games": 8106,
+      "winRate": 6.7,
+      "games": 8110,
       "units": [
         {
           "id": "DA_Gwen19",
@@ -1168,9 +1168,9 @@ window.META_COMPS = {
       "level": 9,
       "mode": "fast8",
       "avgPlace": 4.18,
-      "top4Rate": 55.6,
+      "top4Rate": 55.7,
       "winRate": 13.5,
-      "games": 15102,
+      "games": 15159,
       "units": [
         {
           "id": "DA_Smeech19",
@@ -1284,7 +1284,7 @@ window.META_COMPS = {
       "avgPlace": 4.27,
       "top4Rate": 53.2,
       "winRate": 15,
-      "games": 30423,
+      "games": 30445,
       "units": [
         {
           "id": "DA_Smeech19",
@@ -1398,7 +1398,7 @@ window.META_COMPS = {
       "avgPlace": 4.33,
       "top4Rate": 53.1,
       "winRate": 12.9,
-      "games": 69849,
+      "games": 69886,
       "units": [
         {
           "id": "DA_AkaliKDA19",
@@ -1480,7 +1480,7 @@ window.META_COMPS = {
       "avgPlace": 4.29,
       "top4Rate": 53.5,
       "winRate": 13.5,
-      "games": 27749,
+      "games": 27763,
       "units": [
         {
           "id": "DA_Nidalee19",
@@ -1582,7 +1582,7 @@ window.META_COMPS = {
       "avgPlace": 4.28,
       "top4Rate": 53.3,
       "winRate": 15.7,
-      "games": 21298,
+      "games": 21304,
       "units": [
         {
           "id": "DA_Pyke19",
@@ -1682,7 +1682,7 @@ window.META_COMPS = {
       "avgPlace": 4.3,
       "top4Rate": 57,
       "winRate": 4.4,
-      "games": 9228,
+      "games": 9234,
       "units": [
         {
           "id": "DA_Zac19",
@@ -1784,7 +1784,7 @@ window.META_COMPS = {
       "avgPlace": 4.32,
       "top4Rate": 53.9,
       "winRate": 10.9,
-      "games": 22154,
+      "games": 22161,
       "units": [
         {
           "id": "DA_Pyke19",
@@ -1893,7 +1893,7 @@ window.META_COMPS = {
       "avgPlace": 4.39,
       "top4Rate": 52.1,
       "winRate": 15.8,
-      "games": 66801,
+      "games": 66841,
       "units": [
         {
           "id": "DA_AkaliKDA19",
@@ -1975,7 +1975,7 @@ window.META_COMPS = {
       "avgPlace": 4.45,
       "top4Rate": 48.1,
       "winRate": 15.9,
-      "games": 110766,
+      "games": 110853,
       "units": [
         {
           "id": "DA_LeeSin19",

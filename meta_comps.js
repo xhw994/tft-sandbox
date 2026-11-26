@@ -6,7 +6,104 @@ window.META_COMPS = {
   "source": "MetaTFT (PBE)",
   "sourceUrl": "https://www.metatft.com/comps",
   "updatedAt": "2026-11-26",
-  "sampleGames": 2422888,
+  "sampleGames": 2431828,
+  "plannerCodesSource": "MetaTFT Lookup (pbe)",
+  "plannerCodes": {
+    "DA_Ahri19": "3e9",
+    "DA_AkaliKDA19": "3ec",
+    "DA_Akali_TrueDamage19": "3ea",
+    "DA_Alistar19": "3ed",
+    "DA_Alune19": "3ee",
+    "DA_Amumu19": "3ef",
+    "DA_Annie19": "3f0",
+    "DA_Aphelios19": "3f1",
+    "DA_Ashe19": "3f2",
+    "DA_Aurora19": "3f3",
+    "DA_Bard19": "3f4",
+    "DA_BaronNashor19": "3f5",
+    "DA_Braum19": "3f6",
+    "DA_Briar19": "3f7",
+    "DA_Camille19": "3f8",
+    "DA_DrMundo19": "3fb",
+    "DA_Draven19": "3fa",
+    "DA_Ekko19": "3fc",
+    "DA_Elise19": "3fd",
+    "DA_Evelynn19": "3fe",
+    "DA_Ezreal19": "3ff",
+    "DA_Galio19": "400",
+    "DA_Garen19": "401",
+    "DA_Gnar19": "402",
+    "DA_Gragas19": "403",
+    "DA_Graves19": "449",
+    "DA_Gwen19": "404",
+    "DA_Illaoi19": "405",
+    "DA_Janna19": "406",
+    "DA_Jax19": "407",
+    "DA_Jhin19": "408",
+    "DA_Jinx19": "409",
+    "DA_KSante19": "411",
+    "DA_Kaisa19": "40a",
+    "DA_Karthus19": "40b",
+    "DA_Katarina19": "40c",
+    "DA_Kayle19": "40d",
+    "DA_Kayn19": "40e",
+    "DA_Kennen19": "40f",
+    "DA_Kobuko19": "410",
+    "DA_LeeSin19": "44f",
+    "DA_Leona19": "412",
+    "DA_Lillia19": "413",
+    "DA_Locke19": "414",
+    "DA_Lucian19": "415",
+    "DA_Lulu19": "416",
+    "DA_Lux19": "417",
+    "DA_Malzahar19": "418",
+    "DA_Mel19": "419",
+    "DA_MissFortune19": "41a",
+    "DA_Mordekaiser19": "44b",
+    "DA_Nasus19": "44a",
+    "DA_Neeko19": "41c",
+    "DA_Nidalee19": "41d",
+    "DA_Nunu19": "41e",
+    "DA_Olaf19": "447",
+    "DA_Pyke19": "420",
+    "DA_Qiyana19": "421",
+    "DA_Rakan19": "448",
+    "DA_Rell19": "422",
+    "DA_RenataGlasc19": "423",
+    "DA_Renekton19": "424",
+    "DA_Samira19": "425",
+    "DA_Senna19": "426",
+    "DA_SeraphineIndie19": "427",
+    "DA_Sett19": "428",
+    "DA_Shyvana19": "429",
+    "DA_Smeech19": "42a",
+    "DA_Sona19": "42c",
+    "DA_Swain19": "42d",
+    "DA_Syndra19": "42e",
+    "DA_Taliyah19": "42f",
+    "DA_Taric19": "430",
+    "DA_Teemo19": "431",
+    "DA_Thresh19": "432",
+    "DA_Tibbers19": "433",
+    "DA_Tristana19": "434",
+    "DA_TwistedFate19": "435",
+    "DA_Varus19": "436",
+    "DA_Vayne19": "437",
+    "DA_Vi19": "438",
+    "DA_Viego19": "439",
+    "DA_Vladimir19": "43a",
+    "DA_Wukong19": "43b",
+    "DA_Xayah19": "43c",
+    "DA_Yasuo19": "43d",
+    "DA_Yone19": "43e",
+    "DA_Yorick19": "43f",
+    "DA_Yunara19": "440",
+    "DA_Yuumi19": "441",
+    "DA_Zac19": "442",
+    "DA_Zeri19": "443",
+    "DA_Ziggs19": "444",
+    "DA_Zoe19": "445"
+  },
   "comps": [
     {
       "id": "mt_429003",
@@ -20,7 +117,7 @@ window.META_COMPS = {
       "avgPlace": 3.93,
       "top4Rate": 59.2,
       "winRate": 21.4,
-      "games": 190498,
+      "games": 191424,
       "units": [
         {
           "id": "DA_Smeech19",
@@ -132,9 +229,9 @@ window.META_COMPS = {
       "level": 8,
       "mode": "reroll",
       "avgPlace": 3.93,
-      "top4Rate": 61.8,
+      "top4Rate": 61.7,
       "winRate": 15.8,
-      "games": 59883,
+      "games": 60079,
       "units": [
         {
           "id": "DA_Ezreal19",
@@ -243,7 +340,7 @@ window.META_COMPS = {
       "avgPlace": 3.96,
       "top4Rate": 60.6,
       "winRate": 14.6,
-      "games": 50518,
+      "games": 50682,
       "units": [
         {
           "id": "DA_Amumu19",
@@ -337,15 +434,15 @@ window.META_COMPS = {
       "avgPlace": 4.04,
       "top4Rate": 58.6,
       "winRate": 18.1,
-      "games": 157623,
+      "games": 158132,
       "units": [
         {
           "id": "DA_Teemo19",
           "star": 1,
           "items": [
             "DA_JeweledGauntlet",
-            "DA_RabadonsDeathcap",
-            "DA_SpearOfShojin"
+            "DA_NashorsTooth",
+            "DA_StrikersFlail"
           ]
         },
         {
@@ -451,7 +548,7 @@ window.META_COMPS = {
       "avgPlace": 4.04,
       "top4Rate": 59.1,
       "winRate": 13,
-      "games": 35807,
+      "games": 35932,
       "units": [
         {
           "id": "DA_Alune19",
@@ -540,7 +637,7 @@ window.META_COMPS = {
       "avgPlace": 4.12,
       "top4Rate": 56.8,
       "winRate": 13.3,
-      "games": 164772,
+      "games": 165326,
       "units": [
         {
           "id": "DA_Gwen19",
@@ -646,7 +743,7 @@ window.META_COMPS = {
       "avgPlace": 4.16,
       "top4Rate": 58.1,
       "winRate": 13.2,
-      "games": 71140,
+      "games": 71317,
       "units": [
         {
           "id": "DA_Jax19",
@@ -755,7 +852,7 @@ window.META_COMPS = {
       "avgPlace": 4.07,
       "top4Rate": 61.2,
       "winRate": 7.9,
-      "games": 9533,
+      "games": 9567,
       "units": [
         {
           "id": "DA_Graves19",
@@ -856,7 +953,7 @@ window.META_COMPS = {
       "avgPlace": 4.17,
       "top4Rate": 58.2,
       "winRate": 7.8,
-      "games": 50971,
+      "games": 51159,
       "units": [
         {
           "id": "DA_Pyke19",
@@ -963,7 +1060,7 @@ window.META_COMPS = {
       "avgPlace": 4.25,
       "top4Rate": 55.6,
       "winRate": 10.3,
-      "games": 67855,
+      "games": 68131,
       "units": [
         {
           "id": "DA_Taliyah19",
@@ -1065,100 +1162,6 @@ window.META_COMPS = {
       }
     },
     {
-      "id": "mt_429010",
-      "title": "7离子火花 伊莉丝",
-      "tier": "A",
-      "archetype": "vertical",
-      "archetypeLabel": "垂直高羁绊",
-      "tempo": "5级慢D追三",
-      "level": 8,
-      "mode": "auto",
-      "avgPlace": 4.17,
-      "top4Rate": 59,
-      "winRate": 6.7,
-      "games": 8110,
-      "units": [
-        {
-          "id": "DA_Gwen19",
-          "star": 1,
-          "items": [
-            "DA_HandOfJustice",
-            "DA_JeweledGauntlet",
-            "DA_VoidStaff"
-          ]
-        },
-        {
-          "id": "DA_Jinx19",
-          "star": 2,
-          "items": [
-            "DA_Deathblade",
-            "DA_GuinsoosRageblade",
-            "DA_InfinityEdge"
-          ]
-        },
-        {
-          "id": "DA_Shyvana19",
-          "star": 2,
-          "items": [
-            "DA_Crownguard",
-            "DA_GargoyleStoneplate",
-            "DA_SpiritVisage"
-          ]
-        },
-        {
-          "id": "DA_Aurora19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Swain19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Tibbers19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Annie19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Elise19",
-          "star": 3,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_IonicSpark19",
-          "name": "离子火花",
-          "count": 7,
-          "need": 7,
-          "style": 4
-        },
-        {
-          "id": "DA_Frontman19",
-          "name": "主唱",
-          "count": 3,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Arcanist19",
-          "name": "法师",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_IonicSpark19": 7
-      }
-    },
-    {
       "id": "mt_429018",
       "title": "主唱 希瓦娜",
       "tier": "A",
@@ -1167,18 +1170,18 @@ window.META_COMPS = {
       "tempo": "速9成型",
       "level": 9,
       "mode": "fast8",
-      "avgPlace": 4.18,
-      "top4Rate": 55.7,
-      "winRate": 13.5,
-      "games": 15159,
+      "avgPlace": 4.16,
+      "top4Rate": 55.9,
+      "winRate": 13.6,
+      "games": 15418,
       "units": [
         {
-          "id": "DA_Smeech19",
-          "star": 1,
+          "id": "DA_Jinx19",
+          "star": 2,
           "items": [
-            "DA_Bloodthirster",
-            "DA_SteraksGage",
-            "DA_TitansResolve"
+            "DA_GuinsoosRageblade",
+            "DA_InfinityEdge",
+            "DA_LastWhisper"
           ]
         },
         {
@@ -1200,8 +1203,8 @@ window.META_COMPS = {
           ]
         },
         {
-          "id": "DA_Jinx19",
-          "star": 2,
+          "id": "DA_Smeech19",
+          "star": 1,
           "items": []
         },
         {
@@ -1273,6 +1276,100 @@ window.META_COMPS = {
       }
     },
     {
+      "id": "mt_429010",
+      "title": "7离子火花 伊莉丝",
+      "tier": "A",
+      "archetype": "vertical",
+      "archetypeLabel": "垂直高羁绊",
+      "tempo": "5级慢D追三",
+      "level": 8,
+      "mode": "auto",
+      "avgPlace": 4.17,
+      "top4Rate": 59,
+      "winRate": 6.7,
+      "games": 8135,
+      "units": [
+        {
+          "id": "DA_Jinx19",
+          "star": 2,
+          "items": [
+            "DA_Deathblade",
+            "DA_GuinsoosRageblade",
+            "DA_InfinityEdge"
+          ]
+        },
+        {
+          "id": "DA_Shyvana19",
+          "star": 2,
+          "items": [
+            "DA_Crownguard",
+            "DA_GargoyleStoneplate",
+            "DA_SpiritVisage"
+          ]
+        },
+        {
+          "id": "DA_Elise19",
+          "star": 3,
+          "items": [
+            "DA_HandOfJustice",
+            "DA_JeweledGauntlet",
+            "DA_StrikersFlail"
+          ]
+        },
+        {
+          "id": "DA_Gwen19",
+          "star": 1,
+          "items": []
+        },
+        {
+          "id": "DA_Aurora19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Swain19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Tibbers19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Annie19",
+          "star": 2,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_IonicSpark19",
+          "name": "离子火花",
+          "count": 7,
+          "need": 7,
+          "style": 4
+        },
+        {
+          "id": "DA_Frontman19",
+          "name": "主唱",
+          "count": 3,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Arcanist19",
+          "name": "法师",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_IonicSpark19": 7
+      }
+    },
+    {
       "id": "mt_429004",
       "title": "3爵士乐 凯尔",
       "tier": "A",
@@ -1284,7 +1381,7 @@ window.META_COMPS = {
       "avgPlace": 4.27,
       "top4Rate": 53.2,
       "winRate": 15,
-      "games": 30445,
+      "games": 30585,
       "units": [
         {
           "id": "DA_Smeech19",
@@ -1398,7 +1495,7 @@ window.META_COMPS = {
       "avgPlace": 4.33,
       "top4Rate": 53.1,
       "winRate": 12.9,
-      "games": 69886,
+      "games": 70074,
       "units": [
         {
           "id": "DA_AkaliKDA19",
@@ -1480,7 +1577,7 @@ window.META_COMPS = {
       "avgPlace": 4.29,
       "top4Rate": 53.5,
       "winRate": 13.5,
-      "games": 27763,
+      "games": 27884,
       "units": [
         {
           "id": "DA_Nidalee19",
@@ -1579,10 +1676,10 @@ window.META_COMPS = {
       "tempo": "速9成型",
       "level": 9,
       "mode": "fast8",
-      "avgPlace": 4.28,
+      "avgPlace": 4.29,
       "top4Rate": 53.3,
       "winRate": 15.7,
-      "games": 21304,
+      "games": 21367,
       "units": [
         {
           "id": "DA_Pyke19",
@@ -1682,7 +1779,7 @@ window.META_COMPS = {
       "avgPlace": 4.3,
       "top4Rate": 57,
       "winRate": 4.4,
-      "games": 9234,
+      "games": 9285,
       "units": [
         {
           "id": "DA_Zac19",
@@ -1784,7 +1881,7 @@ window.META_COMPS = {
       "avgPlace": 4.32,
       "top4Rate": 53.9,
       "winRate": 10.9,
-      "games": 22161,
+      "games": 22224,
       "units": [
         {
           "id": "DA_Pyke19",
@@ -1892,8 +1989,8 @@ window.META_COMPS = {
       "mode": "reroll",
       "avgPlace": 4.39,
       "top4Rate": 52.1,
-      "winRate": 15.8,
-      "games": 66841,
+      "winRate": 15.7,
+      "games": 67084,
       "units": [
         {
           "id": "DA_AkaliKDA19",
@@ -1975,7 +2072,7 @@ window.META_COMPS = {
       "avgPlace": 4.45,
       "top4Rate": 48.1,
       "winRate": 15.9,
-      "games": 110853,
+      "games": 111252,
       "units": [
         {
           "id": "DA_LeeSin19",

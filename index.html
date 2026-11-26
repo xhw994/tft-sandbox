@@ -79,23 +79,26 @@
       <button type="button" id="btn-meta-open" class="btn" title="浏览 S19 热门阵容库（MetaTFT 实时统计同步）">阵容库</button>
       <button type="button" id="btn-saved-open" class="btn" title="打开我的阵容收藏夹">收藏夹</button>
       <button type="button" id="btn-undo" class="btn" disabled title="撤销上一步 (Ctrl+Z)" aria-label="撤销上一步">撤销</button>
-      <button type="button" id="btn-share-trigger" class="btn" popovertarget="share-menu" aria-haspopup="dialog" title="生成分享链接 / 纯文本阵容码或导入残局">分享</button>
-      <div id="share-menu" class="share-popover" popover="auto" role="dialog" aria-label="残局分享与导入">
+      <button type="button" id="btn-share-trigger" class="btn" popovertarget="share-menu" aria-haspopup="dialog" title="导出官方游戏小队码 / 沙盘残局码，或统一导入任意阵容码">分享</button>
+      <div id="share-menu" class="share-popover" popover="auto" role="dialog" aria-label="阵容分享与统一导入">
         <div class="share-head">
-          <strong>残局分享与导入</strong>
-          <span class="share-sub">纯文本码 / 链接均通用</span>
+          <strong>阵容分享与导入</strong>
+          <span class="share-sub">游戏码 · 沙盘码 · 链接</span>
         </div>
         <div class="share-copy-row">
-          <button type="button" id="btn-copy-share-text" class="btn sm primary">复制纯文本码</button>
-          <button type="button" id="btn-copy-share-url" class="btn sm">复制分享链接</button>
+          <button type="button" id="btn-copy-official-code" class="btn sm primary" title="复制端游小队规划器官方代码（可直接粘贴进 LOL / TFT 客户端）">复制游戏小队码</button>
+          <button type="button" id="btn-copy-share-text" class="btn sm" title="复制沙盘完整残局码（含星级、装备与站位）">复制沙盘残局码</button>
         </div>
-        <input id="share-code-preview" class="share-code-box" type="text" readonly aria-label="当前残局纯文本分享码">
+        <div class="share-preview-row">
+          <input id="share-code-preview" class="share-code-box" type="text" readonly aria-label="当前分享码预览">
+          <button type="button" id="btn-copy-share-url" class="btn sm" title="复制可打开当前残局的分享链接">复制链接</button>
+        </div>
         <div class="mode-sep" role="separator"></div>
-        <label class="share-label" for="share-import-input">粘贴纯文本码、聊天记录或链接导入：</label>
-        <textarea id="share-import-input" class="share-textarea" rows="3" placeholder="粘贴 TFT19:... 或分享链接"></textarea>
+        <label class="share-label" for="share-import-input">统一导入（自动识别官方游戏码 / 沙盘码 / 链接）：</label>
+        <textarea id="share-import-input" class="share-textarea" rows="3" placeholder="粘贴 02...TFTSet19 游戏小队码、TFT19:... 或分享链接"></textarea>
         <div class="share-foot">
           <span id="share-status" class="share-status" role="status"></span>
-          <button type="button" id="btn-import-share" class="btn sm primary">导入残局</button>
+          <button type="button" id="btn-import-share" class="btn sm primary">导入阵容</button>
         </div>
       </div>
       <button type="button" id="btn-quick-reset" class="btn" title="一键清空棋盘、装备、目标与禁用（支持撤销）">重置</button>

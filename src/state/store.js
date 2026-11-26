@@ -1,7 +1,14 @@
 import { classifyItem, itemUnitScore, resolveLooseItems, findEmblemItemForTrait, computeCraftSuggestions } from "../logic/item-affinity.js";
 import { parseUnlockMeta, buildUnlockContext } from "../logic/unlock-planner.js";
 import { planBoardReorg } from "../logic/reorg-planner.js";
-import { encodeShareCode, buildShareUrl, buildShareText, decodeShareInput, extractShareToken } from "../logic/share-codec.js";
+import {
+  encodeShareCode,
+  buildShareUrl,
+  buildShareText,
+  decodeShareInput,
+  extractShareToken,
+  encodeOfficialTeamCode
+} from "../logic/share-codec.js";
 
 export const DIRTY_HEADER     = 1 << 0;
 export const DIRTY_POP        = 1 << 1;
@@ -1559,6 +1566,27 @@ export function createStore() {
     return game ? buildShareText(state, game, analysis.rec) : "";
   }
 
+  function getOfficialTeamCode(unitsOverride) {
+    if (!game) return { code: "", count: 0, truncated: 0, skipped: [], error: "引擎未初始化" };
+    return encodeOfficialTeamCode(unitsOverride || state.board, game);
+  }
+
+  function applyTacticalPlacement(entries) {
+    if (!game || !entries.length || typeof game.place !== "function") return;
+    const grid = game.place(entries.map((e) => ({ id: e.id, star: e.star })));
+    if (!grid) return;
+    const posById = {};
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const cell = grid[r] && grid[r][c];
+        if (cell && cell.id) posById[cell.id] = { row: r, col: c };
+      }
+    }
+    entries.forEach((e) => {
+      if (!e.position && posById[e.id]) e.position = posById[e.id];
+    });
+  }
+
   function importShareText(raw, opts) {
     if (!game) return { ok: false, error: "引擎未初始化" };
     const decoded = decodeShareInput(raw, game);
@@ -1569,6 +1597,10 @@ export function createStore() {
     if (!(opts && opts.noUndo)) pushUndo(snapshotState(state));
     clearAllPendingBans();
     const d = decoded.state;
+    const importedBoard = d.board.map(migrateEntry).filter(Boolean);
+    if (decoded.format === "official" || importedBoard.every((e) => !e.position)) {
+      applyTacticalPlacement(importedBoard);
+    }
     state = Object.assign(freshState(), {
       level: d.level,
       extraSlots: d.extraSlots,
@@ -1577,7 +1609,7 @@ export function createStore() {
       allowLocked: d.allowLocked,
       focusId: d.focusId,
       unlockTargetId: d.unlockTargetId,
-      board: d.board.map(migrateEntry),
+      board: importedBoard,
       looseItems: d.looseItems.slice(),
       emblems: Object.assign({}, d.emblems),
       prismatic: Object.assign({}, d.prismatic),
@@ -1595,9 +1627,12 @@ export function createStore() {
     emit(DIRTY_ALL);
     const suffix = decoded.warnings && decoded.warnings.length ? `（${decoded.warnings[0]}）` : "";
     if (!(opts && opts.silent)) {
-      flashNotice(`已导入残局：${state.level}级 · ${state.board.length} 弈子${suffix}`, 3600);
+      const msg = decoded.format === "official"
+        ? `已导入官方游戏小队码：${state.board.length} 弈子（已自动站位）${suffix}`
+        : `已导入残局：${state.level}级 · ${state.board.length} 弈子${suffix}`;
+      flashNotice(msg, 3600);
     }
-    return { ok: true, error: null, warnings: decoded.warnings || [] };
+    return { ok: true, error: null, format: decoded.format || "sandbox", warnings: decoded.warnings || [] };
   }
 
   function cancelTracker() {
@@ -1727,6 +1762,7 @@ export function createStore() {
     getShareCode,
     getShareUrl,
     getShareText,
+    getOfficialTeamCode,
     importShareText,
     cancelTracker,
     dismissEmblemPrompt,

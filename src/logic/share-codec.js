@@ -1,11 +1,19 @@
 /**
- * Pure-JS URL & Plain-Text Share Code codec for TFT Sandbox snapshots.
- * Supports:
- *   - Plain-text share code: TFT19:<base64url>
+ * Pure-JS URL, Plain-Text Share Code, and Official Riot Team Planner Code codec.
+ * Supports unified import of:
+ *   - Sandbox plain-text share code: TFT19:<base64url>
  *   - Chat-wrapped plain text containing a TFT<n>:<base64url> token
  *   - Full share URL containing #s=TFT19:... or ?s=TFT19:...
+ *   - Official Riot TFT Team Planner code (v2): 02<30 hex chars>TFTSet19 (raw or inside guide text)
  * Zero external dependencies; works identically in browser and Node.js.
  */
+import {
+  extractOfficialTeamCode,
+  encodeOfficialTeamCode,
+  decodeOfficialTeamCode
+} from "./team-planner-code.js";
+
+export { extractOfficialTeamCode, encodeOfficialTeamCode, decodeOfficialTeamCode };
 
 const VALID_MODES = new Set(["auto", "reroll", "fast8"]);
 const VALID_MARKS = new Set(["carry", "carry2", "tank", "bot"]);
@@ -114,34 +122,76 @@ export function buildShareText(state, game, rec) {
   return `${header}\n${code}`;
 }
 
-export function extractShareToken(raw) {
+export function extractSandboxToken(raw) {
   if (!raw || typeof raw !== "string") return "";
   const trimmed = raw.trim();
   if (!trimmed) return "";
   const m = trimmed.match(/TFT\d*:[A-Za-z0-9_-]{8,}/);
   if (m) return m[0];
-  const hashM = trimmed.match(/[#?&]s=([A-Za-z0-9_:-]+)/);
+  const hashM = trimmed.match(/[#?&]s=(TFT\d*:[A-Za-z0-9_-]+)/);
+  if (hashM) return hashM[1];
+  return "";
+}
+
+export function extractShareToken(raw) {
+  if (!raw || typeof raw !== "string") return "";
+  const sandbox = extractSandboxToken(raw);
+  if (sandbox) return sandbox;
+  const official = extractOfficialTeamCode(raw);
+  if (official) return official;
+  const hashM = raw.trim().match(/[#?&]s=([A-Za-z0-9_:-]+)/);
   if (hashM) return hashM[1];
   return "";
 }
 
 export function decodeShareInput(raw, game) {
-  const token = extractShareToken(raw);
-  if (!token) {
-    return { error: "未识别到有效的云顶沙盘分享码（应包含 TFT19:... 格式）", state: null };
+  if (!raw || typeof raw !== "string" || !raw.trim()) {
+    return { error: "请先粘贴沙盘分享码、链接或端游官方小队码", format: null, state: null };
   }
+
+  // 1. Prefer full-fidelity sandbox snapshot code when present
+  const sandboxToken = extractSandboxToken(raw);
+  if (!sandboxToken) {
+    // 2. Auto-detect official Riot TFT Team Planner v2 code (02...TFTSet19)
+    const officialCode = extractOfficialTeamCode(raw);
+    if (officialCode) {
+      return decodeOfficialTeamCode(officialCode, game);
+    }
+    // Helpful diagnostics for incompatible external formats
+    if (/H4sIA[A-Za-z0-9+/=_-]{8,}/.test(raw)) {
+      return {
+        error: "检测到金铲铲手游阵容码（H4sIA...），暂仅支持端游官方小队码（02...TFTSet19）与沙盘分享码（TFT19:...）",
+        format: null,
+        state: null
+      };
+    }
+    if (/\b01[0-9a-f]{16,}TFTSet\d+/i.test(raw)) {
+      return {
+        error: "检测到旧版（01）小队码，S19 请使用客户端新版 02...TFTSet19 官方小队码",
+        format: null,
+        state: null
+      };
+    }
+    return {
+      error: "未识别到有效阵容码（支持沙盘码 TFT19:...、分享链接，或端游官方小队码 02...TFTSet19）",
+      format: null,
+      state: null
+    };
+  }
+
+  const token = sandboxToken;
   const colonIdx = token.indexOf(":");
-  if (colonIdx < 0) return { error: "分享码格式不正确", state: null };
+  if (colonIdx < 0) return { error: "分享码格式不正确", format: "sandbox", state: null };
   const b64 = token.slice(colonIdx + 1);
 
   let parsed;
   try {
     parsed = JSON.parse(fromBase64Url(b64));
   } catch {
-    return { error: "分享码已损坏或被截断，无法解析", state: null };
+    return { error: "分享码已损坏或被截断，无法解析", format: "sandbox", state: null };
   }
   if (!parsed || typeof parsed !== "object" || parsed.v !== 1 || !Array.isArray(parsed.b)) {
-    return { error: "不支持的分享码版本或内容为空", state: null };
+    return { error: "不支持的分享码版本或内容为空", format: "sandbox", state: null };
   }
 
   const byId = (game && game.byId) || {};
@@ -213,6 +263,7 @@ export function decodeShareInput(raw, game) {
 
   return {
     error: null,
+    format: "sandbox",
     warnings,
     state: {
       level: Math.max(1, Math.min(10, Number(parsed.l) || 8)),

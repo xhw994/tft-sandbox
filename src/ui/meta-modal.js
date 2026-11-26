@@ -103,6 +103,7 @@ export function mountMetaModal(store) {
         `<div class="sc-actions">` +
         `<button type="button" class="btn xs primary" data-mc-load="${esc(c.id)}">载入棋盘</button>` +
         `<button type="button" class="btn xs" data-mc-target="${esc(c.id)}">设为目标羁绊</button>` +
+        `<button type="button" class="btn xs" data-mc-official="${esc(c.id)}" title="复制端游小队规划器官方代码（直接粘贴进游戏）">复制游戏码</button>` +
         `</div>` +
         `</div>` +
         `</article>`
@@ -192,6 +193,25 @@ export function mountMetaModal(store) {
       if (comp) {
         store.applyMetaTargets(comp);
         close();
+      }
+      return;
+    }
+    if ((el = t.closest("[data-mc-official]"))) {
+      const id = el.getAttribute("data-mc-official");
+      const comp = (payload.comps || []).find((c) => c.id === id);
+      if (comp) {
+        const res = store.getOfficialTeamCode(comp.units);
+        if (res && res.code) {
+          const flashBtn = () => {
+            el.textContent = "已复制 ✓";
+            setTimeout(() => { if (el.isConnected) el.textContent = "复制游戏码"; }, 1800);
+          };
+          if (typeof navigator !== "undefined" && navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+            navigator.clipboard.writeText(res.code).then(flashBtn, flashBtn);
+          } else {
+            flashBtn();
+          }
+        }
       }
     }
   });

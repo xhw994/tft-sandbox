@@ -140,6 +140,86 @@ function levelFromTempo(levelling, unitCount, archetype) {
   return Math.max(8, Math.min(10, unitCount));
 }
 
+async function fetchPlannerCodes(targetSet, data) {
+  const localByLower = new Map();
+  for (const u of data.units) {
+    localByLower.set(u.id.toLowerCase(), u.id);
+  }
+  // Known official/MetaTFT character_id aliases -> local data.js IDs
+  const aliases = {
+    da_19_ahri: "DA_Ahri19",
+    da_seraphine19_indie: "DA_SeraphineIndie19",
+    da_akali19_kda: "DA_AkaliKDA19",
+    da_akali19_truedamage: "DA_Akali_TrueDamage19"
+  };
+
+  function resolveLocalId(keys) {
+    for (const k of keys) {
+      if (!k) continue;
+      const low = String(k).toLowerCase();
+      if (localByLower.has(low)) return localByLower.get(low);
+      if (aliases[low]) return aliases[low];
+    }
+    return null;
+  }
+
+  function toHex3(val) {
+    if (typeof val === "number" && Number.isInteger(val) && val > 0 && val <= 0xfff) {
+      return val.toString(16).padStart(3, "0");
+    }
+    if (typeof val === "string") {
+      const clean = val.trim().toLowerCase().replace(/^0x/, "");
+      if (/^[0-9a-f]{1,3}$/.test(clean)) {
+        const n = parseInt(clean, 16);
+        if (n > 0 && n <= 0xfff) return n.toString(16).padStart(3, "0");
+      }
+    }
+    return "";
+  }
+
+  // 1. Prefer Riot official CommunityDragon teamplanner JSON (live first, then pbe)
+  for (const branch of ["latest", "pbe"]) {
+    try {
+      const tp = await fetchJson(`https://raw.communitydragon.org/${branch}/plugins/rcp-be-lol-game-data/global/default/v1/tftchampions-teamplanner.json`);
+      const rows = tp && Array.isArray(tp[targetSet]) ? tp[targetSet] : null;
+      if (rows && rows.length) {
+        const out = {};
+        for (const r of rows) {
+          const uid = resolveLocalId([r.character_id]);
+          const hex = toHex3(r.team_planner_code);
+          if (uid && hex) out[uid] = hex;
+        }
+        if (Object.keys(out).length >= Math.floor(data.units.length * 0.9)) {
+          const sorted = Object.fromEntries(Object.keys(out).sort().map((k) => [k, out[k]]));
+          return { source: `CDragon (${branch})`, codes: sorted };
+        }
+      }
+    } catch (err) {
+      console.warn(`[sync-meta] CDragon ${branch} teamplanner check failed:`, err.message);
+    }
+  }
+
+  // 2. Fallback to MetaTFT client-manifest lookup JSON (already verified 100% identical to CDragon)
+  try {
+    const lookup = await fetchJson(`https://data.metatft.com/lookups/${targetSet}_latest_en_us.json`);
+    const out = {};
+    for (const u of (lookup && lookup.units) || []) {
+      const hex = toHex3(u.code);
+      if (!hex) continue;
+      const uid = resolveLocalId([u.apiName, u.characterName, ...(u.assetNames || [])]);
+      if (uid) out[uid] = hex;
+    }
+    if (Object.keys(out).length >= Math.floor(data.units.length * 0.9)) {
+      const sorted = Object.fromEntries(Object.keys(out).sort().map((k) => [k, out[k]]));
+      return { source: `MetaTFT Lookup (${lookup?._metadata?.patch || "latest"})`, codes: sorted };
+    }
+  } catch (err) {
+    console.warn(`[sync-meta] MetaTFT lookup planner codes failed:`, err.message);
+  }
+
+  return null;
+}
+
 async function main() {
   const { data, game } = loadGame();
   const norm = buildIdNormalizers(data);
@@ -294,6 +374,7 @@ async function main() {
     if (comps.length >= 20) break;
   }
 
+  const plannerInfo = await fetchPlannerCodes(targetSet, data);
   const outObj = {
     schemaVersion: 1,
     set: data.meta?.set || 19,
@@ -301,6 +382,7 @@ async function main() {
     sourceUrl: "https://www.metatft.com/comps",
     updatedAt: new Date().toISOString().slice(0, 10),
     sampleGames: totalGames,
+    ...(plannerInfo ? { plannerCodesSource: plannerInfo.source, plannerCodes: plannerInfo.codes } : {}),
     comps
   };
 

@@ -28,8 +28,12 @@ import {
   encodeShareCode,
   buildShareUrl,
   buildShareText,
-  decodeShareInput
+  decodeShareInput,
+  encodeOfficialTeamCode,
+  decodeOfficialTeamCode,
+  extractOfficialTeamCode
 } from "./src/logic/share-codec.js";
+import { SET19_PLANNER_CODES } from "./src/logic/team-planner-code.js";
 import { createStore } from "./src/state/store.js";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
@@ -843,6 +847,104 @@ test("saved-comps + meta_comps.js: saved lineup CRUD/backup & live-synced Set 19
     assert.ok(c.units.length >= 5, `comp ${c.title} has >= 5 units`);
     for (const u of c.units) assert.ok(game.byId[u.id], `valid unit id ${u.id}`);
   }
+  if (mc.plannerCodes) {
+    assert.equal(Object.keys(mc.plannerCodes).length, 94, "synced plannerCodes covers all 94 units");
+  }
+});
+
+test("team-planner-code: all 94 Set 19 units have unique valid 3-hex Riot v2 codes", () => {
+  const seenHex = new Set();
+  assert.equal(data.units.length, 94);
+  for (const u of data.units) {
+    const hex = SET19_PLANNER_CODES[u.id];
+    assert.ok(hex && /^[0-9a-f]{3}$/.test(hex), `unit ${u.id} has 3-char hex code, got ${hex}`);
+    assert.notEqual(hex, "000");
+    assert.equal(seenHex.has(hex), false, `duplicate hex ${hex} on ${u.id}`);
+    seenHex.add(hex);
+  }
+  assert.equal(seenHex.size, 94);
+  // Regression guard against iesdev PBE duplicate bug on Graves/Nasus/Mordekaiser
+  assert.equal(SET19_PLANNER_CODES.DA_Graves19, "449");
+  assert.equal(SET19_PLANNER_CODES.DA_Nasus19, "44a");
+  assert.equal(SET19_PLANNER_CODES.DA_Mordekaiser19, "44b");
+});
+
+test("team-planner-code + unified import: round-trip Riot v2 code, chat extraction, truncation, Baron slots, and undo", () => {
+  const lineup = [
+    { id: "DA_Ahri19", star: 2, mark: "carry", items: ["DA_BlueBuff"] },
+    { id: "DA_AkaliKDA19", star: 2, items: [] },
+    { id: "DA_Shyvana19", star: 2, mark: "tank", items: ["DA_WarmogsArmor"] },
+    { id: "DA_Jinx19", star: 2, items: [] }
+  ];
+  const enc = encodeOfficialTeamCode(lineup, game);
+  assert.equal(enc.error, null);
+  assert.equal(enc.count, 4);
+  assert.equal(enc.truncated, 0);
+  assert.match(enc.code, /^02[0-9a-f]{30}TFTSet19$/);
+  assert.equal(enc.code.length, 40);
+  assert.equal(enc.code, "023e93ec429409000000000000000000TFTSet19");
+
+  // Case-insensitive decode + guide text extraction via unified decodeShareInput
+  const wrapped = `【攻略推荐】直接复制到云顶客户端小队规划器：${enc.code.toUpperCase()} 上分必备！`;
+  assert.equal(extractOfficialTeamCode(wrapped), enc.code.toUpperCase());
+  const dec = decodeShareInput(wrapped, game);
+  assert.equal(dec.error, null);
+  assert.equal(dec.format, "official");
+  assert.deepEqual(dec.state.board.map((e) => e.id), ["DA_Ahri19", "DA_AkaliKDA19", "DA_Shyvana19", "DA_Jinx19"]);
+
+  // Wrong set rejection & external format hints
+  const wrongSet = decodeShareInput("023e93ec429409000000000000000000TFTSet18", game);
+  assert.ok(wrongSet.error && wrongSet.error.includes("S18") && wrongSet.error.includes("S19"));
+  const jcc = decodeShareInput("【阵容码】##测试##H4sIAAAAAAAAA1234567890==##", game);
+  assert.ok(jcc.error && jcc.error.includes("金铲铲"));
+  const v1 = decodeShareInput("010102030405060708090aTFTSet13", game);
+  assert.ok(v1.error && v1.error.includes("01"));
+
+  // >10 units priority truncation keeps marked carry/tank + Baron + 9 others handles 11 slots
+  const twelve = [
+    { id: "DA_Zoe19", star: 1, items: [] },
+    { id: "DA_Annie19", star: 1, items: [] },
+    { id: "DA_Ahri19", star: 2, mark: "carry", items: ["DA_BlueBuff", "DA_RabadonsDeathcap"] },
+    { id: "DA_Shyvana19", star: 2, mark: "tank", items: ["DA_WarmogsArmor"] },
+    { id: "DA_BaronNashor19", star: 1, items: [] },
+    { id: "DA_Jinx19", star: 2, items: ["DA_InfinityEdge"] },
+    { id: "DA_Taliyah19", star: 2, items: [] },
+    { id: "DA_Sona19", star: 2, items: [] },
+    { id: "DA_DrMundo19", star: 2, items: [] },
+    { id: "DA_Taric19", star: 2, items: [] },
+    { id: "DA_Mel19", star: 2, items: [] },
+    { id: "DA_Mordekaiser19", star: 2, items: [] }
+  ];
+  const trunc = encodeOfficialTeamCode(twelve, game);
+  assert.equal(trunc.count, 10);
+  assert.equal(trunc.truncated, 2);
+  const decTrunc = decodeOfficialTeamCode(trunc.code, game);
+  assert.equal(decTrunc.error, null);
+  const decIds = decTrunc.state.board.map((e) => e.id);
+  assert.ok(decIds.includes("DA_Ahri19") && decIds.includes("DA_Shyvana19") && decIds.includes("DA_BaronNashor19"));
+  // 10 units including 2-slot Baron => 11 board slots => level 10 + extraSlots 1
+  assert.equal(decTrunc.state.level, 10);
+  assert.equal(decTrunc.state.extraSlots, 1);
+
+  // Store unified import auto-places units tactically & supports Ctrl+Z undo
+  globalThis.SET19 = data;
+  globalThis.TFT = sandbox.TFT;
+  globalThis.TFTBoard = sandbox.TFTBoard;
+  globalThis.TFTAssess = sandbox.TFTAssess;
+  const store = createStore();
+  store.init();
+  store.resetAll();
+  const imp = store.importShareText(wrapped);
+  assert.equal(imp.ok, true);
+  assert.equal(imp.format, "official");
+  assert.equal(store.getState().board.length, 4);
+  const importedShyv = store.getState().board.find((e) => e.id === "DA_Shyvana19");
+  const importedJinx = store.getState().board.find((e) => e.id === "DA_Jinx19");
+  assert.ok(importedShyv.position && importedShyv.position.row <= 1, "tank placed in front row");
+  assert.ok(importedJinx.position && importedJinx.position.row >= 2, "marksman placed in back row");
+  assert.equal(store.getOfficialTeamCode().code, enc.code);
+  assert.equal(store.undo(), true);
+  assert.equal(store.getState().board.length, 0);
 });
 
 console.log(`All ${passed} new feature tests passed!`);

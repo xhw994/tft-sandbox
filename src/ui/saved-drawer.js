@@ -36,15 +36,16 @@ export function mountSavedDrawer(store) {
 
   const esc = (s) => store.esc(s);
 
-  function copyCode(text) {
+  function copyCode(text, label) {
+    const okMsg = label || "已复制文本码";
     if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(
-        () => { statusText = "已复制文本码"; render(); },
+        () => { statusText = okMsg; render(); },
         () => { statusText = "复制失败，请手动复制"; render(); }
       );
       return;
     }
-    statusText = "已复制文本码";
+    statusText = okMsg;
     render();
   }
 
@@ -87,7 +88,8 @@ export function mountSavedDrawer(store) {
           `<div class="sc-traits">${traitsHtml || '<span class="sc-time">无激活羁绊</span>'}</div>` +
           `<div class="sc-actions">` +
           `<button type="button" class="btn xs primary" data-sc-load="${esc(c.id)}">载入棋盘</button>` +
-          `<button type="button" class="btn xs" data-sc-copy="${esc(c.id)}">复制码</button>` +
+          `<button type="button" class="btn xs" data-sc-official="${esc(c.id)}" title="复制端游小队规划器官方代码">游戏码</button>` +
+          `<button type="button" class="btn xs" data-sc-copy="${esc(c.id)}" title="复制沙盘完整残局码">沙盘码</button>` +
           `<button type="button" class="btn xs ghost" data-sc-del="${esc(c.id)}" title="删除收藏">删</button>` +
           `</div>` +
           `</div>` +
@@ -98,7 +100,7 @@ export function mountSavedDrawer(store) {
 
     const importHtml = showImportBox
       ? `<div class="sc-import-inline">` +
-        `<textarea id="sc-import-code-ta" class="share-textarea" rows="2" placeholder="粘贴 TFT19:... 文本码或分享链接，直接载入并可收藏"></textarea>` +
+        `<textarea id="sc-import-code-ta" class="share-textarea" rows="2" placeholder="粘贴 02...TFTSet19 官方游戏码、TFT19:... 或分享链接，统一识别载入"></textarea>` +
         `<div class="sc-import-actions">` +
         `<button type="button" class="btn xs" data-sc-toggle-import="1">收起</button>` +
         `<button type="button" class="btn xs primary" data-sc-do-import-code="1">载入到棋盘</button>` +
@@ -126,7 +128,7 @@ export function mountSavedDrawer(store) {
       `<button type="button" class="cost-pill${filterCat === "meta" ? " active" : ""}" data-sc-filter="meta">上分常用</button>` +
       `<button type="button" class="cost-pill${filterCat === "review" ? " active" : ""}" data-sc-filter="review">残局复盘</button>` +
       `</div>` +
-      `<button type="button" class="btn xs" data-sc-toggle-import="1">导入文本码</button>` +
+      `<button type="button" class="btn xs" data-sc-toggle-import="1">导入阵容码</button>` +
       `</div>` +
       importHtml +
       (statusText ? `<div class="sc-status-bar">${esc(statusText)}</div>` : "") +
@@ -211,10 +213,20 @@ export function mountSavedDrawer(store) {
       }
       return;
     }
+    if ((el = t.closest("[data-sc-official]"))) {
+      const id = el.getAttribute("data-sc-official");
+      const item = listSavedComps().find((c) => c.id === id);
+      if (item && item.units) {
+        const res = store.getOfficialTeamCode(item.units);
+        if (res && res.code) copyCode(res.code, `已复制「${item.name}」官方游戏小队码`);
+        else { statusText = (res && res.error) || "无法生成官方小队码"; render(); }
+      }
+      return;
+    }
     if ((el = t.closest("[data-sc-copy]"))) {
       const id = el.getAttribute("data-sc-copy");
       const item = listSavedComps().find((c) => c.id === id);
-      if (item && item.code) copyCode(`【云顶沙盘 · ${item.name}】\n${item.code}`);
+      if (item && item.code) copyCode(`【云顶沙盘 · ${item.name}】\n${item.code}`, "已复制沙盘残局码");
       return;
     }
     if ((el = t.closest("[data-sc-del]"))) {

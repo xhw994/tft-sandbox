@@ -32,6 +32,7 @@ export function mountHeader(store) {
   const btnUndo = $("btn-undo");
   const btnShareTrigger = $("btn-share-trigger");
   const shareMenu = $("share-menu");
+  const btnCopyOfficialCode = $("btn-copy-official-code");
   const btnCopyShareText = $("btn-copy-share-text");
   const btnCopyShareUrl = $("btn-copy-share-url");
   const shareCodePreview = $("share-code-preview");
@@ -175,8 +176,17 @@ export function mountHeader(store) {
     }
   }
 
-  function refreshSharePreview() {
-    if (shareCodePreview) shareCodePreview.value = store.getShareCode();
+  function refreshSharePreview(preferKind) {
+    if (shareCodePreview) {
+      const off = store.getOfficialTeamCode();
+      if (preferKind === "sandbox") {
+        shareCodePreview.value = store.getShareCode();
+      } else if (preferKind === "url") {
+        shareCodePreview.value = store.getShareUrl();
+      } else {
+        shareCodePreview.value = off && off.code ? off.code : store.getShareCode();
+      }
+    }
     if (shareStatus) shareStatus.textContent = "";
   }
 
@@ -193,16 +203,30 @@ export function mountHeader(store) {
   if (shareCodePreview) {
     shareCodePreview.addEventListener("focus", () => shareCodePreview.select());
   }
+  if (btnCopyOfficialCode) {
+    btnCopyOfficialCode.addEventListener("click", () => {
+      const res = store.getOfficialTeamCode();
+      if (res.error || !res.code) {
+        if (shareStatus) shareStatus.textContent = res.error || "无法生成官方小队码";
+        return;
+      }
+      if (shareCodePreview) shareCodePreview.value = res.code;
+      const msg = res.truncated > 0
+        ? `已复制游戏小队码（客户端上限10人，保留前10弈子）`
+        : `已复制游戏小队码（${res.count} 弈子，可粘贴进客户端）`;
+      copyText(res.code, msg);
+    });
+  }
   if (btnCopyShareText) {
     btnCopyShareText.addEventListener("click", () => {
-      refreshSharePreview();
-      copyText(store.getShareText(), "已复制纯文本阵容码");
+      refreshSharePreview("sandbox");
+      copyText(store.getShareText(), "已复制沙盘残局码（含装备/站位）");
     });
   }
   if (btnCopyShareUrl) {
     btnCopyShareUrl.addEventListener("click", () => {
-      refreshSharePreview();
-      copyText(store.getShareUrl(), "已复制分享链接");
+      refreshSharePreview("url");
+      copyText(store.getShareUrl(), "已复制残局分享链接");
     });
   }
   if (btnImportShare && shareImportInput) {

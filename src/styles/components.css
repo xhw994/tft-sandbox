@@ -328,7 +328,7 @@
   }
 
   .share-popover {
-    width: 320px;
+    width: 344px;
     max-width: calc(100vw - 24px);
     padding: 11px 12px;
     position: fixed;
@@ -358,6 +358,18 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px;
+  }
+  .share-preview-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .share-preview-row .share-code-box {
+    flex: 1;
+    min-width: 0;
+  }
+  .share-preview-row .btn {
+    flex-shrink: 0;
   }
   .share-code-box {
     width: 100%;

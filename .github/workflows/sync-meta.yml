@@ -1,0 +1,44 @@
+name: Sync Meta Comps
+
+on:
+  schedule:
+    # Run daily at 04:00 UTC (12:00 CST) to keep S19 meta templates fresh automatically
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch latest MetaTFT Set 19 comps JSON
+        run: node scripts/sync-meta-comps.mjs
+
+      - name: Verify test suite passes with updated meta_comps.js
+        run: npm test
+
+      - name: Commit & push if meta_comps.js changed
+        run: |
+          if git diff --quiet meta_comps.js; then
+            echo "No changes to meta_comps.js"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add meta_comps.js
+          git commit -m "chore(meta): auto-sync Set 19 meta comps from MetaTFT"
+          git push

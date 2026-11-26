@@ -32,6 +32,8 @@ import { mountBoardPool } from "./ui/board-pool.js";
 import { mountLibraryPool } from "./ui/library-pool.js";
 import { mountAdvisor } from "./ui/advisor.js";
 import { mountDragAndPopover } from "./ui/drag-and-popover.js";
+import { mountSavedDrawer } from "./ui/saved-drawer.js";
+import { mountMetaModal } from "./ui/meta-modal.js";
 
 const store = createStore();
 
@@ -42,6 +44,8 @@ const boardPool = mountBoardPool(store);
 const libraryPool = mountLibraryPool(store);
 const advisor = mountAdvisor(store);
 const dragPopover = mountDragAndPopover(store);
+mountSavedDrawer(store);
+mountMetaModal(store);
 
 let lastGameData = (store.getGame() && store.getGame().data) || null;
 let hasRenderedOnce = false;

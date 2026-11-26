@@ -290,6 +290,25 @@ var TFTBoard = (function () {
     return null;
   }
 
+  function craftLoose(next, a, game) {
+    if (!knownItem(game, a.resultItemId)) return "unknown item " + a.resultItemId;
+    if (!isInt(a.idxA) || !isInt(a.idxB) || a.idxA === a.idxB) return "invalid component index";
+    if (next.looseItems[a.idxA] !== a.compA || next.looseItems[a.idxB] !== a.compB) return "stale component index";
+    var hi = Math.max(a.idxA, a.idxB);
+    var lo = Math.min(a.idxA, a.idxB);
+    next.looseItems.splice(hi, 1);
+    next.looseItems.splice(lo, 1);
+    if (a.targetId) {
+      var ti = indexOf(next.board, a.targetId);
+      if (ti >= 0 && !checkItems(game, a.targetId, next.board[ti].items.concat([a.resultItemId]))) {
+        next.board[ti].items.push(a.resultItemId);
+        return null;
+      }
+    }
+    next.looseItems.push(a.resultItemId);
+    return null;
+  }
+
   function applyPlan(next, a, game) {
     var plan = a.plan;
     if (!isObj(plan) || !Array.isArray(plan.looseItems)) return "invalid plan";
@@ -351,6 +370,7 @@ var TFTBoard = (function () {
     "remove-unit": removeUnit,
     "add-loose": addLoose,
     "delete-loose": deleteLoose,
+    "craft-loose": craftLoose,
     "apply-plan": applyPlan,
     "update-settings": updateSettings,
     "reset": reset

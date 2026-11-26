@@ -8,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const STATIC_RUNTIME_FILES = [
   "data.js",
+  "meta_comps.js",
   "unit_focus.js",
   "assess.js",
   "engine.js",

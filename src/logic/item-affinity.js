@@ -549,3 +549,114 @@ export function findEmblemItemForTrait(game, traitId) {
   }
   return null;
 }
+
+const ROLE_CN = { carry: "主C", carry2: "副C", tank: "主坦", tank2: "副坦" };
+
+/**
+ * Computes top component crafting recipes from basic components currently in looseItems,
+ * ranked by 8-dim affinity to open item slots on current carry/tank holders (or board emblem/crown value).
+ */
+export function computeCraftSuggestions(board, looseItems, game, labels) {
+  if (!game || !Array.isArray(looseItems) || looseItems.length < 2) return [];
+  const itemById = game.itemById || {};
+  const byId = game.byId || {};
+  const allItems = (game.data && Array.isArray(game.data.items)) ? game.data.items : Object.values(itemById);
+
+  // Build recipe lookup map keyed by sorted pair "compA|compB"
+  const recipeMap = new Map();
+  for (let i = 0; i < allItems.length; i++) {
+    const it = allItems[i];
+    if (!it || !Array.isArray(it.buildsFrom) || it.buildsFrom.length !== 2) continue;
+    const pair = [it.buildsFrom[0], it.buildsFrom[1]].sort().join("|");
+    if (!recipeMap.has(pair)) recipeMap.set(pair, it);
+  }
+  if (!recipeMap.size) return [];
+
+  // Collect basic component indices in looseItems
+  const comps = [];
+  for (let i = 0; i < looseItems.length; i++) {
+    const it = itemById[looseItems[i]];
+    if (it && it.kind === "basic") comps.push({ idx: i, id: it.id, item: it });
+  }
+  if (comps.length < 2) return [];
+
+  // Identify board holders with free item slots
+  const holders = [];
+  const boardTraitCounts = {};
+  (board || []).forEach((e) => {
+    const u = byId[e.id];
+    if (!u) return;
+    (u.traits || []).forEach((tid) => { boardTraitCounts[tid] = (boardTraitCounts[tid] || 0) + 1; });
+    const role = (e.mark && e.mark !== "bot") ? e.mark : (labels && labels[e.id]) || "";
+    const usedSlots = (e.items || []).reduce((acc, id) => acc + ((itemById[id] && itemById[id].slots) || 1), 0);
+    if (usedSlots < 3) {
+      holders.push({ entry: e, unit: u, role, usedSlots });
+    }
+  });
+
+  const seenResults = new Set();
+  const candidates = [];
+
+  for (let a = 0; a < comps.length; a++) {
+    for (let b = a + 1; b < comps.length; b++) {
+      const pairKey = [comps[a].id, comps[b].id].sort().join("|");
+      const result = recipeMap.get(pairKey);
+      if (!result || seenResults.has(result.id)) continue;
+      seenResults.add(result.id);
+
+      let bestTarget = null;
+      let bestScore = 0;
+      let bestRoleText = "";
+
+      if (result.teamSize > 0) {
+        bestScore = 115;
+        bestRoleText = "+1 人口";
+      } else if (result.kind === "emblem" && result.trait) {
+        const cnt = boardTraitCounts[result.trait] || 0;
+        bestScore = cnt >= 2 ? 96 + cnt * 4 : cnt === 1 ? 74 : 42;
+        const tr = game.traitById && game.traitById[result.trait];
+        bestRoleText = tr ? `${tr.name} +1` : "转职纹章";
+        // Find non-native holder if possible
+        const carrier = holders.find((h) => !h.unit.traits.includes(result.trait) && !(h.entry.items || []).some((id) => itemById[id] && itemById[id].trait === result.trait));
+        if (carrier) bestTarget = carrier;
+      } else {
+        const needSlots = result.slots || 1;
+        for (let h = 0; h < holders.length; h++) {
+          const holder = holders[h];
+          if (holder.usedSlots + needSlots > 3) continue;
+          if (result.unique && (holder.entry.items || []).includes(result.id)) continue;
+          const base = itemUnitScore(result, holder.unit);
+          if (base < 58) continue;
+          const roleBoost = holder.role === "carry" ? 18 : holder.role === "tank" ? 16 : holder.role === "carry2" ? 8 : 0;
+          const total = base + roleBoost + (holder.unit.cost || 1) * 1.2 + (holder.entry.star || 1) * 2;
+          if (total > bestScore) {
+            bestScore = total;
+            bestTarget = holder;
+            bestRoleText = (ROLE_CN[holder.role] ? ROLE_CN[holder.role] + " " : "") + (holder.unit.display || holder.unit.name);
+          }
+        }
+        // Fallback when board is empty or full of items: recommend versatile core items
+        if (!bestTarget) {
+          const info = classifyDetailed(result);
+          bestScore = info.category === "carry" || info.category === "tank" ? 55 : 48;
+          bestRoleText = info.category === "tank" ? "通用前排" : info.category === "carry" ? "通用输出" : "通用功能";
+        }
+      }
+
+      candidates.push({
+        resultItemId: result.id,
+        resultItem: result,
+        idxA: comps[a].idx,
+        idxB: comps[b].idx,
+        compA: comps[a].id,
+        compB: comps[b].id,
+        targetId: bestTarget ? bestTarget.entry.id : null,
+        targetLabel: bestRoleText,
+        score: bestScore
+      });
+    }
+  }
+
+  candidates.sort((x, y) => y.score - x.score || x.resultItemId.localeCompare(y.resultItemId));
+  return candidates.slice(0, 2);
+}

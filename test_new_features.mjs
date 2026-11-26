@@ -7,8 +7,18 @@ import {
   classifyItem,
   itemUnitScore,
   resolveLooseItems,
-  findEmblemItemForTrait
+  findEmblemItemForTrait,
+  computeCraftSuggestions
 } from "./src/logic/item-affinity.js";
+import { aliasesForUnit, aliasesForItem } from "./src/logic/search-aliases.js";
+import {
+  saveCurrentComp,
+  listSavedComps,
+  togglePinSavedComp,
+  removeSavedComp,
+  exportSavedCompsJson,
+  importSavedCompsJson
+} from "./src/logic/saved-comps.js";
 import {
   parseUnlockMeta,
   buildUnlockContext
@@ -726,6 +736,113 @@ test("store: Undo/Redo stack tracks edits, reset, and share-code import cleanly"
   assert.equal(store.getState().board.length, 1);
   assert.equal(store.undo(), true);
   assert.equal(store.getState().board.length, 0);
+});
+
+test("store: addFirstFree auto-places non-drag adds into optimal lane hexes (back carry row 3, front tank row 0)", () => {
+  globalThis.SET19 = data;
+  globalThis.TFT = sandbox.TFT;
+  globalThis.TFTBoard = sandbox.TFTBoard;
+  globalThis.TFTAssess = sandbox.TFTAssess;
+
+  const store = createStore();
+  store.init();
+  store.resetAll();
+
+  // Backline marksman Jinx should auto-place into back corner (row 3, col 0)
+  assert.equal(store.addFirstFree("DA_Jinx19"), true);
+  const jinx = store.getState().board.find((e) => e.id === "DA_Jinx19");
+  assert.equal(jinx.position.row, 3, "backline carry auto-places to row 3");
+  assert.equal(jinx.position.col, 0, "backline carry auto-places to corner col 0");
+
+  // Frontline tank Shyvana should auto-place into front center (row 0, col 3)
+  assert.equal(store.addFirstFree("DA_Shyvana19"), true);
+  const shyv = store.getState().board.find((e) => e.id === "DA_Shyvana19");
+  assert.equal(shyv.position.row, 0, "frontline tank auto-places to row 0");
+  assert.equal(shyv.position.col, 3, "frontline tank auto-places to centered col 3");
+});
+
+test("item-affinity + board: computeCraftSuggestions & craft-loose atomically craft and equip with Ctrl+Z undo", () => {
+  globalThis.SET19 = data;
+  globalThis.TFT = sandbox.TFT;
+  globalThis.TFTBoard = sandbox.TFTBoard;
+  globalThis.TFTAssess = sandbox.TFTAssess;
+
+  const store = createStore();
+  store.init();
+  store.resetAll();
+  store.addFirstFree("DA_Jinx19");
+  store.addFirstFree("DA_Shyvana19");
+  store.addLooseItem("DA_Component_BFSword");
+  store.addLooseItem("DA_Component_RecurveBow");
+  store.addLooseItem("DA_Component_ChainVest");
+  store.addLooseItem("DA_Component_GiantsBelt");
+
+  const suggestions = computeCraftSuggestions(
+    store.getState().board,
+    store.getState().looseItems,
+    game,
+    { DA_Jinx19: "carry", DA_Shyvana19: "tank" }
+  );
+  assert.ok(suggestions.length >= 1, "should suggest craftable recipes from 4 components");
+  const top = suggestions[0];
+  assert.ok(top.targetId === "DA_Jinx19" || top.targetId === "DA_Shyvana19", "targets carry or tank");
+
+  assert.equal(store.craftLoose(top.idxA, top.idxB, top.compA, top.compB, top.resultItemId, top.targetId), true);
+  assert.equal(store.getState().looseItems.length, 2, "consumes 2 components from looseItems");
+  const holder = store.getState().board.find((e) => e.id === top.targetId);
+  assert.ok(holder.items.includes(top.resultItemId), "equips crafted item onto target holder");
+
+  // Undo restores components and removes crafted item cleanly
+  assert.equal(store.undo(), true);
+  assert.equal(store.getState().looseItems.length, 4);
+  assert.equal(store.getState().board.find((e) => e.id === top.targetId).items.length, 0);
+});
+
+test("search-aliases: matches Pinyin initials & authentic Chinese LoL/TFT nicknames for units, traits, and items", () => {
+  assert.ok(aliasesForUnit(game.byId.DA_Malzahar19, game).includes("mzh"));
+  assert.ok(aliasesForUnit(game.byId.DA_Malzahar19, game).includes("蚂蚱"));
+  assert.ok(aliasesForUnit(game.byId.DA_Nasus19, game).includes("狗头"));
+  assert.ok(aliasesForUnit(game.byId.DA_BaronNashor19, game).includes("大龙"));
+  assert.ok(aliasesForUnit(game.byId.DA_Elise19, game).includes("蜘蛛"));
+  assert.ok(aliasesForUnit(game.byId.DA_Elise19, game).includes("lzhh"));
+  assert.ok(aliasesForItem(game.itemById.DA_GuinsoosRageblade).includes("羊刀"));
+  assert.ok(aliasesForItem(game.itemById.DA_GuinsoosRageblade).includes("yd"));
+});
+
+test("saved-comps + meta_comps.js: saved lineup CRUD/backup & live-synced Set 19 meta templates validate cleanly", () => {
+  // Mock localStorage in Node test realm
+  const mem = new Map();
+  globalThis.localStorage = {
+    getItem: (k) => (mem.has(k) ? mem.get(k) : null),
+    setItem: (k, v) => mem.set(k, String(v)),
+    removeItem: (k) => mem.delete(k)
+  };
+  const st = freshState({
+    level: 8,
+    board: [{ id: "DA_Elise19", star: 2, position: { row: 0, col: 3 }, items: [] }]
+  });
+  const saved = saveCurrentComp(st, game, null, { name: "测试离子火花", category: "meta" });
+  assert.equal(listSavedComps().length, 1);
+  togglePinSavedComp(saved.id);
+  assert.equal(listSavedComps()[0].pinned, true);
+  const backup = exportSavedCompsJson();
+  removeSavedComp(saved.id);
+  assert.equal(listSavedComps().length, 0);
+  const imp = importSavedCompsJson(backup);
+  assert.equal(imp.ok, true);
+  assert.equal(imp.added, 1);
+  assert.equal(listSavedComps().length, 1);
+
+  // Verify meta_comps.js loads cleanly and maps to real Set 19 unit IDs
+  const metaSandbox = { window: {} };
+  vm.createContext(metaSandbox);
+  vm.runInContext(fs.readFileSync(path.join(root, "meta_comps.js"), "utf8"), metaSandbox);
+  const mc = metaSandbox.window.META_COMPS;
+  assert.ok(mc && Array.isArray(mc.comps) && mc.comps.length >= 10, "meta_comps.js has >= 10 synced Set 19 comps");
+  for (const c of mc.comps) {
+    assert.ok(c.units.length >= 5, `comp ${c.title} has >= 5 units`);
+    for (const u of c.units) assert.ok(game.byId[u.id], `valid unit id ${u.id}`);
+  }
 });
 
 console.log(`All ${passed} new feature tests passed!`);

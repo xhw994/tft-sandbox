@@ -1,4 +1,5 @@
 import { DIRTY_LIB_STATE, DIRTY_LIB_FILTER, DIRTY_ALL } from "../state/store.js";
+import { aliasesForUnit, aliasesForItem } from "../logic/search-aliases.js";
 
 const ITEM_KINDS = [
   ["normal", "成装"],
@@ -35,6 +36,8 @@ export function mountLibraryPool(store) {
   let prevBanned = new Set();
   let prevUnlockTarget = null;
   let lastSetVersion = -1;
+  let quickHitEl = null;
+  let quickHitId = null;
 
   if (tabUnits) tabUnits.textContent = "棋子";
   if (tabItems) tabItems.textContent = "装备";
@@ -44,6 +47,35 @@ export function mountLibraryPool(store) {
 
   if (searchQ) {
     searchQ.addEventListener("input", () => store.setFilter({ q: searchQ.value }));
+    searchQ.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (searchQ.value) {
+          e.preventDefault();
+          searchQ.value = "";
+          store.setFilter({ q: "" });
+        }
+        searchQ.blur();
+        return;
+      }
+      if (e.key === "Enter" && searchQ.value.trim() && quickHitId) {
+        e.preventDefault();
+        const itemsMode = store.getState().libraryTab === "items";
+        if (!itemsMode) {
+          store.addFirstFree(quickHitId);
+        } else {
+          const selectedId = store.getUI().selected;
+          const selectedOnBoard = selectedId && store.getState().board.some((b) => b.id === selectedId);
+          if (selectedOnBoard) {
+            store.act({ type: "equip-item", id: selectedId, itemId: quickHitId, source: { kind: "library" } });
+          } else {
+            store.addLooseItem(quickHitId);
+          }
+        }
+        searchQ.value = "";
+        store.setFilter({ q: "" });
+        searchQ.focus();
+      }
+    });
   }
   if (btnSearchClear) {
     btnSearchClear.addEventListener("click", () => {
@@ -203,7 +235,7 @@ export function mountLibraryPool(store) {
         cost: u.cost,
         roleGroup: u.roleGroup || "specialist",
         traits: Array.isArray(u.traits) ? u.traits : [],
-        search: [u.keywords || "", u.display || "", u.name || "", u.nameEn || ""].join(" ").toLowerCase(),
+        search: [u.keywords || "", u.display || "", u.name || "", u.nameEn || "", aliasesForUnit(u, game)].join(" ").toLowerCase(),
         isLocked: !!u.unlock
       }
     };
@@ -243,7 +275,7 @@ export function mountLibraryPool(store) {
       meta: {
         id: it.id,
         kind: it.kind || "misc",
-        search: ((it.name || "") + " " + (it.text || "")).toLowerCase()
+        search: ((it.name || "") + " " + (it.text || "") + " " + aliasesForItem(it)).toLowerCase()
       }
     };
   }
@@ -443,9 +475,16 @@ export function mountLibraryPool(store) {
     }
 
     const q = (ui.q || "").trim().toLowerCase();
+    if (quickHitEl) {
+      quickHitEl.classList.remove("is-quick-hit");
+      quickHitEl = null;
+      quickHitId = null;
+    }
 
     if (!itemsMode) {
       let shown = 0;
+      const onBoardIds = new Set((state.board || []).map((e) => e.id));
+      let fallbackHit = null;
       unitPool.forEach(({ el, meta }) => {
         const ok =
           (!ui.cost || meta.cost === ui.cost) &&
@@ -453,8 +492,23 @@ export function mountLibraryPool(store) {
           (ui.trait === "all" || meta.traits.indexOf(ui.trait) >= 0) &&
           (!q || meta.search.indexOf(q) >= 0);
         if (el.hidden === ok) el.hidden = !ok;
-        if (ok) shown++;
+        if (ok) {
+          shown++;
+          if (q) {
+            if (!quickHitEl && !onBoardIds.has(meta.id)) {
+              quickHitEl = el;
+              quickHitId = meta.id;
+            } else if (!fallbackHit) {
+              fallbackHit = { el, id: meta.id };
+            }
+          }
+        }
       });
+      if (q && !quickHitEl && fallbackHit) {
+        quickHitEl = fallbackHit.el;
+        quickHitId = fallbackHit.id;
+      }
+      if (quickHitEl) quickHitEl.classList.add("is-quick-hit");
       if (unitsEmptyEl) unitsEmptyEl.hidden = shown > 0;
     } else {
       let shown = 0;
@@ -463,8 +517,15 @@ export function mountLibraryPool(store) {
           (ui.itemKind === "all" || meta.kind === ui.itemKind) &&
           (!q || meta.search.indexOf(q) >= 0);
         if (el.hidden === ok) el.hidden = !ok;
-        if (ok) shown++;
+        if (ok) {
+          shown++;
+          if (q && !quickHitEl) {
+            quickHitEl = el;
+            quickHitId = meta.id;
+          }
+        }
       });
+      if (quickHitEl) quickHitEl.classList.add("is-quick-hit");
       if (itemsEmptyEl) itemsEmptyEl.hidden = shown > 0;
     }
   }

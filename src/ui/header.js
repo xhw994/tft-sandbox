@@ -1,11 +1,9 @@
 import { DIRTY_HEADER, DIRTY_NOTICE } from "../state/store.js";
 
 const PLAYSTYLE_LABELS = {
-  normal: "普通补强",
+  normal: "自动",
   reroll: "赌狗低费",
-  fast8: "高费运营",
-  reorg: "阵容整理",
-  ladder: "羁绊天梯"
+  fast8: "高费运营"
 };
 
 function $(id) {

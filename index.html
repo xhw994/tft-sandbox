@@ -46,15 +46,15 @@
 
       <div class="mode-wrap">
         <button type="button" id="btn-mode-trigger" class="mode-btn" popovertarget="mode-menu" aria-haspopup="menu">
-          <span class="mode-k">玩法</span>
-          <span class="mode-v" id="mode-label">普通补强</span>
+          <span class="mode-k">倾向</span>
+          <span class="mode-v" id="mode-label">自动</span>
           <span class="caret" aria-hidden="true">▾</span>
         </button>
-        <div id="mode-menu" class="mode-popover" popover="auto" role="menu" aria-label="玩法模式">
+        <div id="mode-menu" class="mode-popover" popover="auto" role="menu" aria-label="策略倾向">
           <button type="button" class="mode-opt active" data-preset="normal" role="menuitemradio" aria-checked="true">
             <div>
-              <strong>普通补强</strong>
-              <span>自动按当前等级与阵容补全</span>
+              <strong>自动（普通补强）</strong>
+              <span>按当前等级与识别体系自动补全</span>
             </div>
           </button>
           <button type="button" class="mode-opt" data-preset="reroll" role="menuitemradio" aria-checked="false">
@@ -69,19 +69,6 @@
               <span>偏向速 8/9 运营高费核心</span>
             </div>
           </button>
-          <div class="mode-sep" role="separator"></div>
-          <button type="button" class="mode-opt" data-preset="reorg" role="menuitemradio" aria-checked="false">
-            <div>
-              <strong>阵容整理</strong>
-              <span>按左侧目标羁绊，计算当前棋盘换人调整</span>
-            </div>
-          </button>
-          <button type="button" class="mode-opt" data-preset="ladder" role="menuitemradio" aria-checked="false">
-            <div>
-              <strong>羁绊天梯</strong>
-              <span>规划最少新增弈子的多羁绊路线</span>
-            </div>
-          </button>
         </div>
       </div>
 
@@ -89,6 +76,8 @@
 
       <div class="cmd-divider"></div>
 
+      <button type="button" id="btn-meta-open" class="btn" title="浏览 S19 热门阵容库（MetaTFT 实时统计同步）">阵容库</button>
+      <button type="button" id="btn-saved-open" class="btn" title="打开我的阵容收藏夹">收藏夹</button>
       <button type="button" id="btn-undo" class="btn" disabled title="撤销上一步 (Ctrl+Z)" aria-label="撤销上一步">撤销</button>
       <button type="button" id="btn-share-trigger" class="btn" popovertarget="share-menu" aria-haspopup="dialog" title="生成分享链接 / 纯文本阵容码或导入残局">分享</button>
       <div id="share-menu" class="share-popover" popover="auto" role="dialog" aria-label="残局分享与导入">
@@ -155,6 +144,7 @@
         </div>
         <div id="emblem-menu" class="emblem-popover" popover="auto" aria-label="快速添加纹章"></div>
         <div id="equip-bench-grid" class="equip-grid" data-drop="equip-bench" aria-label="已有装备栏"></div>
+        <div id="craft-suggest-box" class="craft-box" hidden aria-label="散件合成建议"></div>
       </div>
     </aside>
 
@@ -197,7 +187,7 @@
           </div>
 
           <div class="search-wrap">
-            <input id="search-q" type="search" placeholder="搜索棋子、羁绊、职业…" aria-label="搜索棋子或装备">
+            <input id="search-q" type="search" placeholder="搜索棋子、拼音/外号、羁绊… (回车上阵)" aria-label="搜索棋子或装备">
             <button type="button" id="btn-search-clear" class="search-clear" aria-label="清空搜索" hidden>×</button>
             <span class="kbd" aria-hidden="true">/</span>
           </div>
@@ -226,19 +216,25 @@
     </section>
 
     <aside class="advisor-rail" aria-label="策略建议">
-      <div class="pane-head">
-        <span class="eyebrow" id="advisor-title">策略建议</span>
-        <span class="advisor-sub" id="advisor-sub">右键推荐棋子可本局禁用</span>
+      <div class="pane-head advisor-tabs-head">
+        <div class="advisor-tabs" id="advisor-tabs" role="tablist" aria-label="右侧分析模式">
+          <button type="button" class="adv-tab active" data-view-tab="normal" role="tab" aria-selected="true">策略建议</button>
+          <button type="button" class="adv-tab" data-view-tab="reorg" role="tab" aria-selected="false">阵容整理<span class="adv-tab-badge" id="reorg-tab-badge" hidden></span></button>
+          <button type="button" class="adv-tab" data-view-tab="ladder" role="tab" aria-selected="false">羁绊天梯</button>
+        </div>
       </div>
       <div id="advisor-body" class="advisor-scroll"></div>
     </aside>
   </main>
 </div>
 
+<dialog id="saved-drawer" class="saved-drawer" aria-label="我的阵容收藏夹"></dialog>
+<dialog id="meta-modal" class="meta-modal" aria-label="S19 热门阵容库"></dialog>
 <div id="rich-tip" class="rich-tip" popover="manual"></div>
 <div id="drag-ghost" class="drag-ghost" hidden></div>
 
 <script src="data.js"></script>
+<script src="meta_comps.js"></script>
 <script src="unit_focus.js"></script>
 <script src="assess.js"></script>
 <script src="engine.js"></script>

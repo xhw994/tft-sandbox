@@ -1,4 +1,4 @@
-import { classifyItem, itemUnitScore, resolveLooseItems, findEmblemItemForTrait } from "../logic/item-affinity.js";
+import { classifyItem, itemUnitScore, resolveLooseItems, findEmblemItemForTrait, computeCraftSuggestions } from "../logic/item-affinity.js";
 import { parseUnlockMeta, buildUnlockContext } from "../logic/unlock-planner.js";
 import { planBoardReorg } from "../logic/reorg-planner.js";
 import { encodeShareCode, buildShareUrl, buildShareText, decodeShareInput, extractShareToken } from "../logic/share-codec.js";
@@ -65,6 +65,7 @@ const ANALYSIS_ACTIONS = new Set([
   "unequip-to-loose",
   "add-loose",
   "delete-loose",
+  "craft-loose",
   "remove-unit",
   "apply-plan",
   "reset"
@@ -187,6 +188,7 @@ export function createStore() {
     rec: null,
     reorg: null,
     loosePlan: null,
+    craftSuggestions: [],
     unlockCtx: { active: false },
     tracker: null,
     unlockTracker: null,
@@ -493,6 +495,7 @@ export function createStore() {
   function computeQuickLoosePlan() {
     if (!game) return null;
     const labels = inferBaselineLabels(state.board, analysis.labels);
+    analysis.craftSuggestions = computeCraftSuggestions(state.board, state.looseItems, game, labels);
     return resolveLooseItems(state.board, state.looseItems, game, labels);
   }
 
@@ -627,6 +630,7 @@ export function createStore() {
 
     analysis.rec = rec;
     analysis.loosePlan = loosePlan2;
+    analysis.craftSuggestions = computeCraftSuggestions(state.board, state.looseItems, game, freshLabels);
     analysis.unlockCtx = unlockCtx;
     analysis.labels = Object.assign({}, freshLabels);
 
@@ -891,7 +895,7 @@ export function createStore() {
 
     if (t === "set-mark") return DIRTY_BOARD | DIRTY_INSPECTOR;
 
-    if (t === "equip-item" || t === "unequip-item" || t === "add-loose" || t === "delete-loose" || t === "unequip-to-loose") {
+    if (t === "equip-item" || t === "unequip-item" || t === "add-loose" || t === "delete-loose" || t === "unequip-to-loose" || t === "craft-loose") {
       return DIRTY_BOARD | DIRTY_INSPECTOR | DIRTY_EQUIP | DIRTY_TRAITS | DIRTY_POP;
     }
 
@@ -1060,7 +1064,7 @@ export function createStore() {
     const needAnalyze = ANALYSIS_ACTIONS.has(action.type) ||
       (action.type === "update-settings" && Object.keys(action.settings || {}).some((k) => SEARCH_SETTINGS.has(k)));
 
-    if (action.type === "add-loose" || action.type === "delete-loose" || action.type === "equip-item" ||
+    if (action.type === "add-loose" || action.type === "delete-loose" || action.type === "craft-loose" || action.type === "equip-item" ||
         action.type === "unequip-item" || action.type === "unequip-to-loose" ||
         action.type === "add-unit" || action.type === "remove-unit" || action.type === "context-unit" ||
         action.type === "apply-plan" || action.type === "reset") {
@@ -1114,14 +1118,24 @@ export function createStore() {
   function setPlaystyle(preset) {
     if (preset === "ladder") return setSettings({ viewMode: "ladder" });
     if (preset === "reorg") return setSettings({ viewMode: "reorg" });
-    if (preset === "reroll") return setSettings({ viewMode: "normal", mode: "reroll" });
-    if (preset === "fast8") return setSettings({ viewMode: "normal", mode: "fast8" });
-    return setSettings({ viewMode: "normal", mode: "auto" });
+    if (preset === "reroll") return setSettings({ mode: "reroll" });
+    if (preset === "fast8") return setSettings({ mode: "fast8" });
+    return setSettings({ mode: "auto" });
+  }
+
+  function setViewMode(viewMode) {
+    const v = viewMode === "ladder" || viewMode === "reorg" ? viewMode : "normal";
+    if (state.viewMode === v) return true;
+    return setSettings({ viewMode: v });
+  }
+
+  function setMode(mode) {
+    const m = mode === "reroll" || mode === "fast8" ? mode : "auto";
+    if (state.mode === m) return true;
+    return setSettings({ mode: m });
   }
 
   function getPlaystyle() {
-    if (state.viewMode === "ladder") return "ladder";
-    if (state.viewMode === "reorg") return "reorg";
     if (state.mode === "reroll") return "reroll";
     if (state.mode === "fast8") return "fast8";
     return "normal";
@@ -1192,7 +1206,11 @@ export function createStore() {
     return applyPlan(plan);
   }
 
+  // Smart tactical auto-placement for a single newly added unit (all non-drag adds).
+  // Places tanks/fighters centered front row, backline carries in back corners, assassins on front flanks,
+  // and 2-slot units (Baron Nashor) in contiguous front/mid pairs without disturbing existing units.
   function findFirstFree(unitId) {
+    const unit = game && game.byId && game.byId[unitId];
     const span = spanOf(unitId);
     const taken = new Set();
     state.board.forEach((e) => {
@@ -1202,8 +1220,20 @@ export function createStore() {
         taken.add(e.position.row + "," + (e.position.col + k));
       }
     });
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c <= COLS - span; c++) {
+
+    const lane = unit ? (unit.lane || "mid") : "front";
+    const rows = lane === "back" ? [3, 2, 1, 0]
+      : lane === "mid" ? [1, 2, 0, 3]
+        : [0, 1, 2, 3];
+    const cols = (lane === "back" || lane === "assassin")
+      ? [0, 6, 1, 5, 2, 4, 3]
+      : [3, 2, 4, 1, 5, 0, 6];
+
+    for (let ri = 0; ri < rows.length; ri++) {
+      const r = rows[ri];
+      for (let ci = 0; ci < cols.length; ci++) {
+        const c = cols[ci];
+        if (c + span > COLS) continue;
         let ok = true;
         for (let k = 0; k < span; k++) {
           if (taken.has(r + "," + (c + k))) { ok = false; break; }
@@ -1226,6 +1256,72 @@ export function createStore() {
 
   function addLooseItem(itemId) {
     return act({ type: "add-loose", itemId });
+  }
+
+  function craftLoose(idxA, idxB, compA, compB, resultItemId, targetId) {
+    return act({ type: "craft-loose", idxA, idxB, compA, compB, resultItemId, targetId: targetId || null });
+  }
+
+  function loadMetaComp(comp) {
+    if (!game || !comp || !Array.isArray(comp.units)) return false;
+    pushUndo(snapshotState(state));
+    clearAllPendingBans();
+    const validEntries = comp.units
+      .filter((u) => u && game.byId[u.id])
+      .map((u) => ({
+        id: u.id,
+        star: clamp(Number(u.star) || 1, 1, 3),
+        mark: "",
+        position: null,
+        items: Array.isArray(u.items) ? u.items.filter((it) => !!game.itemById[it]).slice(0, 3) : []
+      }));
+    // Compute optimal tactical placement via game.place()
+    const grid = typeof game.place === "function"
+      ? game.place(validEntries.map((e) => ({ id: e.id, star: e.star })))
+      : null;
+    if (grid) {
+      const posById = {};
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const cell = grid[r] && grid[r][c];
+          if (cell && cell.id) posById[cell.id] = { row: r, col: c };
+        }
+      }
+      validEntries.forEach((e) => {
+        if (posById[e.id]) e.position = posById[e.id];
+      });
+    }
+    state = Object.assign(freshState(), {
+      level: clamp(Number(comp.level) || 8, 1, 10),
+      mode: comp.mode === "reroll" || comp.mode === "fast8" ? comp.mode : "auto",
+      viewMode: "normal",
+      allowLocked: true,
+      board: validEntries
+    });
+    ui.selected = null;
+    ui.preview = null;
+    analysis.previewDiff = null;
+    normalizeState();
+    analysis.loosePlan = computeQuickLoosePlan();
+    save();
+    scheduleAnalyze();
+    emit(DIRTY_ALL);
+    flashNotice(`已载入热门阵容「${comp.title}」（支持 Ctrl+Z 撤销）`, 3200);
+    return true;
+  }
+
+  function applyMetaTargets(comp) {
+    if (!game || !comp || !comp.traitTargets) return false;
+    const targets = {};
+    Object.keys(comp.traitTargets).forEach((tid) => {
+      if (game.traitById[tid] && Number(comp.traitTargets[tid]) > 0) {
+        targets[tid] = Number(comp.traitTargets[tid]);
+      }
+    });
+    if (!Object.keys(targets).length) return false;
+    const ok = setSettings({ traitTargets: targets, viewMode: "reorg" });
+    if (ok) flashNotice(`已将「${comp.title}」核心羁绊设为整理目标`, 3000);
+    return ok;
   }
 
   function equipLooseToTarget(looseIndex, targetUnitId) {
@@ -1595,6 +1691,8 @@ export function createStore() {
     setTheme,
     getTheme,
     setPlaystyle,
+    setViewMode,
+    setMode,
     getPlaystyle,
     setUnlockTarget,
     togglePrismatic,
@@ -1605,7 +1703,10 @@ export function createStore() {
     applyPlan,
     addFirstFree,
     addLooseItem,
+    craftLoose,
     equipLooseToTarget,
+    loadMetaComp,
+    applyMetaTargets,
     startBan,
     cancelBan,
     unbanUnit,

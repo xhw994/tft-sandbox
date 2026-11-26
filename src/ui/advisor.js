@@ -59,9 +59,17 @@ function uniqueStrings(arr) {
 }
 
 export function mountAdvisor(store) {
-  const titleEl = document.getElementById("advisor-title");
-  const subEl = document.getElementById("advisor-sub");
+  const tabsEl = document.getElementById("advisor-tabs");
+  const reorgBadgeEl = document.getElementById("reorg-tab-badge");
   const bodyEl = document.getElementById("advisor-body");
+
+  if (tabsEl) {
+    tabsEl.addEventListener("click", (e) => {
+      const btn = e.target.closest && e.target.closest("[data-view-tab]");
+      if (!btn) return;
+      store.setViewMode(btn.getAttribute("data-view-tab"));
+    });
+  }
 
   let lastRenderKey = null;
   let lastRecRef = null;
@@ -714,9 +722,16 @@ export function mountAdvisor(store) {
     }
 
     const open = Math.max(0, (rec.slots && rec.slots.max ? rec.slots.max : 0) - (rec.slots && rec.slots.used ? rec.slots.used : 0));
+    const emptyBoard = !((ctx.state && ctx.state.board && ctx.state.board.length) > 0);
+    if (emptyBoard && typeof window !== "undefined" && window.META_COMPS && Array.isArray(window.META_COMPS.comps) && window.META_COMPS.comps.length) {
+      html += `<div class="meta-cold-cta">` +
+        `<span>不知道怎么起步？</span>` +
+        `<button type="button" class="btn xs primary" data-open-meta-modal="1">浏览 S19 热门阵容库</button>` +
+        `</div>`;
+    }
     const planCards = (rec.plans || []).map((p, i) => renderPlanCard(ctx, p, i)).filter(Boolean).join("");
     const plansTitle = open > 0 ? "补全阵容" : "推荐方案";
-    html += `<section class="adv-sec"><div class="adv-sec-head"><span>${plansTitle}</span></div>` +
+    html += `<section class="adv-sec"><div class="adv-sec-head"><span>${plansTitle}</span><span class="adv-hint">右键推荐卡可屏蔽</span></div>` +
       (planCards || `<p class="advisor-empty">暂无补强方案。</p>`) + `</section>`;
 
     const swapRows = open > 1 ? (rec.swaps || []).slice(0, 2) : (rec.swaps || []);
@@ -1026,27 +1041,23 @@ export function mountAdvisor(store) {
   }
 
   function renderAll(ctx) {
-    const { state, game, reorg } = ctx;
-    if (titleEl) {
-      titleEl.textContent = state.viewMode === "ladder" ? "羁绊天梯"
-        : state.viewMode === "reorg" ? "阵容整理"
-          : "策略建议";
+    const { state } = ctx;
+    const mode = state.viewMode || "normal";
+    if (tabsEl) {
+      tabsEl.querySelectorAll("[data-view-tab]").forEach((btn) => {
+        const active = btn.getAttribute("data-view-tab") === mode;
+        btn.classList.toggle("active", active);
+        btn.setAttribute("aria-selected", String(active));
+      });
     }
-    if (subEl) {
-      if (state.viewMode === "ladder") {
-        const goalTxt = state.targetTraitCount ? `目标 ${state.targetTraitCount} 条` : "目标 自动";
-        subEl.textContent = `${goalTxt} · 上限 ${state.trackerMaxLevel || 10} 级`;
-      } else if (state.viewMode === "reorg") {
-        const tCnt = Object.keys(state.traitTargets || {}).filter((k) => Number(state.traitTargets[k]) > 0).length;
-        const cap = reorg && reorg.cap ? reorg.cap : (game && typeof game.capacity === "function" ? game.capacity(state.board || [], store.getContext()) : state.level || 8);
-        subEl.textContent = tCnt ? `目标 ${tCnt} 项 · 人口上限 ${cap}` : "请在左栏点击目标羁绊";
-      } else {
-        subEl.textContent = "右键推荐棋子可禁用";
-      }
+    if (reorgBadgeEl) {
+      const tCnt = Object.keys(state.traitTargets || {}).filter((k) => Number(state.traitTargets[k]) > 0).length;
+      reorgBadgeEl.hidden = tCnt <= 0;
+      reorgBadgeEl.textContent = tCnt > 0 ? String(tCnt) : "";
     }
     if (bodyEl) {
-      bodyEl.innerHTML = state.viewMode === "ladder" ? renderLadderMode(ctx)
-        : state.viewMode === "reorg" ? renderReorgMode(ctx)
+      bodyEl.innerHTML = mode === "ladder" ? renderLadderMode(ctx)
+        : mode === "reorg" ? renderReorgMode(ctx)
           : renderNormalMode(ctx);
       syncPendingBans();
     }
@@ -1171,6 +1182,11 @@ export function mountAdvisor(store) {
       }
       if ((el = t.closest("[data-enable-prism]"))) {
         store.togglePrismatic(el.getAttribute("data-enable-prism"));
+        return;
+      }
+      if (t.closest("[data-open-meta-modal]")) {
+        const btn = document.getElementById("btn-meta-open");
+        if (btn) btn.click();
       }
     });
 

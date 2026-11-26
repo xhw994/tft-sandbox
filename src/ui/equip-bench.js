@@ -23,9 +23,23 @@ function closePopover(el) {
 export function mountEquipBench(store) {
   const emblemMenu = $("emblem-menu");
   const gridEl = $("equip-bench-grid");
+  const craftBoxEl = $("craft-suggest-box");
 
   const slotPool = [];
   let lastSetVersion = -1;
+  let lastCraftKey = "";
+
+  if (craftBoxEl) {
+    craftBoxEl.addEventListener("click", (e) => {
+      const btn = e.target.closest && e.target.closest("[data-craft-idx]");
+      if (!btn) return;
+      const idx = Number(btn.getAttribute("data-craft-idx"));
+      const list = (store.getAnalysis() && store.getAnalysis().craftSuggestions) || [];
+      const rec = list[idx];
+      if (!rec) return;
+      store.craftLoose(rec.idxA, rec.idxB, rec.compA, rec.compB, rec.resultItemId, rec.targetId);
+    });
+  }
 
   function createSlotRef(index) {
     const el = document.createElement("button");
@@ -261,6 +275,50 @@ export function mountEquipBench(store) {
         ref.badge.hidden = true;
       }
     }
+    renderCraftBox(game, analysis);
+  }
+
+  function renderCraftBox(game, analysis) {
+    if (!craftBoxEl) return;
+    const list = (analysis && Array.isArray(analysis.craftSuggestions)) ? analysis.craftSuggestions : [];
+    const key = list.map((c) => `${c.compA}+${c.compB}=${c.resultItemId}@${c.targetId || ""}:${c.targetLabel}`).join("|");
+    if (key === lastCraftKey) return;
+    lastCraftKey = key;
+
+    if (!list.length) {
+      craftBoxEl.hidden = true;
+      craftBoxEl.textContent = "";
+      return;
+    }
+
+    const esc = (s) => store.esc(s);
+    const img = (it, cls) => store.imgHtml(it, cls, it ? it.name : "", false);
+    const rowsHtml = list.map((c, idx) => {
+      const itA = game.itemById && game.itemById[c.compA];
+      const itB = game.itemById && game.itemById[c.compB];
+      const res = c.resultItem || (game.itemById && game.itemById[c.resultItemId]);
+      return (
+        `<div class="craft-row">` +
+        `<div class="craft-recipe">` +
+        `<span class="craft-ico" data-tip="item:${esc(c.compA)}">${img(itA, "")}</span>` +
+        `<span class="craft-op">+</span>` +
+        `<span class="craft-ico" data-tip="item:${esc(c.compB)}">${img(itB, "")}</span>` +
+        `<span class="craft-op">→</span>` +
+        `<span class="craft-res" data-tip="item:${esc(c.resultItemId)}">${img(res, "")}</span>` +
+        `<div class="craft-info">` +
+        `<strong>${esc(res ? res.name : c.resultItemId)}</strong>` +
+        `<span>${esc(c.targetLabel || "")}</span>` +
+        `</div>` +
+        `</div>` +
+        `<button type="button" class="btn xs${idx === 0 ? " primary" : ""}" data-craft-idx="${idx}" title="${c.targetId ? "合成并穿戴给目标弈子" : "合成并放入已有装备"}">合成</button>` +
+        `</div>`
+      );
+    }).join("");
+
+    craftBoxEl.innerHTML =
+      `<div class="craft-head"><span class="eyebrow">散件合成建议</span></div>` +
+      `<div class="craft-list">${rowsHtml}</div>`;
+    craftBoxEl.hidden = false;
   }
 
   function update(dirtyMask) {

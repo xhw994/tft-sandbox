@@ -28,17 +28,20 @@ jobs:
       - name: Fetch latest MetaTFT Set 19 comps JSON
         run: node scripts/sync-meta-comps.mjs
 
-      - name: Verify test suite passes with updated meta_comps.js
+      - name: Fetch latest Set 19 Collab groups & season tables
+        run: node scripts/sync-season-data.mjs
+
+      - name: Verify test suite passes with updated static data
         run: npm test
 
-      - name: Commit & push if meta_comps.js changed
+      - name: Commit & push if meta_comps.js or season_data.js changed
         run: |
-          if git diff --quiet meta_comps.js; then
-            echo "No changes to meta_comps.js"
+          if git diff --quiet meta_comps.js season_data.js; then
+            echo "No changes to meta_comps.js or season_data.js"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add meta_comps.js
-          git commit -m "chore(meta): auto-sync Set 19 meta comps from MetaTFT"
+          git add meta_comps.js season_data.js
+          git commit -m "chore(meta): auto-sync Set 19 meta comps and season collab data"
           git push

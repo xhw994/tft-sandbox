@@ -34,6 +34,18 @@ import {
   extractOfficialTeamCode
 } from "./src/logic/share-codec.js";
 import { SET19_PLANNER_CODES } from "./src/logic/team-planner-code.js";
+import {
+  getCollabPoolIds,
+  filterCollabGroups,
+  suggestDiscriminatingUnits,
+  scoreGroupsFromDetections
+} from "./src/logic/collab-matcher.js";
+import {
+  sampleInnerPatch,
+  extractPatchDescriptor,
+  segmentScreenshotBoxes,
+  matchDescriptorsToUnits
+} from "./src/logic/avatar-ocr.js";
 import { createStore } from "./src/state/store.js";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
@@ -945,6 +957,131 @@ test("team-planner-code + unified import: round-trip Riot v2 code, chat extracti
   assert.equal(store.getOfficialTeamCode().code, enc.code);
   assert.equal(store.undo(), true);
   assert.equal(store.getState().board.length, 0);
+});
+
+test("season_data.js + collab-matcher: 40 Set 19 Collab groups, subset/exclude filter, hints, and reward tables validate", () => {
+  const sSandbox = { window: {} };
+  vm.createContext(sSandbox);
+  vm.runInContext(fs.readFileSync(path.join(root, "season_data.js"), "utf8"), sSandbox);
+  const sd = sSandbox.window.SEASON_DATA;
+
+  assert.equal(sd.set, 19);
+  assert.equal(sd.collab.groups.length, 40, "40 Set 19 Collab groups synced");
+  const pool = getCollabPoolIds(sd.collab.groups, game);
+  assert.equal(pool.length, 55, "55 distinct Collab pool units");
+  for (const uid of pool) assert.ok(game.byId[uid], `valid Collab unit ${uid}`);
+
+  // Exact subset filtering narrows cleanly to the target group
+  const target = sd.collab.groups[0];
+  const filtered = filterCollabGroups(sd.collab.groups, target.units.slice(0, 3), [], "avg");
+  assert.ok(filtered.length >= 1 && filtered.some((g) => g.id === target.id));
+  const exact = filterCollabGroups(sd.collab.groups, target.units, [], "avg");
+  assert.equal(exact.length, 1);
+  assert.equal(exact[0].id, target.id);
+
+  // Exclusion filter removes groups containing excluded unit
+  const excl = filterCollabGroups(sd.collab.groups, [], [target.units[0]], "avg");
+  assert.equal(excl.some((g) => g.units.includes(target.units[0])), false);
+
+  // Discriminating suggestions narrow multi-group candidate sets
+  const singleUnitMatches = filterCollabGroups(sd.collab.groups, [target.units[0]], [], "avg");
+  if (singleUnitMatches.length > 1) {
+    const hints = suggestDiscriminatingUnits(singleUnitMatches, [target.units[0]], 5);
+    assert.ok(hints.length > 0 && hints.every((h) => h.id !== target.units[0]));
+  }
+
+  // Cheat sheet tables completeness
+  assert.equal(sd.tables.trueDamage.cashouts.length, 12, "12 True Damage Bling cashout tiers");
+  assert.equal(sd.tables.hyperpop.milestones.length, 19, "19 Hyperpop Hype milestones");
+  assert.equal(sd.tables.eightBit.milestones.length, 8, "8 Eight-Bit high score tiers");
+  assert.ok(sd.tables.encounters.length >= 20, "official zh_cn encounters loaded");
+  assert.equal(sd.tables.economy.shopOdds.length, 11, "11 levels of shop odds including Lv11 Gu Feng");
+});
+
+test("avatar-ocr + bitmask DP: segments tooltip portrait strip & locks exact Collab group under noise and border colors", () => {
+  const sSandbox = { window: {} };
+  vm.createContext(sSandbox);
+  vm.runInContext(fs.readFileSync(path.join(root, "season_data.js"), "utf8"), sSandbox);
+  const groups = sSandbox.window.SEASON_DATA.collab.groups;
+  const pool = getCollabPoolIds(groups, game);
+
+  // Deterministic synthetic 32x32 portrait generator per unit (unique color patterns + features)
+  function synthPortrait(seedIdx, size, brightShift = 0, borderColor = null) {
+    const buf = new Uint8ClampedArray(size * size * 4);
+    const h1 = (seedIdx * 67 + 19) % 210 + 30;
+    const h2 = (seedIdx * 113 + 73) % 210 + 30;
+    const h3 = (seedIdx * 179 + 41) % 210 + 30;
+    const cx = 0.25 + ((seedIdx * 29) % 50) / 100;
+    const cy = 0.25 + ((seedIdx * 43) % 50) / 100;
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const o = (y * size + x) * 4;
+        const isBorder = borderColor && (x < 3 || y < 3 || x >= size - 3 || y >= size - 3);
+        if (isBorder) {
+          buf[o] = borderColor[0]; buf[o + 1] = borderColor[1]; buf[o + 2] = borderColor[2]; buf[o + 3] = 255;
+          continue;
+        }
+        const nx = x / size;
+        const ny = y / size;
+        const dist = Math.hypot(nx - cx, ny - cy);
+        const wave = Math.sin((nx * 5 + seedIdx) * 1.3) * 28;
+        const r = dist < 0.32 ? h1 : (ny < 0.5 ? h2 : h3);
+        const g = dist < 0.32 ? h2 : (nx < 0.5 ? h3 : h1);
+        const b = dist < 0.32 ? h3 : Math.min(255, Math.max(0, h1 + wave));
+        buf[o] = Math.max(0, Math.min(255, Math.round(r + brightShift)));
+        buf[o + 1] = Math.max(0, Math.min(255, Math.round(g + brightShift)));
+        buf[o + 2] = Math.max(0, Math.min(255, Math.round(b + brightShift)));
+        buf[o + 3] = 255;
+      }
+    }
+    return buf;
+  }
+
+  const refMap = new Map();
+  pool.forEach((uid, idx) => {
+    const p = synthPortrait(idx + 1, 32, 0, null);
+    refMap.set(uid, [extractPatchDescriptor(sampleInnerPatch(p, 32, 32, null, 0.08))]);
+  });
+
+  // Synthesize an in-game tooltip screenshot: dark background + dim header text band + 5 bordered portraits
+  const targetGroup = groups.find((g) => g.units.length === 5);
+  const W = 280, H = 140;
+  const img = new Uint8ClampedArray(W * H * 4);
+  for (let i = 0; i < W * H; i++) {
+    img[i * 4] = 16; img[i * 4 + 1] = 20; img[i * 4 + 2] = 28; img[i * 4 + 3] = 255;
+  }
+  // Simulated monochrome tooltip text lines at top (y=10..55)
+  for (let y = 14; y < 50; y += 12) {
+    for (let x = 16; x < 240; x++) {
+      if ((x + y) % 5 < 3) {
+        const o = (y * W + x) * 4;
+        img[o] = 185; img[o + 1] = 188; img[o + 2] = 192;
+      }
+    }
+  }
+  // Paste the 5 Collab unit portraits in a row (y=72..116, 44x44 with gold cost border & +18 brightness shift)
+  const tileSize = 44, gap = 8, startX = 14, startY = 72;
+  targetGroup.units.forEach((uid, i) => {
+    const pIdx = pool.indexOf(uid) + 1;
+    const tile = synthPortrait(pIdx, tileSize, 18, [224, 169, 76]);
+    const ox = startX + i * (tileSize + gap);
+    for (let y = 0; y < tileSize; y++) {
+      for (let x = 0; x < tileSize; x++) {
+        const so = (y * tileSize + x) * 4;
+        const doff = ((startY + y) * W + (ox + x)) * 4;
+        img[doff] = tile[so]; img[doff + 1] = tile[so + 1]; img[doff + 2] = tile[so + 2]; img[doff + 3] = 255;
+      }
+    }
+  });
+
+  const boxes = segmentScreenshotBoxes(img, W, H);
+  assert.equal(boxes.length, 5, "segments exactly 5 portrait boxes inside tooltip screenshot");
+  const qDescs = boxes.map((b) => extractPatchDescriptor(sampleInnerPatch(img, W, H, b, 0.12)));
+  const { tileScores } = matchDescriptorsToUnits(qDescs, refMap);
+  const ranked = scoreGroupsFromDetections(groups, tileScores);
+  assert.equal(ranked[0].group.id, targetGroup.id, "bitmask DP locks exact Collab group #1");
+  assert.ok(ranked[0].meanSim > 0.75, "high mean visual similarity: " + ranked[0].meanSim);
+  assert.ok(ranked[0].totalScore - ranked[1].totalScore > 0.1, "clear separation from runner-up");
 });
 
 console.log(`All ${passed} new feature tests passed!`);

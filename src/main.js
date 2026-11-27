@@ -34,6 +34,8 @@ import { mountAdvisor } from "./ui/advisor.js";
 import { mountDragAndPopover } from "./ui/drag-and-popover.js";
 import { mountSavedDrawer } from "./ui/saved-drawer.js";
 import { mountMetaModal } from "./ui/meta-modal.js";
+import { mountCollabModal } from "./ui/collab-modal.js";
+import { mountCheatsheetModal } from "./ui/cheatsheet-modal.js";
 
 const store = createStore();
 
@@ -46,6 +48,8 @@ const advisor = mountAdvisor(store);
 const dragPopover = mountDragAndPopover(store);
 mountSavedDrawer(store);
 mountMetaModal(store);
+const collabModal = mountCollabModal(store);
+mountCheatsheetModal(store, { openCollab: () => collabModal.open() });
 
 let lastGameData = (store.getGame() && store.getGame().data) || null;
 let hasRenderedOnce = false;

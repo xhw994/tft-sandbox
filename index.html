@@ -76,10 +76,36 @@
 
       <div class="cmd-divider"></div>
 
-      <button type="button" id="btn-meta-open" class="btn" title="浏览 S19 热门阵容库（MetaTFT 实时统计同步）">阵容库</button>
-      <button type="button" id="btn-saved-open" class="btn" title="打开我的阵容收藏夹">收藏夹</button>
-      <button type="button" id="btn-undo" class="btn" disabled title="撤销上一步 (Ctrl+Z)" aria-label="撤销上一步">撤销</button>
-      <button type="button" id="btn-share-trigger" class="btn" popovertarget="share-menu" aria-haspopup="dialog" title="导出官方游戏小队码 / 沙盘残局码，或统一导入任意阵容码">分享</button>
+      <div class="icon-toolbar" role="toolbar" aria-label="赛季工具与棋盘操作">
+        <button type="button" id="btn-collab-open" class="btn icon-btn is-season" data-icon-tip="合奏组合 (S19 机制)" aria-label="合奏组合速查">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </button>
+        <button type="button" id="btn-cheatsheet-open" class="btn icon-btn" data-icon-tip="羁绊奖励与速查表" aria-label="S19 羁绊奖励与速查表">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </button>
+        <button type="button" id="btn-meta-open" class="btn icon-btn" data-icon-tip="热门阵容库" aria-label="S19 热门阵容库">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        </button>
+        <button type="button" id="btn-saved-open" class="btn icon-btn" data-icon-tip="阵容收藏夹" aria-label="我的阵容收藏夹">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+        </button>
+
+        <div class="cmd-divider"></div>
+
+        <button type="button" id="btn-undo" class="btn icon-btn" disabled data-icon-tip="撤销 (Ctrl+Z)" aria-label="撤销上一步">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+        </button>
+        <button type="button" id="btn-share-trigger" class="btn icon-btn" popovertarget="share-menu" aria-haspopup="dialog" data-icon-tip="分享 / 导入阵容码" aria-label="分享与导入阵容码">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        </button>
+        <button type="button" id="btn-quick-reset" class="btn icon-btn" data-icon-tip="一键重置" aria-label="一键重置棋盘与目标">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+        </button>
+        <button type="button" id="btn-settings-trigger" class="btn icon-btn" popovertarget="settings-menu" aria-haspopup="menu" data-icon-tip="工作台设定" data-tip-align="right" aria-label="工作台设定">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+
       <div id="share-menu" class="share-popover" popover="auto" role="dialog" aria-label="阵容分享与统一导入">
         <div class="share-head">
           <strong>阵容分享与导入</strong>
@@ -101,8 +127,6 @@
           <button type="button" id="btn-import-share" class="btn sm primary">导入阵容</button>
         </div>
       </div>
-      <button type="button" id="btn-quick-reset" class="btn" title="一键清空棋盘、装备、目标与禁用（支持撤销）">重置</button>
-      <button type="button" id="btn-settings-trigger" class="btn" popovertarget="settings-menu" aria-haspopup="menu">设定 ▾</button>
       <div id="settings-menu" class="settings-popover" popover="auto" role="menu" aria-label="工作台设定">
         <div class="settings-row">
           <span class="settings-label">界面主题</span>
@@ -233,11 +257,14 @@
 
 <dialog id="saved-drawer" class="saved-drawer" aria-label="我的阵容收藏夹"></dialog>
 <dialog id="meta-modal" class="meta-modal" aria-label="S19 热门阵容库"></dialog>
+<dialog id="collab-modal" class="meta-modal collab-modal" aria-label="S19 合奏组合速查"></dialog>
+<dialog id="cheatsheet-modal" class="meta-modal cheatsheet-modal" aria-label="S19 羁绊奖励与速查表"></dialog>
 <div id="rich-tip" class="rich-tip" popover="manual"></div>
 <div id="drag-ghost" class="drag-ghost" hidden></div>
 
 <script src="data.js"></script>
 <script src="meta_comps.js"></script>
+<script src="season_data.js"></script>
 <script src="unit_focus.js"></script>
 <script src="assess.js"></script>
 <script src="engine.js"></script>

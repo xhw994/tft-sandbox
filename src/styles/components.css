@@ -168,6 +168,85 @@
     width: 30px;
     padding: 0;
   }
+
+  /* Topbar Right Icon Toolbar + Instant Hover Tooltips */
+  .icon-toolbar {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .btn.icon-btn {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+  }
+  .btn.icon-btn svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.85;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    display: block;
+    pointer-events: none;
+  }
+  .btn.icon-btn:hover:not(:disabled) {
+    color: var(--text-primary);
+  }
+  .btn.icon-btn.is-season {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: var(--accent-border);
+  }
+  .btn.icon-btn.is-season:hover:not(:disabled) {
+    background: color-mix(in oklch, var(--accent-soft) 150%, transparent);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .btn.icon-btn[data-icon-tip]::after {
+    content: attr(data-icon-tip);
+    position: absolute;
+    top: calc(100% + 7px);
+    left: 50%;
+    transform: translate(-50%, -3px);
+    padding: 4px 8px;
+    border-radius: var(--r-sm);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 6px 18px oklch(0% 0 0 / 0.38);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 60;
+    transition: opacity 110ms ease, transform 110ms ease, visibility 110ms ease;
+    transition-delay: 60ms;
+  }
+  .btn.icon-btn[data-tip-align="right"]::after {
+    left: auto;
+    right: 0;
+    transform: translate(0, -3px);
+  }
+  .btn.icon-btn[data-icon-tip]:hover:not(:disabled)::after,
+  .btn.icon-btn[data-icon-tip]:focus-visible::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+  }
+  .btn.icon-btn[data-tip-align="right"]:hover:not(:disabled)::after,
+  .btn.icon-btn[data-tip-align="right"]:focus-visible::after {
+    transform: translate(0, 0);
+  }
   .btn.sm {
     height: 25px;
     padding: 0 8px;

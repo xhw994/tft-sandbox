@@ -46,6 +46,7 @@ import {
   segmentScreenshotBoxes,
   matchDescriptorsToUnits
 } from "./src/logic/avatar-ocr.js";
+import { collabGroupTitle } from "./src/ui/collab-modal.js";
 import { createStore } from "./src/state/store.js";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
@@ -973,6 +974,8 @@ test("season_data.js + collab-matcher: 40 Set 19 Collab groups, subset/exclude f
 
   // Exact subset filtering narrows cleanly to the target group
   const target = sd.collab.groups[0];
+  const expectedTitle = target.units.slice(0, 3).map((id) => game.byId[id].display).join(" · ");
+  assert.equal(collabGroupTitle(target, game), expectedTitle, "group title uses 3 lowest-cost champion names");
   const filtered = filterCollabGroups(sd.collab.groups, target.units.slice(0, 3), [], "avg");
   assert.ok(filtered.length >= 1 && filtered.some((g) => g.id === target.id));
   const exact = filterCollabGroups(sd.collab.groups, target.units, [], "avg");

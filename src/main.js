@@ -120,6 +120,23 @@ document.addEventListener("keydown", (e) => {
 
   if (isTypingTarget(document.activeElement)) return;
 
+  const openDialog = document.querySelector("dialog[open]");
+
+  if (e.key === "/") {
+    e.preventDefault();
+    const search = openDialog
+      ? openDialog.querySelector('input[type="search"]')
+      : document.getElementById("search-q");
+    if (search) {
+      search.focus();
+      if (typeof search.select === "function") search.select();
+    }
+    return;
+  }
+
+  // Avoid mutating the background board while a modal dialog is open
+  if (openDialog) return;
+
   if ((e.ctrlKey || e.metaKey) && !e.altKey) {
     const k = e.key.toLowerCase();
     if (k === "z") {
@@ -133,13 +150,6 @@ document.addEventListener("keydown", (e) => {
       store.redo();
       return;
     }
-  }
-
-  if (e.key === "/") {
-    e.preventDefault();
-    const search = document.getElementById("search-q");
-    if (search) search.focus();
-    return;
   }
 
   const ui = store.getUI && store.getUI();

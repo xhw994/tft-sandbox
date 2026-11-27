@@ -20,20 +20,20 @@ window.SEASON_DATA = {
           "DA_Garen19"
         ],
         "sharedTraits": [],
-        "games": 48953,
-        "activeAvg": 3.93,
-        "activeGames": 3788,
+        "games": 52970,
+        "activeAvg": 3.95,
+        "activeGames": 4114,
         "bp3": {
-          "avg": 3.98,
-          "top4": 57.6,
-          "win": 23.9,
-          "count": 3172
+          "avg": 4,
+          "top4": 57.2,
+          "win": 23.6,
+          "count": 3453
         },
         "bp5": {
           "avg": 3.71,
-          "top4": 59.9,
-          "win": 30.2,
-          "count": 616
+          "top4": 59.6,
+          "win": 29.8,
+          "count": 661
         }
       },
       {
@@ -48,20 +48,20 @@ window.SEASON_DATA = {
           "DA_Rell19"
         ],
         "sharedTraits": [],
-        "games": 45732,
-        "activeAvg": 4.11,
-        "activeGames": 2412,
+        "games": 49443,
+        "activeAvg": 4.1,
+        "activeGames": 2632,
         "bp3": {
-          "avg": 4.14,
-          "top4": 54.8,
-          "win": 21.9,
-          "count": 1978
+          "avg": 4.13,
+          "top4": 55.1,
+          "win": 22.2,
+          "count": 2166
         },
         "bp5": {
-          "avg": 4,
-          "top4": 54.1,
-          "win": 21,
-          "count": 434
+          "avg": 3.98,
+          "top4": 54.7,
+          "win": 22.1,
+          "count": 466
         }
       },
       {
@@ -75,20 +75,20 @@ window.SEASON_DATA = {
           "DA_Jhin19"
         ],
         "sharedTraits": [],
-        "games": 46497,
-        "activeAvg": 4.11,
-        "activeGames": 3443,
+        "games": 50194,
+        "activeAvg": 4.1,
+        "activeGames": 3728,
         "bp3": {
           "avg": 4.05,
-          "top4": 56.6,
-          "win": 23.6,
-          "count": 2947
+          "top4": 56.8,
+          "win": 23.7,
+          "count": 3194
         },
         "bp5": {
-          "avg": 4.47,
-          "top4": 48.4,
-          "win": 15.1,
-          "count": 496
+          "avg": 4.43,
+          "top4": 48.9,
+          "win": 15.5,
+          "count": 534
         }
       },
       {
@@ -102,20 +102,20 @@ window.SEASON_DATA = {
           "DA_Ahri19"
         ],
         "sharedTraits": [],
-        "games": 43261,
-        "activeAvg": 4.26,
-        "activeGames": 1982,
+        "games": 46424,
+        "activeAvg": 4.24,
+        "activeGames": 2155,
         "bp3": {
-          "avg": 4.37,
-          "top4": 51.6,
-          "win": 19.6,
-          "count": 1569
+          "avg": 4.36,
+          "top4": 51.5,
+          "win": 20,
+          "count": 1713
         },
         "bp5": {
-          "avg": 3.8,
-          "top4": 60.3,
-          "win": 24,
-          "count": 413
+          "avg": 3.79,
+          "top4": 60.4,
+          "win": 24.2,
+          "count": 442
         }
       },
       {
@@ -129,20 +129,20 @@ window.SEASON_DATA = {
           "DA_Yuumi19"
         ],
         "sharedTraits": [],
-        "games": 45866,
-        "activeAvg": 4.3,
-        "activeGames": 2142,
+        "games": 49509,
+        "activeAvg": 4.27,
+        "activeGames": 2333,
         "bp3": {
-          "avg": 4.28,
-          "top4": 53.7,
-          "win": 16.5,
-          "count": 1826
+          "avg": 4.25,
+          "top4": 54.1,
+          "win": 17.3,
+          "count": 2002
         },
         "bp5": {
-          "avg": 4.4,
-          "top4": 50.9,
-          "win": 10.4,
-          "count": 316
+          "avg": 4.43,
+          "top4": 49.8,
+          "win": 10.3,
+          "count": 331
         }
       },
       {
@@ -157,20 +157,20 @@ window.SEASON_DATA = {
           "DA_Nunu19"
         ],
         "sharedTraits": [],
-        "games": 45498,
+        "games": 48979,
         "activeAvg": 4.3,
-        "activeGames": 2121,
+        "activeGames": 2285,
         "bp3": {
           "avg": 4.34,
-          "top4": 50.2,
-          "win": 19.8,
-          "count": 1719
+          "top4": 50.5,
+          "win": 20,
+          "count": 1862
         },
         "bp5": {
-          "avg": 4.12,
-          "top4": 55.2,
-          "win": 20.4,
-          "count": 402
+          "avg": 4.11,
+          "top4": 55.6,
+          "win": 20.6,
+          "count": 423
         }
       },
       {
@@ -184,20 +184,20 @@ window.SEASON_DATA = {
           "DA_Mel19"
         ],
         "sharedTraits": [],
-        "games": 46246,
-        "activeAvg": 4.33,
-        "activeGames": 2653,
+        "games": 49943,
+        "activeAvg": 4.31,
+        "activeGames": 2891,
         "bp3": {
-          "avg": 4.31,
-          "top4": 52.4,
-          "win": 19.9,
-          "count": 2159
+          "avg": 4.28,
+          "top4": 52.9,
+          "win": 20.3,
+          "count": 2367
         },
         "bp5": {
           "avg": 4.42,
-          "top4": 48.8,
+          "top4": 49,
           "win": 16.6,
-          "count": 494
+          "count": 524
         }
       },
       {
@@ -211,20 +211,20 @@ window.SEASON_DATA = {
           "DA_Aurora19"
         ],
         "sharedTraits": [],
-        "games": 44176,
-        "activeAvg": 4.33,
-        "activeGames": 2664,
+        "games": 47489,
+        "activeAvg": 4.34,
+        "activeGames": 2848,
         "bp3": {
-          "avg": 4.3,
-          "top4": 52,
-          "win": 17.8,
-          "count": 2152
+          "avg": 4.31,
+          "top4": 51.5,
+          "win": 18,
+          "count": 2306
         },
         "bp5": {
           "avg": 4.43,
-          "top4": 49.4,
-          "win": 14.5,
-          "count": 512
+          "top4": 48.9,
+          "win": 14.4,
+          "count": 542
         }
       },
       {
@@ -239,24 +239,52 @@ window.SEASON_DATA = {
           "DA_Vi19"
         ],
         "sharedTraits": [],
-        "games": 45817,
+        "games": 49205,
         "activeAvg": 4.36,
-        "activeGames": 3074,
+        "activeGames": 3316,
         "bp3": {
-          "avg": 4.36,
-          "top4": 51,
-          "win": 17.7,
-          "count": 2559
+          "avg": 4.37,
+          "top4": 50.9,
+          "win": 17.9,
+          "count": 2775
         },
         "bp5": {
-          "avg": 4.35,
-          "top4": 50.1,
-          "win": 17.5,
-          "count": 515
+          "avg": 4.3,
+          "top4": 50.6,
+          "win": 18.5,
+          "count": 541
         }
       },
       {
         "id": "C10",
+        "key": "DA_Collab19_Kennen_Zoe_Lux_Galio_Evelynn_DrMundo_112335",
+        "units": [
+          "DA_Kennen19",
+          "DA_Zoe19",
+          "DA_Lux19",
+          "DA_Evelynn19",
+          "DA_Galio19",
+          "DA_DrMundo19"
+        ],
+        "sharedTraits": [],
+        "games": 53718,
+        "activeAvg": 4.37,
+        "activeGames": 3252,
+        "bp3": {
+          "avg": 4.35,
+          "top4": 50.5,
+          "win": 22.6,
+          "count": 2746
+        },
+        "bp5": {
+          "avg": 4.43,
+          "top4": 48.2,
+          "win": 20.2,
+          "count": 506
+        }
+      },
+      {
+        "id": "C11",
         "key": "DA_Collab19_Taric_Varus_Qiyana_Briar_Vayne_MissFortune_112345",
         "units": [
           "DA_Taric19",
@@ -273,48 +301,20 @@ window.SEASON_DATA = {
             "count": 2
           }
         ],
-        "games": 46937,
-        "activeAvg": 4.36,
-        "activeGames": 2911,
+        "games": 50396,
+        "activeAvg": 4.37,
+        "activeGames": 3133,
         "bp3": {
           "avg": 4.42,
-          "top4": 50.1,
-          "win": 15.6,
-          "count": 2284
+          "top4": 50.4,
+          "win": 15.7,
+          "count": 2466
         },
         "bp5": {
-          "avg": 4.14,
-          "top4": 54.1,
-          "win": 15.5,
-          "count": 627
-        }
-      },
-      {
-        "id": "C11",
-        "key": "DA_Collab19_Kennen_Zoe_Lux_Galio_Evelynn_DrMundo_112335",
-        "units": [
-          "DA_Kennen19",
-          "DA_Zoe19",
-          "DA_Lux19",
-          "DA_Evelynn19",
-          "DA_Galio19",
-          "DA_DrMundo19"
-        ],
-        "sharedTraits": [],
-        "games": 50190,
-        "activeAvg": 4.38,
-        "activeGames": 3034,
-        "bp3": {
-          "avg": 4.37,
-          "top4": 50.3,
-          "win": 22.6,
-          "count": 2554
-        },
-        "bp5": {
-          "avg": 4.46,
-          "top4": 47.7,
-          "win": 19.8,
-          "count": 480
+          "avg": 4.19,
+          "top4": 53.4,
+          "win": 15,
+          "count": 667
         }
       },
       {
@@ -329,20 +329,20 @@ window.SEASON_DATA = {
           "DA_Zeri19"
         ],
         "sharedTraits": [],
-        "games": 46088,
-        "activeAvg": 4.39,
-        "activeGames": 2908,
+        "games": 49722,
+        "activeAvg": 4.4,
+        "activeGames": 3135,
         "bp3": {
-          "avg": 4.43,
-          "top4": 49.5,
-          "win": 16.8,
-          "count": 2400
+          "avg": 4.45,
+          "top4": 49.2,
+          "win": 16.9,
+          "count": 2591
         },
         "bp5": {
           "avg": 4.2,
           "top4": 52.6,
-          "win": 19.3,
-          "count": 508
+          "win": 19.1,
+          "count": 544
         }
       },
       {
@@ -363,20 +363,20 @@ window.SEASON_DATA = {
             "count": 2
           }
         ],
-        "games": 46754,
+        "games": 49990,
         "activeAvg": 4.44,
-        "activeGames": 4256,
+        "activeGames": 4535,
         "bp3": {
           "avg": 4.39,
           "top4": 51.2,
           "win": 16.7,
-          "count": 3266
+          "count": 3481
         },
         "bp5": {
-          "avg": 4.62,
-          "top4": 44.6,
-          "win": 14,
-          "count": 990
+          "avg": 4.61,
+          "top4": 44.8,
+          "win": 14.1,
+          "count": 1054
         }
       },
       {
@@ -390,20 +390,20 @@ window.SEASON_DATA = {
           "DA_Ahri19"
         ],
         "sharedTraits": [],
-        "games": 42735,
-        "activeAvg": 4.47,
-        "activeGames": 2718,
+        "games": 46025,
+        "activeAvg": 4.48,
+        "activeGames": 2912,
         "bp3": {
-          "avg": 4.54,
-          "top4": 47.7,
-          "win": 16.5,
-          "count": 2176
+          "avg": 4.56,
+          "top4": 47.6,
+          "win": 16.4,
+          "count": 2335
         },
         "bp5": {
-          "avg": 4.22,
-          "top4": 51.8,
-          "win": 18.8,
-          "count": 542
+          "avg": 4.19,
+          "top4": 52.2,
+          "win": 19.6,
+          "count": 577
         }
       },
       {
@@ -417,20 +417,20 @@ window.SEASON_DATA = {
           "DA_Mel19"
         ],
         "sharedTraits": [],
-        "games": 46701,
-        "activeAvg": 4.47,
-        "activeGames": 2774,
+        "games": 50448,
+        "activeAvg": 4.48,
+        "activeGames": 3025,
         "bp3": {
-          "avg": 4.5,
+          "avg": 4.51,
           "top4": 48.7,
-          "win": 17.1,
-          "count": 2234
+          "win": 17,
+          "count": 2433
         },
         "bp5": {
-          "avg": 4.33,
-          "top4": 48.5,
-          "win": 18.9,
-          "count": 540
+          "avg": 4.38,
+          "top4": 47.1,
+          "win": 18.4,
+          "count": 592
         }
       },
       {
@@ -444,20 +444,20 @@ window.SEASON_DATA = {
           "DA_Xayah19"
         ],
         "sharedTraits": [],
-        "games": 47889,
-        "activeAvg": 4.52,
-        "activeGames": 2642,
+        "games": 51484,
+        "activeAvg": 4.53,
+        "activeGames": 2854,
         "bp3": {
-          "avg": 4.41,
-          "top4": 49.7,
-          "win": 19,
-          "count": 2175
+          "avg": 4.42,
+          "top4": 49.5,
+          "win": 19.3,
+          "count": 2352
         },
         "bp5": {
           "avg": 5.04,
-          "top4": 34.7,
-          "win": 10.5,
-          "count": 467
+          "top4": 34.1,
+          "win": 10.6,
+          "count": 502
         }
       },
       {
@@ -472,20 +472,20 @@ window.SEASON_DATA = {
           "DA_TwistedFate19"
         ],
         "sharedTraits": [],
-        "games": 46329,
-        "activeAvg": 4.54,
-        "activeGames": 2820,
+        "games": 49883,
+        "activeAvg": 4.53,
+        "activeGames": 3039,
         "bp3": {
-          "avg": 4.55,
-          "top4": 47.2,
-          "win": 21.6,
-          "count": 2288
+          "avg": 4.54,
+          "top4": 47.7,
+          "win": 21.5,
+          "count": 2480
         },
         "bp5": {
-          "avg": 4.53,
-          "top4": 44.7,
-          "win": 17.5,
-          "count": 532
+          "avg": 4.46,
+          "top4": 46,
+          "win": 18.4,
+          "count": 559
         }
       },
       {
@@ -499,20 +499,20 @@ window.SEASON_DATA = {
           "DA_Xayah19"
         ],
         "sharedTraits": [],
-        "games": 45481,
-        "activeAvg": 4.55,
-        "activeGames": 2567,
+        "games": 48869,
+        "activeAvg": 4.54,
+        "activeGames": 2757,
         "bp3": {
-          "avg": 4.55,
+          "avg": 4.56,
           "top4": 47.3,
-          "win": 17.1,
-          "count": 2041
+          "win": 16.9,
+          "count": 2196
         },
         "bp5": {
-          "avg": 4.51,
-          "top4": 47.5,
-          "win": 15.8,
-          "count": 526
+          "avg": 4.48,
+          "top4": 48.3,
+          "win": 16,
+          "count": 561
         }
       },
       {
@@ -527,20 +527,20 @@ window.SEASON_DATA = {
           "DA_Nunu19"
         ],
         "sharedTraits": [],
-        "games": 45663,
+        "games": 48998,
         "activeAvg": 4.56,
-        "activeGames": 1997,
+        "activeGames": 2148,
         "bp3": {
           "avg": 4.6,
-          "top4": 45.7,
-          "win": 15.7,
-          "count": 1588
+          "top4": 46,
+          "win": 15.8,
+          "count": 1712
         },
         "bp5": {
           "avg": 4.41,
-          "top4": 50.1,
-          "win": 15.9,
-          "count": 409
+          "top4": 50,
+          "win": 15.8,
+          "count": 436
         }
       },
       {
@@ -554,20 +554,20 @@ window.SEASON_DATA = {
           "DA_Garen19"
         ],
         "sharedTraits": [],
-        "games": 44549,
+        "games": 47595,
         "activeAvg": 4.61,
-        "activeGames": 2112,
+        "activeGames": 2260,
         "bp3": {
-          "avg": 4.68,
-          "top4": 45.1,
+          "avg": 4.66,
+          "top4": 45.3,
           "win": 13.2,
-          "count": 1692
+          "count": 1813
         },
         "bp5": {
-          "avg": 4.35,
-          "top4": 52.4,
-          "win": 14.8,
-          "count": 420
+          "avg": 4.4,
+          "top4": 51,
+          "win": 14.5,
+          "count": 447
         }
       },
       {
@@ -582,20 +582,20 @@ window.SEASON_DATA = {
           "DA_Graves19"
         ],
         "sharedTraits": [],
-        "games": 42066,
-        "activeAvg": 4.62,
-        "activeGames": 2502,
+        "games": 44955,
+        "activeAvg": 4.63,
+        "activeGames": 2689,
         "bp3": {
-          "avg": 4.66,
-          "top4": 45.4,
-          "win": 14.2,
-          "count": 1920
+          "avg": 4.69,
+          "top4": 44.7,
+          "win": 13.9,
+          "count": 2057
         },
         "bp5": {
-          "avg": 4.5,
-          "top4": 46.9,
-          "win": 11,
-          "count": 582
+          "avg": 4.46,
+          "top4": 47.6,
+          "win": 11.7,
+          "count": 632
         }
       },
       {
@@ -609,24 +609,51 @@ window.SEASON_DATA = {
           "DA_Yuumi19"
         ],
         "sharedTraits": [],
-        "games": 42305,
+        "games": 45495,
         "activeAvg": 4.64,
-        "activeGames": 2137,
+        "activeGames": 2293,
         "bp3": {
-          "avg": 4.62,
-          "top4": 45.7,
-          "win": 16.1,
-          "count": 1676
+          "avg": 4.63,
+          "top4": 45.5,
+          "win": 15.8,
+          "count": 1807
         },
         "bp5": {
-          "avg": 4.72,
-          "top4": 44.9,
-          "win": 10.8,
-          "count": 461
+          "avg": 4.68,
+          "top4": 45.5,
+          "win": 11.3,
+          "count": 486
         }
       },
       {
         "id": "C23",
+        "key": "DA_Collab19_Gnar_Kennen_Gragas_Amumu_Aurora_11234",
+        "units": [
+          "DA_Gnar19",
+          "DA_Kennen19",
+          "DA_Gragas19",
+          "DA_Amumu19",
+          "DA_Aurora19"
+        ],
+        "sharedTraits": [],
+        "games": 40802,
+        "activeAvg": 4.69,
+        "activeGames": 2196,
+        "bp3": {
+          "avg": 4.82,
+          "top4": 42.9,
+          "win": 13,
+          "count": 1617
+        },
+        "bp5": {
+          "avg": 4.34,
+          "top4": 51.1,
+          "win": 14.5,
+          "count": 579
+        }
+      },
+      {
+        "id": "C24",
         "key": "DA_Collab19_Katarina_Varus_Illaoi_Senna_Tibbers_TwistedFate_112335",
         "units": [
           "DA_Katarina19",
@@ -637,24 +664,24 @@ window.SEASON_DATA = {
           "DA_TwistedFate19"
         ],
         "sharedTraits": [],
-        "games": 42795,
-        "activeAvg": 4.66,
-        "activeGames": 2147,
+        "games": 45971,
+        "activeAvg": 4.69,
+        "activeGames": 2333,
         "bp3": {
-          "avg": 4.71,
-          "top4": 44.7,
-          "win": 15.6,
-          "count": 1695
+          "avg": 4.73,
+          "top4": 44.3,
+          "win": 15.2,
+          "count": 1847
         },
         "bp5": {
-          "avg": 4.5,
-          "top4": 45.4,
-          "win": 17.5,
-          "count": 452
+          "avg": 4.53,
+          "top4": 44.2,
+          "win": 17.1,
+          "count": 486
         }
       },
       {
-        "id": "C24",
+        "id": "C25",
         "key": "DA_Collab19_Katarina_Zoe_Gragas_Malzahar_Garen_11234",
         "units": [
           "DA_Katarina19",
@@ -664,78 +691,24 @@ window.SEASON_DATA = {
           "DA_Garen19"
         ],
         "sharedTraits": [],
-        "games": 42832,
-        "activeAvg": 4.67,
-        "activeGames": 2333,
+        "games": 45853,
+        "activeAvg": 4.69,
+        "activeGames": 2501,
         "bp3": {
-          "avg": 4.64,
-          "top4": 45.4,
+          "avg": 4.66,
+          "top4": 45.2,
           "win": 16.8,
-          "count": 1830
+          "count": 1970
         },
         "bp5": {
-          "avg": 4.8,
-          "top4": 40.6,
-          "win": 13.1,
-          "count": 503
-        }
-      },
-      {
-        "id": "C25",
-        "key": "DA_Collab19_Gnar_Kennen_Gragas_Amumu_Aurora_11234",
-        "units": [
-          "DA_Gnar19",
-          "DA_Kennen19",
-          "DA_Gragas19",
-          "DA_Amumu19",
-          "DA_Aurora19"
-        ],
-        "sharedTraits": [],
-        "games": 37985,
-        "activeAvg": 4.68,
-        "activeGames": 2047,
-        "bp3": {
           "avg": 4.81,
-          "top4": 42.9,
-          "win": 13,
-          "count": 1497
-        },
-        "bp5": {
-          "avg": 4.34,
-          "top4": 51.5,
-          "win": 14.7,
-          "count": 550
+          "top4": 40.3,
+          "win": 12.8,
+          "count": 531
         }
       },
       {
         "id": "C26",
-        "key": "DA_Collab19_Lillia_Lux_Qiyana_Bard_Yorick_12234",
-        "units": [
-          "DA_Lillia19",
-          "DA_Lux19",
-          "DA_Qiyana19",
-          "DA_Bard19",
-          "DA_Yorick19"
-        ],
-        "sharedTraits": [],
-        "games": 45738,
-        "activeAvg": 4.69,
-        "activeGames": 1952,
-        "bp3": {
-          "avg": 4.67,
-          "top4": 45.3,
-          "win": 19.1,
-          "count": 1666
-        },
-        "bp5": {
-          "avg": 4.82,
-          "top4": 43.4,
-          "win": 11.9,
-          "count": 286
-        }
-      },
-      {
-        "id": "C27",
         "key": "DA_Collab19_Elise_Kayn_Karthus_Malzahar_Jhin_11234",
         "units": [
           "DA_Elise19",
@@ -745,52 +718,51 @@ window.SEASON_DATA = {
           "DA_Jhin19"
         ],
         "sharedTraits": [],
-        "games": 42275,
+        "games": 45447,
         "activeAvg": 4.71,
-        "activeGames": 2084,
+        "activeGames": 2252,
         "bp3": {
           "avg": 4.7,
-          "top4": 45.3,
-          "win": 13.7,
-          "count": 1630
+          "top4": 45.6,
+          "win": 13.9,
+          "count": 1772
         },
         "bp5": {
-          "avg": 4.77,
-          "top4": 42.3,
-          "win": 12.1,
-          "count": 454
+          "avg": 4.74,
+          "top4": 43.1,
+          "win": 12.3,
+          "count": 480
+        }
+      },
+      {
+        "id": "C27",
+        "key": "DA_Collab19_Lillia_Lux_Qiyana_Bard_Yorick_12234",
+        "units": [
+          "DA_Lillia19",
+          "DA_Lux19",
+          "DA_Qiyana19",
+          "DA_Bard19",
+          "DA_Yorick19"
+        ],
+        "sharedTraits": [],
+        "games": 49301,
+        "activeAvg": 4.71,
+        "activeGames": 2113,
+        "bp3": {
+          "avg": 4.7,
+          "top4": 44.7,
+          "win": 19,
+          "count": 1797
+        },
+        "bp5": {
+          "avg": 4.78,
+          "top4": 43.7,
+          "win": 12.7,
+          "count": 316
         }
       },
       {
         "id": "C28",
-        "key": "DA_Collab19_Kayn_RenataGlasc_Renekton_Braum_Evelynn_DrMundo_122335",
-        "units": [
-          "DA_Kayn19",
-          "DA_RenataGlasc19",
-          "DA_Renekton19",
-          "DA_Braum19",
-          "DA_Evelynn19",
-          "DA_DrMundo19"
-        ],
-        "sharedTraits": [],
-        "games": 47240,
-        "activeAvg": 4.74,
-        "activeGames": 2695,
-        "bp3": {
-          "avg": 4.69,
-          "top4": 45.1,
-          "win": 15.5,
-          "count": 2268
-        },
-        "bp5": {
-          "avg": 4.99,
-          "top4": 37.9,
-          "win": 10.3,
-          "count": 427
-        }
-      },
-      {
-        "id": "C29",
         "key": "DA_Collab19_Taric_Camille_Ezreal_Senna_Tibbers_DrMundo_122335",
         "units": [
           "DA_Taric19",
@@ -801,20 +773,48 @@ window.SEASON_DATA = {
           "DA_DrMundo19"
         ],
         "sharedTraits": [],
-        "games": 47173,
-        "activeAvg": 4.75,
-        "activeGames": 2022,
+        "games": 50792,
+        "activeAvg": 4.74,
+        "activeGames": 2162,
         "bp3": {
           "avg": 4.76,
-          "top4": 43.5,
+          "top4": 43.8,
           "win": 13.1,
-          "count": 1657
+          "count": 1770
         },
         "bp5": {
-          "avg": 4.72,
-          "top4": 42.7,
-          "win": 11.5,
-          "count": 365
+          "avg": 4.64,
+          "top4": 44.4,
+          "win": 11.7,
+          "count": 392
+        }
+      },
+      {
+        "id": "C29",
+        "key": "DA_Collab19_Kayn_RenataGlasc_Renekton_Braum_Evelynn_DrMundo_122335",
+        "units": [
+          "DA_Kayn19",
+          "DA_RenataGlasc19",
+          "DA_Renekton19",
+          "DA_Braum19",
+          "DA_Evelynn19",
+          "DA_DrMundo19"
+        ],
+        "sharedTraits": [],
+        "games": 50958,
+        "activeAvg": 4.75,
+        "activeGames": 2911,
+        "bp3": {
+          "avg": 4.71,
+          "top4": 45,
+          "win": 15.4,
+          "count": 2458
+        },
+        "bp5": {
+          "avg": 4.98,
+          "top4": 38.2,
+          "win": 10.6,
+          "count": 453
         }
       },
       {
@@ -829,20 +829,20 @@ window.SEASON_DATA = {
           "DA_Rell19"
         ],
         "sharedTraits": [],
-        "games": 44721,
-        "activeAvg": 4.78,
-        "activeGames": 2454,
+        "games": 47857,
+        "activeAvg": 4.76,
+        "activeGames": 2615,
         "bp3": {
-          "avg": 4.75,
-          "top4": 44.2,
-          "win": 13.2,
-          "count": 1993
+          "avg": 4.73,
+          "top4": 44.7,
+          "win": 13.4,
+          "count": 2132
         },
         "bp5": {
-          "avg": 4.95,
-          "top4": 38.8,
-          "win": 10.6,
-          "count": 461
+          "avg": 4.91,
+          "top4": 39.1,
+          "win": 11.6,
+          "count": 483
         }
       },
       {
@@ -856,20 +856,20 @@ window.SEASON_DATA = {
           "DA_Aurora19"
         ],
         "sharedTraits": [],
-        "games": 41395,
-        "activeAvg": 4.85,
-        "activeGames": 1720,
+        "games": 44750,
+        "activeAvg": 4.86,
+        "activeGames": 1859,
         "bp3": {
-          "avg": 4.9,
-          "top4": 41.7,
-          "win": 11.3,
-          "count": 1392
+          "avg": 4.91,
+          "top4": 41.6,
+          "win": 11.1,
+          "count": 1510
         },
         "bp5": {
           "avg": 4.65,
-          "top4": 45.7,
-          "win": 12.2,
-          "count": 328
+          "top4": 46.1,
+          "win": 12,
+          "count": 349
         }
       },
       {
@@ -883,20 +883,20 @@ window.SEASON_DATA = {
           "DA_Shyvana19"
         ],
         "sharedTraits": [],
-        "games": 45011,
-        "activeAvg": 4.92,
-        "activeGames": 2421,
+        "games": 48268,
+        "activeAvg": 4.91,
+        "activeGames": 2588,
         "bp3": {
           "avg": 4.89,
           "top4": 41.6,
-          "win": 16.6,
-          "count": 1960
+          "win": 16.8,
+          "count": 2105
         },
         "bp5": {
-          "avg": 5.02,
-          "top4": 37.5,
-          "win": 16.7,
-          "count": 461
+          "avg": 5,
+          "top4": 37.9,
+          "win": 16.4,
+          "count": 483
         }
       },
       {
@@ -910,24 +910,51 @@ window.SEASON_DATA = {
           "DA_Yone19"
         ],
         "sharedTraits": [],
-        "games": 40799,
+        "games": 44264,
         "activeAvg": 4.93,
-        "activeGames": 1845,
+        "activeGames": 1997,
         "bp3": {
           "avg": 4.93,
-          "top4": 39.9,
-          "win": 12,
-          "count": 1487
+          "top4": 39.8,
+          "win": 11.7,
+          "count": 1606
         },
         "bp5": {
-          "avg": 4.94,
-          "top4": 38.3,
-          "win": 8.4,
-          "count": 358
+          "avg": 4.92,
+          "top4": 38.9,
+          "win": 8.7,
+          "count": 391
         }
       },
       {
         "id": "C34",
+        "key": "DA_Collab19_Zoe_Camille_Illaoi_Bard_Xayah_12234",
+        "units": [
+          "DA_Zoe19",
+          "DA_Camille19",
+          "DA_Illaoi19",
+          "DA_Bard19",
+          "DA_Xayah19"
+        ],
+        "sharedTraits": [],
+        "games": 49480,
+        "activeAvg": 4.96,
+        "activeGames": 2404,
+        "bp3": {
+          "avg": 4.87,
+          "top4": 41.4,
+          "win": 15.7,
+          "count": 2070
+        },
+        "bp5": {
+          "avg": 5.52,
+          "top4": 27.8,
+          "win": 7.5,
+          "count": 334
+        }
+      },
+      {
+        "id": "C35",
         "key": "DA_Collab19_Kennen_Gnar_Ezreal_RenataGlasc_Evelynn_Locke_112234",
         "units": [
           "DA_Gnar19",
@@ -938,24 +965,24 @@ window.SEASON_DATA = {
           "DA_Locke19"
         ],
         "sharedTraits": [],
-        "games": 43967,
-        "activeAvg": 4.95,
-        "activeGames": 2090,
+        "games": 47374,
+        "activeAvg": 4.97,
+        "activeGames": 2269,
         "bp3": {
-          "avg": 4.86,
-          "top4": 42.5,
-          "win": 11.9,
-          "count": 1711
+          "avg": 4.88,
+          "top4": 42.2,
+          "win": 11.8,
+          "count": 1856
         },
         "bp5": {
-          "avg": 5.35,
-          "top4": 28.8,
-          "win": 7.9,
-          "count": 379
+          "avg": 5.34,
+          "top4": 29.5,
+          "win": 8.2,
+          "count": 413
         }
       },
       {
-        "id": "C35",
+        "id": "C36",
         "key": "DA_Collab19_Elise_Gragas_RenataGlasc_Draven_Graves_12234",
         "units": [
           "DA_Elise19",
@@ -965,47 +992,20 @@ window.SEASON_DATA = {
           "DA_Graves19"
         ],
         "sharedTraits": [],
-        "games": 40158,
+        "games": 43186,
         "activeAvg": 4.99,
-        "activeGames": 2034,
+        "activeGames": 2188,
         "bp3": {
           "avg": 5.01,
-          "top4": 39.7,
-          "win": 9.9,
-          "count": 1593
+          "top4": 39.8,
+          "win": 9.8,
+          "count": 1718
         },
         "bp5": {
-          "avg": 4.94,
-          "top4": 39,
-          "win": 9.5,
-          "count": 441
-        }
-      },
-      {
-        "id": "C36",
-        "key": "DA_Collab19_Zoe_Camille_Illaoi_Bard_Xayah_12234",
-        "units": [
-          "DA_Zoe19",
-          "DA_Camille19",
-          "DA_Illaoi19",
-          "DA_Bard19",
-          "DA_Xayah19"
-        ],
-        "sharedTraits": [],
-        "games": 45968,
-        "activeAvg": 4.99,
-        "activeGames": 2199,
-        "bp3": {
-          "avg": 4.89,
-          "top4": 40.8,
-          "win": 15.7,
-          "count": 1884
-        },
-        "bp5": {
-          "avg": 5.56,
-          "top4": 26.7,
-          "win": 6.3,
-          "count": 315
+          "avg": 4.95,
+          "top4": 38.9,
+          "win": 9.4,
+          "count": 470
         }
       },
       {
@@ -1019,20 +1019,20 @@ window.SEASON_DATA = {
           "DA_Yone19"
         ],
         "sharedTraits": [],
-        "games": 44427,
+        "games": 48106,
         "activeAvg": 5,
-        "activeGames": 2215,
+        "activeGames": 2385,
         "bp3": {
           "avg": 4.98,
-          "top4": 40,
-          "win": 12.8,
-          "count": 1778
+          "top4": 40.1,
+          "win": 13,
+          "count": 1921
         },
         "bp5": {
           "avg": 5.09,
-          "top4": 35.9,
-          "win": 10.5,
-          "count": 437
+          "top4": 35.8,
+          "win": 9.9,
+          "count": 464
         }
       },
       {
@@ -1046,20 +1046,20 @@ window.SEASON_DATA = {
           "DA_Ahri19"
         ],
         "sharedTraits": [],
-        "games": 35448,
-        "activeAvg": 5.03,
-        "activeGames": 1718,
+        "games": 38113,
+        "activeAvg": 5.01,
+        "activeGames": 1833,
         "bp3": {
-          "avg": 4.99,
-          "top4": 38.6,
-          "win": 10.2,
-          "count": 1332
+          "avg": 4.97,
+          "top4": 39,
+          "win": 10.4,
+          "count": 1417
         },
         "bp5": {
-          "avg": 5.19,
-          "top4": 33.9,
-          "win": 7.3,
-          "count": 386
+          "avg": 5.15,
+          "top4": 34.6,
+          "win": 7.9,
+          "count": 416
         }
       },
       {
@@ -1073,20 +1073,20 @@ window.SEASON_DATA = {
           "DA_Draven19"
         ],
         "sharedTraits": [],
-        "games": 45079,
-        "activeAvg": 5.1,
-        "activeGames": 1936,
+        "games": 48575,
+        "activeAvg": 5.11,
+        "activeGames": 2103,
         "bp3": {
-          "avg": 4.97,
-          "top4": 39.2,
-          "win": 15.6,
-          "count": 1598
+          "avg": 4.98,
+          "top4": 38.9,
+          "win": 15.8,
+          "count": 1742
         },
         "bp5": {
-          "avg": 5.75,
-          "top4": 26.9,
-          "win": 7.7,
-          "count": 338
+          "avg": 5.77,
+          "top4": 26.6,
+          "win": 7.5,
+          "count": 361
         }
       },
       {
@@ -1101,20 +1101,20 @@ window.SEASON_DATA = {
           "DA_Vladimir19"
         ],
         "sharedTraits": [],
-        "games": 43707,
-        "activeAvg": 5.12,
-        "activeGames": 1980,
+        "games": 47237,
+        "activeAvg": 5.13,
+        "activeGames": 2151,
         "bp3": {
-          "avg": 5.04,
-          "top4": 38.7,
-          "win": 11.3,
-          "count": 1516
+          "avg": 5.05,
+          "top4": 38.6,
+          "win": 11.2,
+          "count": 1654
         },
         "bp5": {
-          "avg": 5.39,
-          "top4": 30.6,
+          "avg": 5.4,
+          "top4": 30.8,
           "win": 6,
-          "count": 464
+          "count": 497
         }
       }
     ]

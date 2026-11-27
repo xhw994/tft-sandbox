@@ -5,8 +5,8 @@ window.META_COMPS = {
   "set": 19,
   "source": "MetaTFT (PBE)",
   "sourceUrl": "https://www.metatft.com/comps",
-  "updatedAt": "2026-11-26",
-  "sampleGames": 2431828,
+  "updatedAt": "2026-11-27",
+  "sampleGames": 3215024,
   "plannerCodesSource": "MetaTFT Lookup (pbe)",
   "plannerCodes": {
     "DA_Ahri19": "3e9",
@@ -106,1074 +106,18 @@ window.META_COMPS = {
   },
   "comps": [
     {
-      "id": "mt_429003",
-      "title": "4古典乐 锤石",
-      "tier": "S",
-      "archetype": "flex_web",
-      "archetypeLabel": "多羁绊拼多多",
-      "tempo": "速9成型",
-      "level": 9,
-      "mode": "fast8",
-      "avgPlace": 3.93,
-      "top4Rate": 59.2,
-      "winRate": 21.4,
-      "games": 191424,
-      "units": [
-        {
-          "id": "DA_Smeech19",
-          "star": 1,
-          "items": [
-            "DA_Bloodthirster",
-            "DA_SteraksGage",
-            "DA_TitansResolve"
-          ]
-        },
-        {
-          "id": "DA_Jhin19",
-          "star": 2,
-          "items": [
-            "DA_Deathblade",
-            "DA_InfinityEdge",
-            "DA_LastWhisper"
-          ]
-        },
-        {
-          "id": "DA_Thresh19",
-          "star": 2,
-          "items": [
-            "DA_Crownguard",
-            "DA_GargoyleStoneplate",
-            "DA_SpiritVisage"
-          ]
-        },
-        {
-          "id": "DA_Vladimir19",
-          "star": 1,
-          "items": []
-        },
-        {
-          "id": "DA_Mel19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Galio19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_KSante19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Lucian19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Nasus19",
-          "star": 2,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_Virtuosos19",
-          "name": "古典乐",
-          "count": 4,
-          "need": 4,
-          "style": 2
-        },
-        {
-          "id": "DA_Jazz19",
-          "name": "爵士乐",
-          "count": 3,
-          "need": 3,
-          "style": 2
-        },
-        {
-          "id": "DA_Encore19",
-          "name": "安可",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Arcanist19",
-          "name": "法师",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Bodyguard19",
-          "name": "护卫",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_Virtuosos19": 4,
-        "DA_Jazz19": 3
-      }
-    },
-    {
-      "id": "mt_429000",
-      "title": "3心之钢 伊泽瑞尔",
-      "tier": "S",
-      "archetype": "reroll",
-      "archetypeLabel": "低费赌狗",
-      "tempo": "6级慢D追三",
-      "level": 8,
-      "mode": "reroll",
-      "avgPlace": 3.93,
-      "top4Rate": 61.7,
-      "winRate": 15.8,
-      "games": 60079,
-      "units": [
-        {
-          "id": "DA_Ezreal19",
-          "star": 3,
-          "items": [
-            "DA_BlueBuff",
-            "DA_InfinityEdge",
-            "DA_StrikersFlail"
-          ]
-        },
-        {
-          "id": "DA_Lucian19",
-          "star": 3,
-          "items": [
-            "DA_LastWhisper",
-            "DA_RedBuff",
-            "DA_SpearOfShojin"
-          ]
-        },
-        {
-          "id": "DA_Nasus19",
-          "star": 3,
-          "items": [
-            "DA_Crownguard",
-            "DA_GargoyleStoneplate",
-            "DA_SpiritVisage"
-          ]
-        },
-        {
-          "id": "DA_Jhin19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Yuumi19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Galio19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_KSante19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Sett19",
-          "star": 2,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_Encore19",
-          "name": "安可",
-          "count": 4,
-          "need": 4,
-          "style": 4
-        },
-        {
-          "id": "DA_Heartsteel19",
-          "name": "心之钢",
-          "count": 3,
-          "need": 3,
-          "style": 2
-        },
-        {
-          "id": "DA_Virtuosos19",
-          "name": "古典乐",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Bodyguard19",
-          "name": "护卫",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Jazz19",
-          "name": "爵士乐",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_Encore19": 4,
-        "DA_Heartsteel19": 3
-      }
-    },
-    {
-      "id": "mt_429002",
-      "title": "6舞者 佛耶戈",
-      "tier": "A",
-      "archetype": "reroll",
-      "archetypeLabel": "低费赌狗",
-      "tempo": "7级慢D追三",
-      "level": 8,
-      "mode": "reroll",
-      "avgPlace": 3.96,
-      "top4Rate": 60.6,
-      "winRate": 14.6,
-      "games": 50682,
-      "units": [
-        {
-          "id": "DA_Amumu19",
-          "star": 3,
-          "items": [
-            "DA_Evenshroud",
-            "DA_GargoyleStoneplate",
-            "DA_SunfireCape"
-          ]
-        },
-        {
-          "id": "DA_Briar19",
-          "star": 3,
-          "items": [
-            "DA_Bloodthirster",
-            "DA_SteraksGage",
-            "DA_TitansResolve"
-          ]
-        },
-        {
-          "id": "DA_Viego19",
-          "star": 3,
-          "items": [
-            "DA_EdgeOfNight",
-            "DA_HandOfJustice",
-            "DA_InfinityEdge"
-          ]
-        },
-        {
-          "id": "DA_Garen19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Yasuo19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Yone19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Camille19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Kayn19",
-          "star": 2,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_Mosher19",
-          "name": "舞者",
-          "count": 6,
-          "need": 6,
-          "style": 4
-        },
-        {
-          "id": "DA_Choreographer19",
-          "name": "编舞师",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Heartsteel19",
-          "name": "心之钢",
-          "count": 2,
-          "need": 1,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_Mosher19": 6
-      }
-    },
-    {
-      "id": "mt_429008",
-      "title": "5高能流行 可酷伯",
-      "tier": "A",
-      "archetype": "reroll",
-      "archetypeLabel": "低费赌狗",
-      "tempo": "5级慢D追三",
-      "level": 9,
-      "mode": "reroll",
-      "avgPlace": 4.04,
-      "top4Rate": 58.6,
-      "winRate": 18.1,
-      "games": 158132,
-      "units": [
-        {
-          "id": "DA_Teemo19",
-          "star": 1,
-          "items": [
-            "DA_JeweledGauntlet",
-            "DA_NashorsTooth",
-            "DA_StrikersFlail"
-          ]
-        },
-        {
-          "id": "DA_Kobuko19",
-          "star": 3,
-          "items": [
-            "DA_GargoyleStoneplate",
-            "DA_GargoyleStoneplate",
-            "DA_WarmogsArmor"
-          ]
-        },
-        {
-          "id": "DA_Ziggs19",
-          "star": 3,
-          "items": [
-            "DA_GuinsoosRageblade",
-            "DA_JeweledGauntlet",
-            "DA_StrikersFlail"
-          ]
-        },
-        {
-          "id": "DA_Shyvana19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Swain19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Lulu19",
-          "star": 3,
-          "items": []
-        },
-        {
-          "id": "DA_Tristana19",
-          "star": 3,
-          "items": []
-        },
-        {
-          "id": "DA_Elise19",
-          "star": 3,
-          "items": []
-        },
-        {
-          "id": "DA_Yunara19",
-          "star": 3,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_GlitterBomb19",
-          "name": "高能流行",
-          "count": 5,
-          "need": 5,
-          "style": 4
-        },
-        {
-          "id": "DA_Frontman19",
-          "name": "主唱",
-          "count": 4,
-          "need": 4,
-          "style": 2
-        },
-        {
-          "id": "DA_IonicSpark19",
-          "name": "离子火花",
-          "count": 3,
-          "need": 3,
-          "style": 1
-        },
-        {
-          "id": "DA_Arcanist19",
-          "name": "法师",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Swiftstriker19",
-          "name": "迅击鼓手",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_GlitterBomb19": 5,
-        "DA_Frontman19": 4
-      }
-    },
-    {
-      "id": "mt_429001",
-      "title": "5天才 玛尔扎哈",
-      "tier": "A",
-      "archetype": "reroll",
-      "archetypeLabel": "低费赌狗",
-      "tempo": "7级慢D追三",
-      "level": 8,
-      "mode": "reroll",
-      "avgPlace": 4.04,
-      "top4Rate": 59.1,
-      "winRate": 13,
-      "games": 35932,
-      "units": [
-        {
-          "id": "DA_Alune19",
-          "star": 2,
-          "items": [
-            "DA_Morellonomicon",
-            "DA_SpearOfShojin",
-            "DA_VoidStaff"
-          ]
-        },
-        {
-          "id": "DA_Ekko19",
-          "star": 3,
-          "items": [
-            "DA_Crownguard",
-            "DA_GargoyleStoneplate",
-            "DA_SpiritVisage"
-          ]
-        },
-        {
-          "id": "DA_Malzahar19",
-          "star": 3,
-          "items": [
-            "DA_HextechGunblade",
-            "DA_JeweledGauntlet",
-            "DA_StrikersFlail"
-          ]
-        },
-        {
-          "id": "DA_BaronNashor19",
-          "star": 1,
-          "items": []
-        },
-        {
-          "id": "DA_Braum19",
-          "star": 3,
-          "items": []
-        },
-        {
-          "id": "DA_Lux19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Neeko19",
-          "star": 2,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_Prodigy19",
-          "name": "天才",
-          "count": 5,
-          "need": 5,
-          "style": 4
-        },
-        {
-          "id": "DA_Juggernaut19",
-          "name": "主宰",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Heartsteel19",
-          "name": "心之钢",
-          "count": 1,
-          "need": 1,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_Prodigy19": 5
-      }
-    },
-    {
-      "id": "mt_429012",
-      "title": "7离子火花 金克丝",
-      "tier": "A",
-      "archetype": "vertical",
-      "archetypeLabel": "垂直高羁绊",
-      "tempo": "8级运营",
-      "level": 9,
-      "mode": "auto",
-      "avgPlace": 4.12,
-      "top4Rate": 56.8,
-      "winRate": 13.3,
-      "games": 165326,
-      "units": [
-        {
-          "id": "DA_Gwen19",
-          "star": 1,
-          "items": [
-            "DA_HandOfJustice",
-            "DA_JeweledGauntlet",
-            "DA_StrikersFlail"
-          ]
-        },
-        {
-          "id": "DA_Jinx19",
-          "star": 2,
-          "items": [
-            "DA_GuinsoosRageblade",
-            "DA_InfinityEdge",
-            "DA_LastWhisper"
-          ]
-        },
-        {
-          "id": "DA_Shyvana19",
-          "star": 2,
-          "items": [
-            "DA_GargoyleStoneplate",
-            "DA_SpiritVisage",
-            "DA_WarmogsArmor"
-          ]
-        },
-        {
-          "id": "DA_MissFortune19",
-          "star": 1,
-          "items": []
-        },
-        {
-          "id": "DA_Aurora19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Leona19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Tibbers19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Annie19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Elise19",
-          "star": 2,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_IonicSpark19",
-          "name": "离子火花",
-          "count": 7,
-          "need": 7,
-          "style": 4
-        },
-        {
-          "id": "DA_Bodyguard19",
-          "name": "护卫",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Hitmaker19",
-          "name": "制作人",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Frontman19",
-          "name": "主唱",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_IonicSpark19": 7
-      }
-    },
-    {
-      "id": "mt_429007",
-      "title": "6护卫 烈娜塔·戈拉斯克",
-      "tier": "A",
-      "archetype": "reroll",
-      "archetypeLabel": "低费赌狗",
-      "tempo": "6级慢D追三",
-      "level": 8,
-      "mode": "reroll",
-      "avgPlace": 4.16,
-      "top4Rate": 58.1,
-      "winRate": 13.2,
-      "games": 71317,
-      "units": [
-        {
-          "id": "DA_Jax19",
-          "star": 3,
-          "items": [
-            "DA_Bloodthirster",
-            "DA_SpearOfShojin",
-            "DA_TitansResolve"
-          ]
-        },
-        {
-          "id": "DA_Nasus19",
-          "star": 3,
-          "items": [
-            "DA_IonicSpark",
-            "DA_SunfireCape",
-            "DA_WarmogsArmor"
-          ]
-        },
-        {
-          "id": "DA_RenataGlasc19",
-          "star": 3,
-          "items": [
-            "DA_ArchangelsStaff",
-            "DA_BlueBuff",
-            "DA_HextechGunblade"
-          ]
-        },
-        {
-          "id": "DA_Garen19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Leona19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_KSante19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Tibbers19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Lillia19",
-          "star": 2,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_Bodyguard19",
-          "name": "护卫",
-          "count": 6,
-          "need": 6,
-          "style": 4
-        },
-        {
-          "id": "DA_KDA19",
-          "name": "K/DA",
-          "count": 4,
-          "need": 3,
-          "style": 1
-        },
-        {
-          "id": "DA_Choreographer19",
-          "name": "编舞师",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Virtuosos19",
-          "name": "古典乐",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Heartsteel19",
-          "name": "心之钢",
-          "count": 1,
-          "need": 1,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_Bodyguard19": 6,
-        "DA_KDA19": 3
-      }
-    },
-    {
-      "id": "mt_429005",
-      "title": "7海之歌 雷克顿",
-      "tier": "A",
-      "archetype": "reroll",
-      "archetypeLabel": "低费赌狗",
-      "tempo": "6级慢D追三",
-      "level": 8,
-      "mode": "reroll",
-      "avgPlace": 4.07,
-      "top4Rate": 61.2,
-      "winRate": 7.9,
-      "games": 9567,
-      "units": [
-        {
-          "id": "DA_Graves19",
-          "star": 2,
-          "items": [
-            "DA_HandOfJustice",
-            "DA_InfinityEdge",
-            "DA_LastWhisper"
-          ]
-        },
-        {
-          "id": "DA_Zac19",
-          "star": 2,
-          "items": [
-            "DA_GargoyleStoneplate",
-            "DA_SpiritVisage",
-            "DA_SunfireCape"
-          ]
-        },
-        {
-          "id": "DA_Renekton19",
-          "star": 3,
-          "items": [
-            "DA_Deathblade",
-            "DA_HandOfJustice",
-            "DA_InfinityEdge"
-          ]
-        },
-        {
-          "id": "DA_Swain19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Syndra19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Ashe19",
-          "star": 3,
-          "items": []
-        },
-        {
-          "id": "DA_Taric19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Zoe19",
-          "star": 2,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_OceanSong19",
-          "name": "海之歌",
-          "count": 7,
-          "need": 7,
-          "style": 4
-        },
-        {
-          "id": "DA_Arcanist19",
-          "name": "法师",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Frontman19",
-          "name": "主唱",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Juggernaut19",
-          "name": "主宰",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_OceanSong19": 7
-      }
-    },
-    {
-      "id": "mt_429006",
-      "title": "7摇滚恶魔 薇恩",
-      "tier": "A",
-      "archetype": "fast_high",
-      "archetypeLabel": "高费升级",
-      "tempo": "速9成型",
-      "level": 9,
-      "mode": "fast8",
-      "avgPlace": 4.17,
-      "top4Rate": 58.2,
-      "winRate": 7.8,
-      "games": 51159,
-      "units": [
-        {
-          "id": "DA_Pyke19",
-          "star": 1,
-          "items": [
-            "DA_Bloodthirster",
-            "DA_EdgeOfNight",
-            "DA_SteraksGage"
-          ]
-        },
-        {
-          "id": "DA_Vayne19",
-          "star": 2,
-          "items": [
-            "DA_GuinsoosRageblade",
-            "DA_KrakensFury",
-            "DA_LastWhisper"
-          ]
-        },
-        {
-          "id": "DA_Yorick19",
-          "star": 2,
-          "items": [
-            "DA_GargoyleStoneplate",
-            "DA_SunfireCape",
-            "DA_WarmogsArmor"
-          ]
-        },
-        {
-          "id": "DA_Locke19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Swain19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Camille19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Gnar19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Olaf19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Varus19",
-          "star": 2,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_DemonVision19",
-          "name": "摇滚恶魔",
-          "count": 7,
-          "need": 7,
-          "style": 4
-        },
-        {
-          "id": "DA_Pentakill19",
-          "name": "五杀乐队",
-          "count": 3,
-          "need": 3,
-          "style": 1
-        },
-        {
-          "id": "DA_Trickshot19",
-          "name": "花式射手",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Juggernaut19",
-          "name": "主宰",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_DemonVision19": 7,
-        "DA_Pentakill19": 3
-      }
-    },
-    {
-      "id": "mt_429028",
-      "title": "7海之歌 扎克",
-      "tier": "A",
-      "archetype": "fast_high",
-      "archetypeLabel": "高费升级",
-      "tempo": "速9成型",
-      "level": 9,
-      "mode": "fast8",
-      "avgPlace": 4.25,
-      "top4Rate": 55.6,
-      "winRate": 10.3,
-      "games": 68131,
-      "units": [
-        {
-          "id": "DA_Taliyah19",
-          "star": 1,
-          "items": [
-            "DA_JeweledGauntlet",
-            "DA_RabadonsDeathcap",
-            "DA_SpearOfShojin"
-          ]
-        },
-        {
-          "id": "DA_Graves19",
-          "star": 2,
-          "items": [
-            "DA_Bloodthirster",
-            "DA_SteraksGage",
-            "DA_TitansResolve"
-          ]
-        },
-        {
-          "id": "DA_Zac19",
-          "star": 2,
-          "items": [
-            "DA_GargoyleStoneplate",
-            "DA_SunfireCape",
-            "DA_WarmogsArmor"
-          ]
-        },
-        {
-          "id": "DA_Yuumi19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Syndra19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Illaoi19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Renekton19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Taric19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Zoe19",
-          "star": 2,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_OceanSong19",
-          "name": "海之歌",
-          "count": 7,
-          "need": 7,
-          "style": 4
-        },
-        {
-          "id": "DA_Encore19",
-          "name": "安可",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Illbeats19",
-          "name": "大触打击乐",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Frontman19",
-          "name": "主唱",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Juggernaut19",
-          "name": "主宰",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_OceanSong19": 7
-      }
-    },
-    {
       "id": "mt_429018",
-      "title": "主唱 希瓦娜",
-      "tier": "A",
+      "title": "3爵士乐 希瓦娜",
+      "tier": "S",
       "archetype": "flex_web",
       "archetypeLabel": "多羁绊拼多多",
       "tempo": "速9成型",
       "level": 9,
       "mode": "fast8",
-      "avgPlace": 4.16,
-      "top4Rate": 55.9,
-      "winRate": 13.6,
-      "games": 15418,
+      "avgPlace": 3.76,
+      "top4Rate": 63.5,
+      "winRate": 18.6,
+      "games": 50233,
       "units": [
         {
           "id": "DA_Jinx19",
@@ -1276,6 +220,1152 @@ window.META_COMPS = {
       }
     },
     {
+      "id": "mt_429003",
+      "title": "4古典乐 锤石",
+      "tier": "S",
+      "archetype": "flex_web",
+      "archetypeLabel": "多羁绊拼多多",
+      "tempo": "速9成型",
+      "level": 9,
+      "mode": "fast8",
+      "avgPlace": 3.88,
+      "top4Rate": 60.1,
+      "winRate": 21.7,
+      "games": 268154,
+      "units": [
+        {
+          "id": "DA_Vladimir19",
+          "star": 1,
+          "items": [
+            "DA_BlueBuff",
+            "DA_JeweledGauntlet",
+            "DA_Morellonomicon"
+          ]
+        },
+        {
+          "id": "DA_Jhin19",
+          "star": 2,
+          "items": [
+            "DA_Deathblade",
+            "DA_InfinityEdge",
+            "DA_LastWhisper"
+          ]
+        },
+        {
+          "id": "DA_Thresh19",
+          "star": 2,
+          "items": [
+            "DA_Crownguard",
+            "DA_GargoyleStoneplate",
+            "DA_SpiritVisage"
+          ]
+        },
+        {
+          "id": "DA_Smeech19",
+          "star": 1,
+          "items": []
+        },
+        {
+          "id": "DA_Mel19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Galio19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_KSante19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Lucian19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Nasus19",
+          "star": 2,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_Virtuosos19",
+          "name": "古典乐",
+          "count": 4,
+          "need": 4,
+          "style": 2
+        },
+        {
+          "id": "DA_Jazz19",
+          "name": "爵士乐",
+          "count": 3,
+          "need": 3,
+          "style": 2
+        },
+        {
+          "id": "DA_Encore19",
+          "name": "安可",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Arcanist19",
+          "name": "法师",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Bodyguard19",
+          "name": "护卫",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_Virtuosos19": 4,
+        "DA_Jazz19": 3
+      }
+    },
+    {
+      "id": "mt_429008",
+      "title": "5高能流行 可酷伯",
+      "tier": "A",
+      "archetype": "reroll",
+      "archetypeLabel": "低费赌狗",
+      "tempo": "5级慢D追三",
+      "level": 9,
+      "mode": "reroll",
+      "avgPlace": 4.07,
+      "top4Rate": 58,
+      "winRate": 17.7,
+      "games": 201877,
+      "units": [
+        {
+          "id": "DA_Teemo19",
+          "star": 1,
+          "items": [
+            "DA_JeweledGauntlet",
+            "DA_SpearOfShojin",
+            "DA_StrikersFlail"
+          ]
+        },
+        {
+          "id": "DA_Kobuko19",
+          "star": 3,
+          "items": [
+            "DA_GargoyleStoneplate",
+            "DA_GargoyleStoneplate",
+            "DA_SpiritVisage"
+          ]
+        },
+        {
+          "id": "DA_Ziggs19",
+          "star": 3,
+          "items": [
+            "DA_GuinsoosRageblade",
+            "DA_JeweledGauntlet",
+            "DA_StrikersFlail"
+          ]
+        },
+        {
+          "id": "DA_Shyvana19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Swain19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Lulu19",
+          "star": 3,
+          "items": []
+        },
+        {
+          "id": "DA_Tristana19",
+          "star": 3,
+          "items": []
+        },
+        {
+          "id": "DA_Elise19",
+          "star": 3,
+          "items": []
+        },
+        {
+          "id": "DA_Yunara19",
+          "star": 3,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_GlitterBomb19",
+          "name": "高能流行",
+          "count": 5,
+          "need": 5,
+          "style": 4
+        },
+        {
+          "id": "DA_Frontman19",
+          "name": "主唱",
+          "count": 4,
+          "need": 4,
+          "style": 2
+        },
+        {
+          "id": "DA_IonicSpark19",
+          "name": "离子火花",
+          "count": 3,
+          "need": 3,
+          "style": 1
+        },
+        {
+          "id": "DA_Arcanist19",
+          "name": "法师",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Swiftstriker19",
+          "name": "迅击鼓手",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_GlitterBomb19": 5,
+        "DA_Frontman19": 4
+      }
+    },
+    {
+      "id": "mt_429002",
+      "title": "6舞者 佛耶戈",
+      "tier": "A",
+      "archetype": "reroll",
+      "archetypeLabel": "低费赌狗",
+      "tempo": "7级慢D追三",
+      "level": 7,
+      "mode": "reroll",
+      "avgPlace": 4.01,
+      "top4Rate": 59.5,
+      "winRate": 14.2,
+      "games": 64577,
+      "units": [
+        {
+          "id": "DA_Amumu19",
+          "star": 3,
+          "items": [
+            "DA_Evenshroud",
+            "DA_GargoyleStoneplate",
+            "DA_SunfireCape"
+          ]
+        },
+        {
+          "id": "DA_Briar19",
+          "star": 3,
+          "items": [
+            "DA_Bloodthirster",
+            "DA_SteraksGage",
+            "DA_TitansResolve"
+          ]
+        },
+        {
+          "id": "DA_Viego19",
+          "star": 3,
+          "items": [
+            "DA_EdgeOfNight",
+            "DA_HandOfJustice",
+            "DA_InfinityEdge"
+          ]
+        },
+        {
+          "id": "DA_Yasuo19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Yone19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Camille19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Kayn19",
+          "star": 2,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_Mosher19",
+          "name": "舞者",
+          "count": 6,
+          "need": 6,
+          "style": 4
+        },
+        {
+          "id": "DA_Heartsteel19",
+          "name": "心之钢",
+          "count": 2,
+          "need": 1,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_Mosher19": 6
+      }
+    },
+    {
+      "id": "mt_429005",
+      "title": "7海之歌 雷克顿",
+      "tier": "A",
+      "archetype": "reroll",
+      "archetypeLabel": "低费赌狗",
+      "tempo": "6级慢D追三",
+      "level": 8,
+      "mode": "reroll",
+      "avgPlace": 3.98,
+      "top4Rate": 62.9,
+      "winRate": 8.9,
+      "games": 12847,
+      "units": [
+        {
+          "id": "DA_Graves19",
+          "star": 2,
+          "items": [
+            "DA_HandOfJustice",
+            "DA_InfinityEdge",
+            "DA_LastWhisper"
+          ]
+        },
+        {
+          "id": "DA_Zac19",
+          "star": 2,
+          "items": [
+            "DA_GargoyleStoneplate",
+            "DA_SpiritVisage",
+            "DA_SunfireCape"
+          ]
+        },
+        {
+          "id": "DA_Renekton19",
+          "star": 3,
+          "items": [
+            "DA_Deathblade",
+            "DA_HandOfJustice",
+            "DA_InfinityEdge"
+          ]
+        },
+        {
+          "id": "DA_Swain19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Syndra19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Ashe19",
+          "star": 3,
+          "items": []
+        },
+        {
+          "id": "DA_Taric19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Zoe19",
+          "star": 2,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_OceanSong19",
+          "name": "海之歌",
+          "count": 7,
+          "need": 7,
+          "style": 4
+        },
+        {
+          "id": "DA_Arcanist19",
+          "name": "法师",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Frontman19",
+          "name": "主唱",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Juggernaut19",
+          "name": "主宰",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_OceanSong19": 7
+      }
+    },
+    {
+      "id": "mt_429000",
+      "title": "3心之钢 伊泽瑞尔",
+      "tier": "A",
+      "archetype": "reroll",
+      "archetypeLabel": "低费赌狗",
+      "tempo": "6级慢D追三",
+      "level": 8,
+      "mode": "reroll",
+      "avgPlace": 4.07,
+      "top4Rate": 59.1,
+      "winRate": 14.4,
+      "games": 74825,
+      "units": [
+        {
+          "id": "DA_Ezreal19",
+          "star": 3,
+          "items": [
+            "DA_BlueBuff",
+            "DA_InfinityEdge",
+            "DA_StrikersFlail"
+          ]
+        },
+        {
+          "id": "DA_Lucian19",
+          "star": 3,
+          "items": [
+            "DA_LastWhisper",
+            "DA_RedBuff",
+            "DA_SpearOfShojin"
+          ]
+        },
+        {
+          "id": "DA_Nasus19",
+          "star": 3,
+          "items": [
+            "DA_Crownguard",
+            "DA_GargoyleStoneplate",
+            "DA_WarmogsArmor"
+          ]
+        },
+        {
+          "id": "DA_Jhin19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Yuumi19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Galio19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_KSante19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Sett19",
+          "star": 2,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_Encore19",
+          "name": "安可",
+          "count": 4,
+          "need": 4,
+          "style": 4
+        },
+        {
+          "id": "DA_Heartsteel19",
+          "name": "心之钢",
+          "count": 3,
+          "need": 3,
+          "style": 2
+        },
+        {
+          "id": "DA_Virtuosos19",
+          "name": "古典乐",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Bodyguard19",
+          "name": "护卫",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Jazz19",
+          "name": "爵士乐",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_Encore19": 4,
+        "DA_Heartsteel19": 3
+      }
+    },
+    {
+      "id": "mt_429012",
+      "title": "7离子火花 金克丝",
+      "tier": "A",
+      "archetype": "vertical",
+      "archetypeLabel": "垂直高羁绊",
+      "tempo": "8级运营",
+      "level": 9,
+      "mode": "auto",
+      "avgPlace": 4.15,
+      "top4Rate": 56.1,
+      "winRate": 13.3,
+      "games": 212530,
+      "units": [
+        {
+          "id": "DA_Gwen19",
+          "star": 1,
+          "items": [
+            "DA_HandOfJustice",
+            "DA_JeweledGauntlet",
+            "DA_StrikersFlail"
+          ]
+        },
+        {
+          "id": "DA_Jinx19",
+          "star": 2,
+          "items": [
+            "DA_GuinsoosRageblade",
+            "DA_InfinityEdge",
+            "DA_LastWhisper"
+          ]
+        },
+        {
+          "id": "DA_Shyvana19",
+          "star": 2,
+          "items": [
+            "DA_GargoyleStoneplate",
+            "DA_SpiritVisage",
+            "DA_WarmogsArmor"
+          ]
+        },
+        {
+          "id": "DA_MissFortune19",
+          "star": 1,
+          "items": []
+        },
+        {
+          "id": "DA_Aurora19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Leona19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Tibbers19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Annie19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Elise19",
+          "star": 2,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_IonicSpark19",
+          "name": "离子火花",
+          "count": 7,
+          "need": 7,
+          "style": 4
+        },
+        {
+          "id": "DA_Bodyguard19",
+          "name": "护卫",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Hitmaker19",
+          "name": "制作人",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Frontman19",
+          "name": "主唱",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_IonicSpark19": 7
+      }
+    },
+    {
+      "id": "mt_429001",
+      "title": "5天才 玛尔扎哈",
+      "tier": "A",
+      "archetype": "reroll",
+      "archetypeLabel": "低费赌狗",
+      "tempo": "7级慢D追三",
+      "level": 8,
+      "mode": "reroll",
+      "avgPlace": 4.08,
+      "top4Rate": 58.2,
+      "winRate": 12.7,
+      "games": 46859,
+      "units": [
+        {
+          "id": "DA_Alune19",
+          "star": 2,
+          "items": [
+            "DA_Morellonomicon",
+            "DA_SpearOfShojin",
+            "DA_VoidStaff"
+          ]
+        },
+        {
+          "id": "DA_Ekko19",
+          "star": 3,
+          "items": [
+            "DA_Crownguard",
+            "DA_GargoyleStoneplate",
+            "DA_SpiritVisage"
+          ]
+        },
+        {
+          "id": "DA_Malzahar19",
+          "star": 3,
+          "items": [
+            "DA_HextechGunblade",
+            "DA_JeweledGauntlet",
+            "DA_StrikersFlail"
+          ]
+        },
+        {
+          "id": "DA_BaronNashor19",
+          "star": 1,
+          "items": []
+        },
+        {
+          "id": "DA_Braum19",
+          "star": 3,
+          "items": []
+        },
+        {
+          "id": "DA_Lux19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Neeko19",
+          "star": 2,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_Prodigy19",
+          "name": "天才",
+          "count": 5,
+          "need": 5,
+          "style": 4
+        },
+        {
+          "id": "DA_Juggernaut19",
+          "name": "主宰",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Heartsteel19",
+          "name": "心之钢",
+          "count": 1,
+          "need": 1,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_Prodigy19": 5
+      }
+    },
+    {
+      "id": "mt_429006",
+      "title": "7摇滚恶魔 薇恩",
+      "tier": "A",
+      "archetype": "fast_high",
+      "archetypeLabel": "高费升级",
+      "tempo": "速9成型",
+      "level": 9,
+      "mode": "fast8",
+      "avgPlace": 4.13,
+      "top4Rate": 58.9,
+      "winRate": 8.5,
+      "games": 68490,
+      "units": [
+        {
+          "id": "DA_Pyke19",
+          "star": 1,
+          "items": [
+            "DA_Bloodthirster",
+            "DA_EdgeOfNight",
+            "DA_SteraksGage"
+          ]
+        },
+        {
+          "id": "DA_Vayne19",
+          "star": 2,
+          "items": [
+            "DA_GuinsoosRageblade",
+            "DA_KrakensFury",
+            "DA_LastWhisper"
+          ]
+        },
+        {
+          "id": "DA_Yorick19",
+          "star": 2,
+          "items": [
+            "DA_GargoyleStoneplate",
+            "DA_SpiritVisage",
+            "DA_SunfireCape"
+          ]
+        },
+        {
+          "id": "DA_Locke19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Swain19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Camille19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Gnar19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Olaf19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Varus19",
+          "star": 2,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_DemonVision19",
+          "name": "摇滚恶魔",
+          "count": 7,
+          "need": 7,
+          "style": 4
+        },
+        {
+          "id": "DA_Pentakill19",
+          "name": "五杀乐队",
+          "count": 3,
+          "need": 3,
+          "style": 1
+        },
+        {
+          "id": "DA_Trickshot19",
+          "name": "花式射手",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Juggernaut19",
+          "name": "主宰",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_DemonVision19": 7,
+        "DA_Pentakill19": 3
+      }
+    },
+    {
+      "id": "mt_429007",
+      "title": "6护卫 烈娜塔·戈拉斯克",
+      "tier": "A",
+      "archetype": "reroll",
+      "archetypeLabel": "低费赌狗",
+      "tempo": "6级慢D追三",
+      "level": 8,
+      "mode": "reroll",
+      "avgPlace": 4.19,
+      "top4Rate": 57.4,
+      "winRate": 12.8,
+      "games": 85552,
+      "units": [
+        {
+          "id": "DA_Jax19",
+          "star": 3,
+          "items": [
+            "DA_Bloodthirster",
+            "DA_SpearOfShojin",
+            "DA_TitansResolve"
+          ]
+        },
+        {
+          "id": "DA_Nasus19",
+          "star": 3,
+          "items": [
+            "DA_IonicSpark",
+            "DA_SunfireCape",
+            "DA_WarmogsArmor"
+          ]
+        },
+        {
+          "id": "DA_RenataGlasc19",
+          "star": 3,
+          "items": [
+            "DA_ArchangelsStaff",
+            "DA_BlueBuff",
+            "DA_HextechGunblade"
+          ]
+        },
+        {
+          "id": "DA_Garen19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Leona19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_KSante19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Tibbers19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Lillia19",
+          "star": 2,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_Bodyguard19",
+          "name": "护卫",
+          "count": 6,
+          "need": 6,
+          "style": 4
+        },
+        {
+          "id": "DA_KDA19",
+          "name": "K/DA",
+          "count": 4,
+          "need": 3,
+          "style": 1
+        },
+        {
+          "id": "DA_Choreographer19",
+          "name": "编舞师",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Virtuosos19",
+          "name": "古典乐",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Heartsteel19",
+          "name": "心之钢",
+          "count": 1,
+          "need": 1,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_Bodyguard19": 6,
+        "DA_KDA19": 3
+      }
+    },
+    {
+      "id": "mt_429028",
+      "title": "7海之歌 扎克",
+      "tier": "A",
+      "archetype": "fast_high",
+      "archetypeLabel": "高费升级",
+      "tempo": "速9成型",
+      "level": 9,
+      "mode": "fast8",
+      "avgPlace": 4.21,
+      "top4Rate": 56.4,
+      "winRate": 10.6,
+      "games": 91866,
+      "units": [
+        {
+          "id": "DA_Taliyah19",
+          "star": 1,
+          "items": [
+            "DA_JeweledGauntlet",
+            "DA_RabadonsDeathcap",
+            "DA_SpearOfShojin"
+          ]
+        },
+        {
+          "id": "DA_Graves19",
+          "star": 2,
+          "items": [
+            "DA_Bloodthirster",
+            "DA_SteraksGage",
+            "DA_TitansResolve"
+          ]
+        },
+        {
+          "id": "DA_Zac19",
+          "star": 2,
+          "items": [
+            "DA_GargoyleStoneplate",
+            "DA_SunfireCape",
+            "DA_WarmogsArmor"
+          ]
+        },
+        {
+          "id": "DA_Yuumi19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Syndra19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Illaoi19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Renekton19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Taric19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Zoe19",
+          "star": 2,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_OceanSong19",
+          "name": "海之歌",
+          "count": 7,
+          "need": 7,
+          "style": 4
+        },
+        {
+          "id": "DA_Encore19",
+          "name": "安可",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Illbeats19",
+          "name": "大触打击乐",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Frontman19",
+          "name": "主唱",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Juggernaut19",
+          "name": "主宰",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_OceanSong19": 7
+      }
+    },
+    {
+      "id": "mt_429015",
+      "title": "3经纪人 盖伦",
+      "tier": "A",
+      "archetype": "flex_web",
+      "archetypeLabel": "多羁绊拼多多",
+      "tempo": "8级运营",
+      "level": 8,
+      "mode": "auto",
+      "avgPlace": 4.22,
+      "top4Rate": 54.6,
+      "winRate": 14.8,
+      "games": 43183,
+      "units": [
+        {
+          "id": "DA_Nidalee19",
+          "star": 1,
+          "items": [
+            "DA_HextechGunblade",
+            "DA_JeweledGauntlet",
+            "DA_SpearOfShojin"
+          ]
+        },
+        {
+          "id": "DA_Garen19",
+          "star": 2,
+          "items": [
+            "DA_GargoyleStoneplate",
+            "DA_SteraksGage",
+            "DA_WarmogsArmor"
+          ]
+        },
+        {
+          "id": "DA_Leona19",
+          "star": 2,
+          "items": [
+            "DA_Crownguard",
+            "DA_GargoyleStoneplate",
+            "DA_SteadfastHeart"
+          ]
+        },
+        {
+          "id": "DA_Aphelios19",
+          "star": 1,
+          "items": []
+        },
+        {
+          "id": "DA_DrMundo19",
+          "star": 1,
+          "items": []
+        },
+        {
+          "id": "DA_Nunu19",
+          "star": 1,
+          "items": []
+        },
+        {
+          "id": "DA_Alune19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Sett19",
+          "star": 2,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_Manager19",
+          "name": "经纪人",
+          "count": 3,
+          "need": 3,
+          "style": 4
+        },
+        {
+          "id": "DA_Heartsteel19",
+          "name": "心之钢",
+          "count": 3,
+          "need": 3,
+          "style": 2
+        },
+        {
+          "id": "DA_Choreographer19",
+          "name": "编舞师",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Frontman19",
+          "name": "主唱",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_Manager19": 3,
+        "DA_Heartsteel19": 3
+      }
+    },
+    {
       "id": "mt_429010",
       "title": "7离子火花 伊莉丝",
       "tier": "A",
@@ -1284,11 +1374,20 @@ window.META_COMPS = {
       "tempo": "5级慢D追三",
       "level": 8,
       "mode": "auto",
-      "avgPlace": 4.17,
-      "top4Rate": 59,
+      "avgPlace": 4.19,
+      "top4Rate": 58.7,
       "winRate": 6.7,
-      "games": 8135,
+      "games": 10739,
       "units": [
+        {
+          "id": "DA_Gwen19",
+          "star": 1,
+          "items": [
+            "DA_HextechGunblade",
+            "DA_JeweledGauntlet",
+            "DA_VoidStaff"
+          ]
+        },
         {
           "id": "DA_Jinx19",
           "star": 2,
@@ -1296,15 +1395,6 @@ window.META_COMPS = {
             "DA_Deathblade",
             "DA_GuinsoosRageblade",
             "DA_InfinityEdge"
-          ]
-        },
-        {
-          "id": "DA_Shyvana19",
-          "star": 2,
-          "items": [
-            "DA_Crownguard",
-            "DA_GargoyleStoneplate",
-            "DA_SpiritVisage"
           ]
         },
         {
@@ -1317,12 +1407,12 @@ window.META_COMPS = {
           ]
         },
         {
-          "id": "DA_Gwen19",
-          "star": 1,
+          "id": "DA_Aurora19",
+          "star": 2,
           "items": []
         },
         {
-          "id": "DA_Aurora19",
+          "id": "DA_Shyvana19",
           "star": 2,
           "items": []
         },
@@ -1378,10 +1468,10 @@ window.META_COMPS = {
       "tempo": "速9成型",
       "level": 9,
       "mode": "fast8",
-      "avgPlace": 4.27,
-      "top4Rate": 53.2,
-      "winRate": 15,
-      "games": 30585,
+      "avgPlace": 4.24,
+      "top4Rate": 53.7,
+      "winRate": 15.1,
+      "games": 40526,
       "units": [
         {
           "id": "DA_Smeech19",
@@ -1484,290 +1574,6 @@ window.META_COMPS = {
       }
     },
     {
-      "id": "mt_429025",
-      "title": "15K/DA 阿卡丽·K/DA",
-      "tier": "B",
-      "archetype": "reroll",
-      "archetypeLabel": "低费赌狗",
-      "tempo": "低费追三",
-      "level": 8,
-      "mode": "reroll",
-      "avgPlace": 4.33,
-      "top4Rate": 53.1,
-      "winRate": 12.9,
-      "games": 70074,
-      "units": [
-        {
-          "id": "DA_AkaliKDA19",
-          "star": 1,
-          "items": [
-            "DA_Bloodthirster",
-            "DA_EdgeOfNight",
-            "DA_RedBuff"
-          ]
-        },
-        {
-          "id": "DA_Leona19",
-          "star": 2,
-          "items": [
-            "DA_Crownguard",
-            "DA_GargoyleStoneplate",
-            "DA_WarmogsArmor"
-          ]
-        },
-        {
-          "id": "DA_Kaisa19",
-          "star": 2,
-          "items": [
-            "DA_Deathblade",
-            "DA_GuinsoosRageblade",
-            "DA_KrakensFury"
-          ]
-        },
-        {
-          "id": "DA_Evelynn19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Gragas19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Lillia19",
-          "star": 3,
-          "items": []
-        },
-        {
-          "id": "DA_Neeko19",
-          "star": 3,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_KDA19",
-          "name": "K/DA",
-          "count": 15,
-          "need": 15,
-          "style": 4
-        },
-        {
-          "id": "DA_Bodyguard19",
-          "name": "护卫",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_KDA19": 15
-      }
-    },
-    {
-      "id": "mt_429015",
-      "title": "3经纪人 盖伦",
-      "tier": "A",
-      "archetype": "flex_web",
-      "archetypeLabel": "多羁绊拼多多",
-      "tempo": "8级运营",
-      "level": 8,
-      "mode": "auto",
-      "avgPlace": 4.29,
-      "top4Rate": 53.5,
-      "winRate": 13.5,
-      "games": 27884,
-      "units": [
-        {
-          "id": "DA_Nidalee19",
-          "star": 1,
-          "items": [
-            "DA_GiantSlayer",
-            "DA_HandOfJustice",
-            "DA_JeweledGauntlet"
-          ]
-        },
-        {
-          "id": "DA_Garen19",
-          "star": 2,
-          "items": [
-            "DA_GargoyleStoneplate",
-            "DA_SpiritVisage",
-            "DA_WarmogsArmor"
-          ]
-        },
-        {
-          "id": "DA_Leona19",
-          "star": 2,
-          "items": [
-            "DA_Crownguard",
-            "DA_GargoyleStoneplate",
-            "DA_SpiritVisage"
-          ]
-        },
-        {
-          "id": "DA_Aphelios19",
-          "star": 1,
-          "items": []
-        },
-        {
-          "id": "DA_DrMundo19",
-          "star": 1,
-          "items": []
-        },
-        {
-          "id": "DA_Nunu19",
-          "star": 1,
-          "items": []
-        },
-        {
-          "id": "DA_Alune19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Sett19",
-          "star": 2,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_Manager19",
-          "name": "经纪人",
-          "count": 3,
-          "need": 3,
-          "style": 4
-        },
-        {
-          "id": "DA_Heartsteel19",
-          "name": "心之钢",
-          "count": 3,
-          "need": 3,
-          "style": 2
-        },
-        {
-          "id": "DA_Choreographer19",
-          "name": "编舞师",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Frontman19",
-          "name": "主唱",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_Manager19": 3,
-        "DA_Heartsteel19": 3
-      }
-    },
-    {
-      "id": "mt_429013",
-      "title": "5非主流 格雷福斯",
-      "tier": "A",
-      "archetype": "fast_high",
-      "archetypeLabel": "高费升级",
-      "tempo": "速9成型",
-      "level": 9,
-      "mode": "fast8",
-      "avgPlace": 4.29,
-      "top4Rate": 53.3,
-      "winRate": 15.7,
-      "games": 21367,
-      "units": [
-        {
-          "id": "DA_Pyke19",
-          "star": 1,
-          "items": [
-            "DA_Deathblade",
-            "DA_EdgeOfNight",
-            "DA_HandOfJustice"
-          ]
-        },
-        {
-          "id": "DA_Graves19",
-          "star": 2,
-          "items": [
-            "DA_HandOfJustice",
-            "DA_LastWhisper",
-            "DA_StrikersFlail"
-          ]
-        },
-        {
-          "id": "DA_Zac19",
-          "star": 2,
-          "items": [
-            "DA_GargoyleStoneplate",
-            "DA_SpiritVisage",
-            "DA_WarmogsArmor"
-          ]
-        },
-        {
-          "id": "DA_Vi19",
-          "star": 1,
-          "items": []
-        },
-        {
-          "id": "DA_Aurora19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Yorick19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Evelynn19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Qiyana19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Taric19",
-          "star": 2,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_Renegade19",
-          "name": "非主流",
-          "count": 5,
-          "need": 5,
-          "style": 4
-        },
-        {
-          "id": "DA_Juggernaut19",
-          "name": "主宰",
-          "count": 4,
-          "need": 4,
-          "style": 2
-        },
-        {
-          "id": "DA_OceanSong19",
-          "name": "海之歌",
-          "count": 3,
-          "need": 3,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_Renegade19": 5,
-        "DA_Juggernaut19": 4
-      }
-    },
-    {
       "id": "mt_429011",
       "title": "4主唱 雷克顿",
       "tier": "A",
@@ -1776,18 +1582,18 @@ window.META_COMPS = {
       "tempo": "6级慢D追三",
       "level": 8,
       "mode": "reroll",
-      "avgPlace": 4.3,
-      "top4Rate": 57,
-      "winRate": 4.4,
-      "games": 9285,
+      "avgPlace": 4.28,
+      "top4Rate": 57.3,
+      "winRate": 4.8,
+      "games": 13519,
       "units": [
         {
           "id": "DA_Zac19",
           "star": 2,
           "items": [
             "DA_GargoyleStoneplate",
-            "DA_GargoyleStoneplate",
-            "DA_SpiritVisage"
+            "DA_SpiritVisage",
+            "DA_WarmogsArmor"
           ]
         },
         {
@@ -1870,6 +1676,292 @@ window.META_COMPS = {
       }
     },
     {
+      "id": "mt_429027",
+      "title": "3花式射手 德莱文",
+      "tier": "A",
+      "archetype": "reroll",
+      "archetypeLabel": "低费赌狗",
+      "tempo": "7级慢D追三",
+      "level": 7,
+      "mode": "reroll",
+      "avgPlace": 4.29,
+      "top4Rate": 53.5,
+      "winRate": 13.6,
+      "games": 32620,
+      "units": [
+        {
+          "id": "DA_Braum19",
+          "star": 3,
+          "items": [
+            "DA_Crownguard",
+            "DA_GargoyleStoneplate",
+            "DA_WarmogsArmor"
+          ]
+        },
+        {
+          "id": "DA_Draven19",
+          "star": 3,
+          "items": [
+            "DA_BlueBuff",
+            "DA_InfinityEdge",
+            "DA_LastWhisper"
+          ]
+        },
+        {
+          "id": "DA_Kaisa19",
+          "star": 3,
+          "items": [
+            "DA_GuinsoosRageblade",
+            "DA_KrakensFury",
+            "DA_RedBuff"
+          ]
+        },
+        {
+          "id": "DA_Leona19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Gragas19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Samira19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Lillia19",
+          "star": 2,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_KDA19",
+          "name": "K/DA",
+          "count": 9,
+          "need": 7,
+          "style": 2
+        },
+        {
+          "id": "DA_Trickshot19",
+          "name": "花式射手",
+          "count": 3,
+          "need": 3,
+          "style": 2
+        },
+        {
+          "id": "DA_Illbeats19",
+          "name": "大触打击乐",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Bodyguard19",
+          "name": "护卫",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        },
+        {
+          "id": "DA_Juggernaut19",
+          "name": "主宰",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_KDA19": 7,
+        "DA_Trickshot19": 3
+      }
+    },
+    {
+      "id": "mt_429025",
+      "title": "15K/DA 阿卡丽·K/DA",
+      "tier": "B",
+      "archetype": "reroll",
+      "archetypeLabel": "低费赌狗",
+      "tempo": "低费追三",
+      "level": 8,
+      "mode": "reroll",
+      "avgPlace": 4.35,
+      "top4Rate": 52.5,
+      "winRate": 13,
+      "games": 88041,
+      "units": [
+        {
+          "id": "DA_AkaliKDA19",
+          "star": 1,
+          "items": [
+            "DA_EdgeOfNight",
+            "DA_InfinityEdge",
+            "DA_RedBuff"
+          ]
+        },
+        {
+          "id": "DA_Leona19",
+          "star": 2,
+          "items": [
+            "DA_GargoyleStoneplate",
+            "DA_SpiritVisage",
+            "DA_WarmogsArmor"
+          ]
+        },
+        {
+          "id": "DA_Kaisa19",
+          "star": 2,
+          "items": [
+            "DA_Deathblade",
+            "DA_GuinsoosRageblade",
+            "DA_KrakensFury"
+          ]
+        },
+        {
+          "id": "DA_Evelynn19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Gragas19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Lillia19",
+          "star": 3,
+          "items": []
+        },
+        {
+          "id": "DA_Neeko19",
+          "star": 3,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_KDA19",
+          "name": "K/DA",
+          "count": 15,
+          "need": 15,
+          "style": 4
+        },
+        {
+          "id": "DA_Bodyguard19",
+          "name": "护卫",
+          "count": 2,
+          "need": 2,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_KDA19": 15
+      }
+    },
+    {
+      "id": "mt_429013",
+      "title": "5非主流 格雷福斯",
+      "tier": "A",
+      "archetype": "fast_high",
+      "archetypeLabel": "高费升级",
+      "tempo": "速9成型",
+      "level": 9,
+      "mode": "fast8",
+      "avgPlace": 4.29,
+      "top4Rate": 53.2,
+      "winRate": 15.4,
+      "games": 26320,
+      "units": [
+        {
+          "id": "DA_Aurora19",
+          "star": 2,
+          "items": [
+            "DA_BlueBuff",
+            "DA_RabadonsDeathcap",
+            "DA_RedBuff"
+          ]
+        },
+        {
+          "id": "DA_Graves19",
+          "star": 2,
+          "items": [
+            "DA_Deathblade",
+            "DA_EdgeOfNight",
+            "DA_StrikersFlail"
+          ]
+        },
+        {
+          "id": "DA_Zac19",
+          "star": 2,
+          "items": [
+            "DA_GargoyleStoneplate",
+            "DA_SpiritVisage",
+            "DA_WarmogsArmor"
+          ]
+        },
+        {
+          "id": "DA_Pyke19",
+          "star": 1,
+          "items": []
+        },
+        {
+          "id": "DA_Vi19",
+          "star": 1,
+          "items": []
+        },
+        {
+          "id": "DA_Yorick19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Evelynn19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Qiyana19",
+          "star": 2,
+          "items": []
+        },
+        {
+          "id": "DA_Taric19",
+          "star": 2,
+          "items": []
+        }
+      ],
+      "traits": [
+        {
+          "id": "DA_Renegade19",
+          "name": "非主流",
+          "count": 5,
+          "need": 5,
+          "style": 4
+        },
+        {
+          "id": "DA_Juggernaut19",
+          "name": "主宰",
+          "count": 4,
+          "need": 4,
+          "style": 2
+        },
+        {
+          "id": "DA_OceanSong19",
+          "name": "海之歌",
+          "count": 3,
+          "need": 3,
+          "style": 1
+        }
+      ],
+      "traitTargets": {
+        "DA_Renegade19": 5,
+        "DA_Juggernaut19": 4
+      }
+    },
+    {
       "id": "mt_429016",
       "title": "4主宰 格雷福斯",
       "tier": "B",
@@ -1878,10 +1970,10 @@ window.META_COMPS = {
       "tempo": "8级运营",
       "level": 8,
       "mode": "auto",
-      "avgPlace": 4.32,
-      "top4Rate": 53.9,
-      "winRate": 10.9,
-      "games": 22224,
+      "avgPlace": 4.31,
+      "top4Rate": 54.2,
+      "winRate": 10.8,
+      "games": 26675,
       "units": [
         {
           "id": "DA_Pyke19",
@@ -1896,8 +1988,8 @@ window.META_COMPS = {
           "id": "DA_Graves19",
           "star": 2,
           "items": [
-            "DA_EdgeOfNight",
             "DA_HandOfJustice",
+            "DA_StrikersFlail",
             "DA_Swiftstriker19_Emblem"
           ]
         },
@@ -1907,7 +1999,7 @@ window.META_COMPS = {
           "items": [
             "DA_GargoyleStoneplate",
             "DA_ProtectorsVow",
-            "DA_SpiritVisage"
+            "DA_WarmogsArmor"
           ]
         },
         {
@@ -1987,18 +2079,18 @@ window.META_COMPS = {
       "tempo": "5级慢D追三",
       "level": 7,
       "mode": "reroll",
-      "avgPlace": 4.39,
-      "top4Rate": 52.1,
+      "avgPlace": 4.41,
+      "top4Rate": 51.7,
       "winRate": 15.7,
-      "games": 67084,
+      "games": 89235,
       "units": [
         {
           "id": "DA_AkaliKDA19",
           "star": 1,
           "items": [
-            "DA_Bloodthirster",
             "DA_EdgeOfNight",
-            "DA_InfinityEdge"
+            "DA_HandOfJustice",
+            "DA_RedBuff"
           ]
         },
         {
@@ -2007,7 +2099,7 @@ window.META_COMPS = {
           "items": [
             "DA_Crownguard",
             "DA_GargoyleStoneplate",
-            "DA_SpiritVisage"
+            "DA_WarmogsArmor"
           ]
         },
         {
@@ -2058,118 +2150,6 @@ window.META_COMPS = {
       ],
       "traitTargets": {
         "DA_KDA19": 15
-      }
-    },
-    {
-      "id": "mt_429021",
-      "title": "4国风 霞",
-      "tier": "B",
-      "archetype": "fast_high",
-      "archetypeLabel": "高费升级",
-      "tempo": "速9成型",
-      "level": 9,
-      "mode": "fast8",
-      "avgPlace": 4.45,
-      "top4Rate": 48.1,
-      "winRate": 15.9,
-      "games": 111252,
-      "units": [
-        {
-          "id": "DA_LeeSin19",
-          "star": 1,
-          "items": [
-            "DA_Bloodthirster",
-            "DA_EdgeOfNight"
-          ]
-        },
-        {
-          "id": "DA_Wukong19",
-          "star": 2,
-          "items": [
-            "DA_GargoyleStoneplate",
-            "DA_SpiritVisage",
-            "DA_WarmogsArmor"
-          ]
-        },
-        {
-          "id": "DA_Xayah19",
-          "star": 2,
-          "items": [
-            "DA_InfinityEdge",
-            "DA_LastWhisper"
-          ]
-        },
-        {
-          "id": "DA_DrMundo19",
-          "star": 1,
-          "items": []
-        },
-        {
-          "id": "DA_Janna19",
-          "star": 1,
-          "items": []
-        },
-        {
-          "id": "DA_MissFortune19",
-          "star": 1,
-          "items": []
-        },
-        {
-          "id": "DA_Alune19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_Leona19",
-          "star": 2,
-          "items": []
-        },
-        {
-          "id": "DA_KSante19",
-          "star": 2,
-          "items": []
-        }
-      ],
-      "traits": [
-        {
-          "id": "DA_Heavenscale19",
-          "name": "国风",
-          "count": 4,
-          "need": 4,
-          "style": 4
-        },
-        {
-          "id": "DA_Manager19",
-          "name": "经纪人",
-          "count": 3,
-          "need": 3,
-          "style": 4
-        },
-        {
-          "id": "DA_Bodyguard19",
-          "name": "护卫",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Prodigy19",
-          "name": "天才",
-          "count": 2,
-          "need": 2,
-          "style": 1
-        },
-        {
-          "id": "DA_Heartsteel19",
-          "name": "心之钢",
-          "count": 2,
-          "need": 1,
-          "style": 1
-        }
-      ],
-      "traitTargets": {
-        "DA_Heavenscale19": 4,
-        "DA_Manager19": 3
       }
     }
   ]
